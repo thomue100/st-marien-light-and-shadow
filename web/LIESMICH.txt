@@ -1,0 +1,30 @@
+St. Marien zu Lübeck – Lichtmodell, Webfassung
+===============================================
+
+Inhalt
+  index.html     Startseite der Anwendung
+  css/, js/      Gestaltung und Programm
+  vendor/        3D-Bibliothek three.js (r128), lokal
+  fonts/         Schriften, lokal (keine Verbindung zu Google)
+  data/          Umgebung, Uhrendaten, Liste der Glasmalereien
+  img/           Glasmalereien und Bilder der Astronomischen Uhr
+
+Veröffentlichen
+  1. Den ganzen Ordner unverändert auf den Webserver laden, z. B. nach
+     https://www.<ihre-domain>/lichtmodell/
+  2. Aufruf: https://www.<ihre-domain>/lichtmodell/
+  3. Einbetten in eine bestehende Seite (z. B. im CMS als HTML-Block):
+     <iframe src="/lichtmodell/" style="width:100%;height:80vh;border:0"
+             allow="fullscreen; web-share; clipboard-write" title="St. Marien Lichtmodell"></iframe>
+
+Wichtig
+  - Die Webfassung braucht einen Webserver; per Doppelklick von der Festplatte
+    lädt der Browser die Daten nicht. Dafür gibt es die Offline-Fassung
+    (eine einzige Datei).
+  - Die Anwendung stellt keine Verbindungen zu fremden Servern her und
+    setzt keine Cookies. Im Browser gespeichert werden nur Sprache,
+    Rundgang-gesehen und Tagesdiagramm auf/zu (localStorage).
+  - Bildrechte der Fenster- und Uhrfotos vor der Veröffentlichung klären.
+  - Die Datei .htaccess (für Apache-Server) schaltet Komprimierung und
+    Zwischenspeichern ein; data/umgebung.json wird dadurch statt 1,1 MB
+    nur etwa 0,5 MB übertragen. Auf anderen Servern kann sie entfallen.
