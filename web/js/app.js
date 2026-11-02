@@ -89,11 +89,15 @@ const MASK_GLSL=(function(){
 
 /* ---------------- Zeit & Sonne ---------------- */
 function lastSundayUtc(y,m){ const d=new Date(Date.UTC(y,m+1,0)); d.setUTCDate(d.getUTCDate()-d.getUTCDay()); return Date.UTC(y,m,d.getUTCDate(),1); }
-function berlinOffsetMin(u){ const y=new Date(u).getUTCFullYear(); return (u>=lastSundayUtc(y,2)&&u<lastSundayUtc(y,9))?120:60; }
-function localToUtc(y,m,d,min){ const base=Date.UTC(y,m,d)+min*60000; let u=base-3600000; if(berlinOffsetMin(u)===120){ const u2=base-7200000; if(berlinOffsetMin(u2)===120) u=u2; else u=lastSundayUtc(new Date(u).getUTCFullYear(),2); } return u; }   // 02:00–02:59 am Umstellungstag im März gibt es nicht: alle diese Minuten zeigen den Umstellungsmoment (03:00 MESZ), so läuft die Zeit nie rückwärts
+// Sommerzeit in Deutschland (MESZ), Umstellung jeweils 01:00 UTC: seit 1996 letzter Sonntag im März bis letzter Sonntag im Oktober,
+// 1981–1995 bis zum letzten Sonntag im September, 1980 vom 6. April bis 28. September, davor (ab 1950) keine Sommerzeit
+function dstRange(y){ if(y<1980) return null; if(y===1980) return [Date.UTC(1980,3,6,1),Date.UTC(1980,8,28,1)];
+  return [lastSundayUtc(y,2),lastSundayUtc(y,y<1996?8:9)]; }
+function berlinOffsetMin(u){ const r=dstRange(new Date(u).getUTCFullYear()); return r&&u>=r[0]&&u<r[1]?120:60; }
+function localToUtc(y,m,d,min){ const base=Date.UTC(y,m,d)+min*60000; let u=base-3600000; if(berlinOffsetMin(u)===120){ const u2=base-7200000; if(berlinOffsetMin(u2)===120) u=u2; else u=dstRange(new Date(u).getUTCFullYear())[0]; } return u; }   // 02:00–02:59 am Umstellungstag im März gibt es nicht: alle diese Minuten zeigen den Umstellungsmoment (03:00 MESZ), so läuft die Zeit nie rückwärts
 // Zeitumstellung: Tag der Umstellung erkennen; 02:00–02:59 gibt es im März nicht und im Oktober zweimal (das Modell zeigt dann den zweiten Durchlauf, MEZ)
 function dstInfo(y,m,d,min){ const u=localToUtc(y,m,d,min), off=berlinOffsetMin(u), loc=(u-Date.UTC(y,m,d))/60000+off;   // tatsächliche Ortszeit in Minuten ab Mitternacht
-  const spring=Date.UTC(y,m,d)===Date.UTC(y,2,new Date(lastSundayUtc(y,2)).getUTCDate()), fall=Date.UTC(y,m,d)===Date.UTC(y,9,new Date(lastSundayUtc(y,9)).getUTCDate());
+  const dr=dstRange(y), day0=t=>{ const q=new Date(t); return Date.UTC(q.getUTCFullYear(),q.getUTCMonth(),q.getUTCDate()); }, spring=!!dr&&Date.UTC(y,m,d)===day0(dr[0]), fall=!!dr&&Date.UTC(y,m,d)===day0(dr[1]);
   return {utc:u,off,loc,gap:spring&&min>=120&&min<180,fold:fall&&min>=120&&min<180}; }
 function berlinNow(){ const u=Date.now(); const l=new Date(u+berlinOffsetMin(u)*60000); return {y:l.getUTCFullYear(),m:l.getUTCMonth(),d:l.getUTCDate(),minutes:l.getUTCHours()*60+l.getUTCMinutes()}; }
 function sunPos(ms){
@@ -2064,13 +2068,16 @@ const fmtDeg=v=>dc(v.toFixed(1))+'°';
 const DIRS_DE=['N','NNO','NO','ONO','O','OSO','SO','SSO','S','SSW','SW','WSW','W','WNW','NW','NNW'], DIRS_EN=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
 const dirName=az=>(LANG==='en'?DIRS_EN:DIRS_DE)[Math.round(az/22.5)%16];
 let day={curve:[],rise:null,set:null,maxEl:0,maxT:0,mcurve:[],mrise:null,mset:null,nm0:null,nm1:null,nextFull:null,nextNew:null};
-function computeDay(){
-  const c=[]; let maxEl=-90,maxT=0;
-  for(let mi=0;mi<=1440;mi+=5){ const s=sunPos(localToUtc(state.y,state.m,state.d,mi)); c.push(s); if(s.el>maxEl){maxEl=s.el;maxT=mi;} }
+// Sonnenlauf eines Tages: Höhe alle 5 min, Auf- und Untergang (oberer Rand, mit Refraktion: scheinbare Höhe −0,27°), Höchststand. Minuten ab Mitternacht Ortszeit
+function sunDay(y,m,d){ const c=[]; let maxEl=-90,maxT=0;
+  for(let mi=0;mi<=1440;mi+=5){ const s=sunPos(localToUtc(y,m,d,mi)); c.push(s); if(s.el>maxEl){maxEl=s.el;maxT=mi;} }
   let rise=null,set=null; const TH=-0.27;
   for(let i=1;i<c.length;i++){ const a=c[i-1].el, b=c[i].el;
     if(a<TH&&b>=TH&&rise===null) rise=(i-1)*5+5*(TH-a)/(b-a);
     if(a>=TH&&b<TH) set=(i-1)*5+5*(TH-a)/(b-a); }
+  return {c,rise,set,maxEl,maxT}; }
+function computeDay(){
+  const {c,rise,set,maxEl,maxT}=sunDay(state.y,state.m,state.d);
   const t0=localToUtc(state.y,state.m,state.d,0), t1=localToUtc(state.y,state.m,state.d,1440), mc=[];
   for(let mi=0;mi<=1440;mi+=10) mc.push(moonPos(localToUtc(state.y,state.m,state.d,mi)));
   const mrs=moonRiseSet(t0,t1), nm1=moonPhaseTime(t1,0,-1), nm0=nm1?moonPhaseTime(nm1-3600000,0,-1):null;

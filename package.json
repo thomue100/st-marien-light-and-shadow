@@ -1,18 +1,21 @@
 {
   "name": "st-marien-light-and-shadow",
-  "version": "0.46.0",
+  "version": "0.47.0",
   "private": true,
   "description": "Interaktives 3D-Lichtmodell von St. Marien zu Lübeck: Kirche als Sonnenuhr, Sonnenuhr am Südturm, Astronomische Uhr, Licht und Schatten.",
   "scripts": {
     "build:web": "python3 tools/build_web.py",
     "build:offline": "python3 tools/build_offline.py",
     "build": "npm run build:web && npm run build:offline",
-    "serve": "python3 -m http.server 8000 --directory web"
+    "serve": "python3 -m http.server 8000 --directory web",
+    "test:astro": "node tests/astro/dump.js && python3 tests/astro/check.py"
   },
   "devDependencies": {
-    "three": "0.128.0",
-    "@fontsource/alegreya-sc": "5.3.0",
     "@fontsource/alegreya-sans": "5.3.0",
-    "@fontsource/ibm-plex-mono": "5.3.0"
+    "@fontsource/alegreya-sc": "5.3.0",
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "acorn": "^8.19.0",
+    "acorn-walk": "^8.3.5",
+    "three": "0.128.0"
   }
 }
