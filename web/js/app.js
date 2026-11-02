@@ -90,7 +90,11 @@ const MASK_GLSL=(function(){
 /* ---------------- Zeit & Sonne ---------------- */
 function lastSundayUtc(y,m){ const d=new Date(Date.UTC(y,m+1,0)); d.setUTCDate(d.getUTCDate()-d.getUTCDay()); return Date.UTC(y,m,d.getUTCDate(),1); }
 function berlinOffsetMin(u){ const y=new Date(u).getUTCFullYear(); return (u>=lastSundayUtc(y,2)&&u<lastSundayUtc(y,9))?120:60; }
-function localToUtc(y,m,d,min){ const base=Date.UTC(y,m,d)+min*60000; let u=base-3600000; if(berlinOffsetMin(u)===120){ const u2=base-7200000; if(berlinOffsetMin(u2)===120) u=u2; } return u; }
+function localToUtc(y,m,d,min){ const base=Date.UTC(y,m,d)+min*60000; let u=base-3600000; if(berlinOffsetMin(u)===120){ const u2=base-7200000; if(berlinOffsetMin(u2)===120) u=u2; else u=lastSundayUtc(new Date(u).getUTCFullYear(),2); } return u; }   // 02:00–02:59 am Umstellungstag im März gibt es nicht: alle diese Minuten zeigen den Umstellungsmoment (03:00 MESZ), so läuft die Zeit nie rückwärts
+// Zeitumstellung: Tag der Umstellung erkennen; 02:00–02:59 gibt es im März nicht und im Oktober zweimal (das Modell zeigt dann den zweiten Durchlauf, MEZ)
+function dstInfo(y,m,d,min){ const u=localToUtc(y,m,d,min), off=berlinOffsetMin(u), loc=(u-Date.UTC(y,m,d))/60000+off;   // tatsächliche Ortszeit in Minuten ab Mitternacht
+  const spring=Date.UTC(y,m,d)===Date.UTC(y,2,new Date(lastSundayUtc(y,2)).getUTCDate()), fall=Date.UTC(y,m,d)===Date.UTC(y,9,new Date(lastSundayUtc(y,9)).getUTCDate());
+  return {utc:u,off,loc,gap:spring&&min>=120&&min<180,fold:fall&&min>=120&&min<180}; }
 function berlinNow(){ const u=Date.now(); const l=new Date(u+berlinOffsetMin(u)*60000); return {y:l.getUTCFullYear(),m:l.getUTCMonth(),d:l.getUTCDate(),minutes:l.getUTCHours()*60+l.getUTCMinutes()}; }
 function sunPos(ms){
   const n=ms/86400000+2440587.5-2451545.0;
@@ -1932,7 +1936,7 @@ function fitSky(){
 function panoUniforms(){ const g=panoGeom(), pr=renderer.getPixelRatio(), u=panoMat.uniforms;
   u.uAz.value=PANO.az; u.uElB.value=PANO.elB; u.uKx.value=PANO.kx*pr; u.uKy.value=PANO.ky*pr; u.uYB.value=g.yb*pr; u.uW.value=g.W*pr; u.uAxis.value=state.axis; drawPanoGrid(); }
 // Himmelsrichtungen und Höhenlinien als Overlay
-function drawPanoGrid(){ const svg=$('#panoGrid'); if(!state.pano){ svg.setAttribute('hidden',''); return; } svg.removeAttribute('hidden');
+function drawPanoGrid(){ const svg=$('#panoGrid'); $('#panoNote').hidden=!state.pano; if(!state.pano){ svg.setAttribute('hidden',''); return; } svg.removeAttribute('hidden');
   const g=panoGeom(), X=az=>g.W/2+(((az-PANO.az+540)%360)-180)*PANO.kx, Y=el=>g.H-g.yb-(el-PANO.elB)*PANO.ky;
   svg.setAttribute('viewBox','0 0 '+g.W+' '+g.H); let s='';
   for(const el of [0,30,60]){ const y=Y(el); if(y<0||y>g.H) continue; s+='<line class="'+(el?'el':'hz')+'" x1="0" x2="'+g.W+'" y1="'+y+'" y2="'+y+'"/>'+(el?'<text class="elt" x="8" y="'+(y-4)+'">'+el+'°</text>':''); }
@@ -2112,8 +2116,8 @@ function drawCompassStatic(){
   compass.innerHTML=s;
 }
 function updateReadouts(){
-  const tzName=tzN(berlinOffsetMin(localToUtc(state.y,state.m,state.d,state.minutes)));
-  $('#timeOut').textContent=fmtT(state.minutes); $('#tzName').textContent=tzName;
+  const di=dstInfo(state.y,state.m,state.d,state.minutes), tzName=tzN(di.off);
+  $('#timeOut').textContent=fmtT(di.loc); $('#tzName').textContent=tzName;   // angezeigt wird die tatsächliche Ortszeit des berechneten Zeitpunkts
   $('#time').value=Math.round(state.minutes);
   $('#rEl').textContent=fmtDeg(cur.el);
   $('#rAz').textContent=fmtDeg(cur.az)+' '+dirName(cur.az);
@@ -2137,6 +2141,9 @@ function updateReadouts(){
     nb.textContent=!state.moon?tr('Die Sonne steht unter dem Horizont','The sun is below the horizon'):m.el<=0?pre+tr(' · der Mond steht unter dem Horizont',' · the moon is below the horizon')
       :useMoon&&moonStr>0.03?pre+tr(' · Mondlicht, ',' · moonlight, ')+moonPhaseName(m.elong)+', '+Math.round(m.k*100)+tr(' % beleuchtet',' % lit'):pre+' · '+moonPhaseName(m.elong)+tr(', kaum Mondlicht',', hardly any moonlight'); }
   const et=eclBanner(); if(et){ nb.hidden=false; nb.textContent=et; }
+  const dsi=dstInfo(state.y,state.m,state.d,state.minutes);
+  if(dsi.gap){ nb.hidden=false; nb.textContent=tr('Zeitumstellung: Die Uhr springt von 2 auf 3 Uhr – 2:00 bis 2:59 gibt es heute nicht','Clocks go forward from 2 to 3 am – 2:00 to 2:59 does not exist today'); }
+  else if(dsi.fold){ nb.hidden=false; nb.textContent=tr('Zeitumstellung: 2–3 Uhr gibt es heute zweimal – gezeigt wird der zweite Durchlauf (MEZ)','Clocks go back: 2–3 am occurs twice today – showing the second pass (CET)'); }
 }
 function eclBanner(){
   if(eclObsc>0&&cur.el>-0.5) return (eclS.mag>=1?tr('Totale Sonnenfinsternis','Total solar eclipse'):tr('Partielle Sonnenfinsternis','Partial solar eclipse'))+' · '+Math.round(eclObsc*100)+tr(' % der Sonnenscheibe bedeckt',' % of the sun covered');
@@ -2328,6 +2335,8 @@ function updateClockCard(){
     [tr('Mondphase','Moon phase'),moonPhaseName(st.age/CKR.MC*360),m?moonPhaseName(m.elong):'–']];
   $('#ckCmp').innerHTML=rows.map(r=>'<tr><th scope="row">'+r[0]+'</th><td>'+r[1]+'</td><td'+(r[1]!==r[2]&&r[0]!==rows[0][0]&&r[0]!==rows[2][0]?' class="dif"':'')+'>'+r[2]+'</td></tr>').join('');
   const dt=(st.hrs-woz)*60, dm=ageSky!==null?(st.age-ageSky)*24*60:null;
+  { const r=$('#ckRange'), y0=CK?CK.y0:1911, y1=CK&&CK.cal?CK.y0+CK.cal.length-1:2080, out=!ci;
+    r.hidden=!out; if(out) r.textContent=tr('Die Kalenderscheibe der Uhr ist für '+y0+'–'+y1+' beschriftet. Für '+y+' stehen dort keine Sonntagsbuchstaben und keine Finsternisse; die Zeiger laufen weiter wie gebaut.','The clock’s calendar disk is inscribed for '+y0+'–'+y1+'. For '+y+' it shows no Sunday letters and no eclipses; the hands keep running as built.'); }
   $('#ckNote').textContent=tr('Die Uhr zeigt die gesetzliche Zeit; die wahre Ortszeit (WOZ) der Sonne liegt ','The clock shows civil time; apparent solar time (AST) is ')+ckDiff(dt)+(dt>=0?tr(' dahinter.',' behind.'):tr(' davor.',' ahead.'))
     +(dm!==null?tr(' Der Mond der Uhr ',' The clock’s moon is ')+(Math.abs(dm)<30?tr('stimmt fast genau','almost exact'):ckDiff(dm)+(dm>0?tr(' voraus',' ahead'):tr(' zurück',' behind')))+tr('; Behrens rechnet mit 6940 : 6705 statt mit dem wechselnden wahren Mondlauf.','; Behrens uses a fixed 6940 : 6705 ratio, the real moon’s motion varies.'):'');
   const mc=$('#ckMini'); if(mc&&clk.canvas){ const g=mc.getContext('2d'); g.clearRect(0,0,mc.width,mc.height); g.drawImage(clk.canvas,0,0,mc.width,mc.height); }
@@ -2553,12 +2562,12 @@ async function saveImage(){
   if(state.pano){ try{ const svg=$('#panoGrid').cloneNode(true); svg.setAttribute('xmlns','http://www.w3.org/2000/svg'); svg.setAttribute('width',W); svg.setAttribute('height',H);
       const st=document.createElementNS('http://www.w3.org/2000/svg','style'); st.textContent=PANO_CSS; svg.insertBefore(st,svg.firstChild);
       const img=new Image(); img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(svg)); await img.decode(); g.drawImage(img,0,0,W,H); }catch(e){} }
-  const tzName=tzN(berlinOffsetMin(localToUtc(state.y,state.m,state.d,state.minutes)));
+  const di=dstInfo(state.y,state.m,state.d,state.minutes), tzName=tzN(di.off);
   const dateTxt=LANG==='en'?state.d+' '+MON_EN[state.m]+' '+state.y:pad2(state.d)+'.'+pad2(state.m+1)+'.'+state.y;
   g.fillStyle='#f5f6f3'; g.fillRect(0,H,W,bar); g.fillStyle='#1e1a17'; g.font='700 '+Math.round(17*pr)+'px Georgia, serif'; g.textBaseline='middle';
   g.fillText(tr('St. Marien zu Lübeck – Licht und Schatten',"St. Mary's, Lübeck – Light and Shadow"),Math.round(14*pr),H+bar/2);
   g.font=Math.round(14*pr)+'px "IBM Plex Mono", monospace'; g.textAlign='right'; g.fillStyle='#5e5852';
-  g.fillText(dateTxt+' · '+fmtT(state.minutes)+' '+tzName+' · '+$('#viewTxt').textContent,W-Math.round(14*pr),H+bar/2);
+  g.fillText(dateTxt+' · '+fmtT(di.loc)+' '+tzName+' · '+$('#viewTxt').textContent,W-Math.round(14*pr),H+bar/2);
   const blob=await new Promise(r=>c.toBlob(r,'image/png')); if(!blob){ msg.textContent=tr('Das Bild konnte nicht erstellt werden.','The image could not be created.'); return; }
   const name='St-Marien_'+state.y+'-'+pad2(state.m+1)+'-'+pad2(state.d)+'_'+fmtT(state.minutes).replace(':','')+'.png';
   if(dlNS){ try{ await dlNS.save({filename:name,data:blob}); msg.textContent=tr('Bild gespeichert.','Image saved.'); }

@@ -95,7 +95,8 @@ input[type=range]{width:100%;accent-color:var(--brick);margin:0}
 .cx{border:0;background:none;font-size:22px;line-height:1;width:30px;height:30px;border-radius:5px;color:var(--muted)}
 .cx:hover{background:var(--chip);color:var(--ink)}
 .cbody{overflow:auto;padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;min-height:0}
-.sunblock{flex-direction:row;align-items:center;gap:14px}
+.sunblock{flex-direction:row;flex-wrap:wrap;align-items:center;gap:14px}
+.sunblock .sunnote{flex:1 1 100%;margin-top:0}
 #compass{width:108px;height:108px;flex:none}
 #compass .ring{fill:none;stroke:var(--line);stroke-width:1}
 #compass .ring2{fill:none;stroke:var(--line);stroke-width:.6;stroke-dasharray:1.5 2}
@@ -262,6 +263,10 @@ body.touring .joy{display:none}
 body.touring .yearnote{display:none}
 .night{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px) + var(--tbh) + 8px);
   background:var(--lbl-bg);color:var(--lbl-fg);font-size:13px;padding:5px 12px;border-radius:999px;white-space:nowrap;max-width:calc(100% - 28px);overflow:hidden;text-overflow:ellipsis}
+.panonote{position:absolute;z-index:2;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px) + var(--tbh) + 44px);
+  width:min(520px,calc(100% - 28px));margin:0;background:var(--lbl-bg);color:var(--lbl-fg);font-size:12px;line-height:1.35;padding:5px 12px;border-radius:10px;text-align:center;opacity:.9}
+.panonote[hidden]{display:none}
+.card .note{color:var(--muted);margin-top:6px}
 .err{position:absolute;inset:0;z-index:5;background:var(--bg);display:grid;place-items:center;padding:24px;text-align:center;color:var(--ink)}
 
 #loader{position:absolute;inset:0;z-index:4;display:grid;place-items:center;padding:16px;background:color-mix(in srgb,var(--bg) 82%,transparent);transition:opacity .45s ease,visibility .45s}
@@ -355,6 +360,7 @@ body.touring .yearnote{display:none}
   <div id="stage"></div>
   <div id="labels"></div>
   <svg id="panoGrid" aria-hidden="true" hidden></svg>
+  <p class="panonote" id="panoNote" hidden data-en="The sky view is a schematic projection: compass direction across, altitude upwards. Distances and shapes therefore look different from the sky seen with the eye.">Die Himmelsansicht ist eine schematische Projektion: Himmelsrichtung nach rechts, Höhe nach oben. Abstände und Formen wirken deshalb anders als beim Blick mit dem Auge zum Himmel.</p>
   <header class="brand">
     <h1><span class="h1a" data-en="St. Mary's">St. Marien</span> <span class="h1b" data-en="Light and Shadow">Licht und Schatten</span></h1>
     <p class="eyebrow" data-en="53.868° N · 10.685° E · axis 98.5°">53,868° N · 10,685° O · Achse 98,5°</p>
@@ -411,7 +417,7 @@ body.touring .yearnote{display:none}
           <div><dt data-en="Highest">Höchststand</dt><dd id="rMax">–</dd></div>
           <div><dt id="rLitLbl">Fenster besonnt</dt><dd id="rLit">–</dd></div>
         </dl>
-      
+        <p class="small note sunnote" data-en="Rise and set: the upper edge of the sun touches a free horizon (standard definition: centre of the sun about 0.8° below the geometric horizon, average refraction). Houses, trees and the weather shift the visible moment by a few minutes.">Auf- und Untergang: Der obere Sonnenrand berührt den freien Horizont (Standarddefinition: Sonnenmitte rund 0,8° unter dem geometrischen Horizont, mittlere Lichtbrechung). Häuser, Bäume und Wetter verschieben den sichtbaren Moment um einige Minuten.</p>
     </div>
   </section>
 
@@ -431,6 +437,7 @@ body.touring .yearnote{display:none}
         </div>
         <p class="small" id="mNext"></p>
         <p class="small" id="mEcl"></p>
+        <p class="small note" data-en="Rise and set: upper limb of the moon on a free horizon, with average refraction. In the 3D view the moon is drawn 2.2 times larger and its light is boosted so that phase and position are easy to see; real moonlight is about 400,000 times weaker than sunlight.">Auf- und Untergang: oberer Mondrand am freien Horizont, mit mittlerer Lichtbrechung. In der 3D-Ansicht ist der Mond 2,2-fach vergrößert und sein Licht verstärkt, damit Phase und Lage gut zu erkennen sind; echtes Mondlicht ist rund 400 000-mal schwächer als Sonnenlicht.</p>
         <div class="btnrow"><button class="chip" id="goSolEcl" data-en="Next solar eclipse">Nächste Sonnenfinsternis</button><button class="chip" id="goLunEcl" data-en="Next lunar eclipse">Nächste Mondfinsternis</button></div>
         <div class="btnrow"><button class="chip" id="goFull" data-en="Next full-moon night">Nächste Vollmondnacht</button><button class="chip" id="goNew" data-en="Next new moon">Nächster Neumond</button></div>
       
@@ -482,6 +489,7 @@ body.touring .yearnote{display:none}
         <h3 class="ck3" data-en="Clock versus sky">Uhr gegen Himmel</h3>
         <table class="ckcmp"><thead><tr><th></th><th data-en="Clock">Uhr</th><th data-en="Sky">Himmel</th></tr></thead><tbody id="ckCmp"></tbody></table>
         <p class="small" id="ckNote"></p>
+        <p class="small note" id="ckRange" hidden></p>
         <p class="small l-de">Die Uhr von Paul Behrens (1955–1976) ersetzt die 1942 zerstörte Uhr von 1561–66. Der goldene Sonnenzeiger umläuft das 24-Stunden-Zifferblatt einmal am Tag. Die Sternscheibe mit 13 Sternbildern in wahrer Größe dreht sich einmal je Sterntag, der Mondzeiger in 24 h 50 min; die Kugel daran zeigt die Mondphase. Darunter dreht sich die Kalenderscheibe einmal im Jahr, der feste Zeiger links weist auf den Tag.</p>
         <p class="small l-en">Paul Behrens’ clock (1955–1976) replaces the clock of 1561–66 destroyed in 1942. The golden sun hand circles the 24-hour dial once a day. The star disk with 13 constellations at their true size turns once per sidereal day, the moon hand in 24 h 50 min; the ball on it shows the phase. Below, the calendar disk turns once a year; the fixed pointer on the left marks the day.</p>
         <p class="small adv l-de">Zifferblatt und Rechnung folgen der Simulation „astro-uhr-app“: Mond 6940 : 6705 nach dem 19-jährigen Mondzyklus, Sternscheibe 366¼ : 365¼. Daten der Kalenderscheibe: Jahre 1911–2080, Finsternisse 2000–2036. Das Gehäuse ist ein entzerrtes Foto (13,45 m hoch, Zifferblatt und Kalenderscheibe je 3 m). Der Figurenumgang zur Mittagszeit ist nicht nachgebildet.</p>
@@ -577,7 +585,7 @@ body.touring .yearnote{display:none}
             <li>Farbig verglast nach Fotos (Nutzung freigegeben): Westfenster (Auferstehungsfenster, H. G. von Stockhausen), beide Totentanzfenster (A. Mahlau, 1955/56), Tympanon über dem Nordportal (M. Lüpertz, 2002), Briefkapelle (J. Schreiter), Marientidenkapelle (Wappenfenster), Wappenfenster der Gedenkkapelle im Südturm. Alle übrigen Fenster sind helle Rechteckverglasung; in den Chorkapellen tragen sie kleine Wappenscheiben (Stiftungen von 1953), hier vereinfacht und nicht den einzelnen Fenstern zugeordnet.</li>
             <li>Die Gewölbe von Umgang und Kapellen und die Kapellenhöhen sind vereinfacht.</li>
           </ul>
-          <p><strong>Mond:</strong> Bahn nach der verkürzten Mondtheorie von Meeus (Astronomical Algorithms, Kap. 47) mit Parallaxe für Lübeck; gegen eine Ephemeridenrechnung (PyEphem) geprüft: Höhe auf 0,01°, Auf- und Untergang auf 5 s, Voll- und Neumond auf etwa 30 s genau. Mondlicht ist in Wirklichkeit rund 400 000-mal schwächer als Sonnenlicht; hier ist es stark angehoben und bläulich, damit Schatten und Lichtflecke sichtbar bleiben. Der Mond am Himmel ist 2,2-fach vergrößert. Sterne: die 66 hellsten.</p>
+          <p><strong>Mond:</strong> Bahn nach der verkürzten Mondtheorie von Meeus (Astronomical Algorithms, Kap. 47) mit Parallaxe für Lübeck; gegen eine Ephemeridenrechnung (PyEphem, 2026–2027) geprüft: Höhe und Azimut auf etwa 0,01°, Auf- und Untergang auf unter 1 Minute, Voll- und Neumond auf etwa 1 Minute genau. Sonne nach den Formeln des Astronomical Almanac mit Lichtbrechung: Höhe und Azimut auf etwa 0,01°, Auf- und Untergang auf unter 1 Minute. Das ist die Rechengenauigkeit; in der Natur verschieben wechselnde Lichtbrechung, Häuser und Bäume Auf- und Untergang um einige Minuten. Mondlicht ist in Wirklichkeit rund 400 000-mal schwächer als Sonnenlicht; hier ist es stark angehoben und bläulich, damit Schatten und Lichtflecke sichtbar bleiben. Der Mond am Himmel ist 2,2-fach vergrößert. Sterne: die 66 hellsten.</p>
           <p>Geobasisdaten: © GeoBasis-DE/LVermGeo SH, bDOM20 und LoD2, Kacheln 32_610_5970 und 32_610_5969.</p>
           <p>Der fotografische 3D-Rundgang von cp360pano ist ein gehosteter Rundgang ohne exportierbares Modell. Er eignet sich gut zum Vergleich: <a href="https://cp360pano.com/st-marien-zu-luebeck-in-360-grad/" target="_blank" rel="noopener">St. Marien in 360° und 3D</a>.</p>
         
@@ -603,7 +611,7 @@ body.touring .yearnote{display:none}
             <ul>
               <li>Surroundings within 200 m: 273 buildings from LoD2; terrain and trees derived from the surface model. Trees are solid bodies there and cast more shade than in reality; they can be switched off.</li>
               <li>Heights refer to 13.0 m above sea level (DHHN2016) as the church floor.</li>
-              <li>Sun: Astronomical Almanac formulas with refraction and daylight saving time. Moon: abridged lunar theory after Meeus with parallax for Lübeck. Checked against PyEphem and published moon calendars: positions to 0.01°, rise and set to under a minute, full and new moons to 1–2 minutes.</li>
+              <li>Sun: Astronomical Almanac formulas with refraction and daylight saving time. Moon: abridged lunar theory after Meeus with parallax for Lübeck. Checked against PyEphem (2026–2027): altitude and azimuth of sun and moon to about 0.01°, rise and set to under a minute, full and new moons to about a minute. That is the accuracy of the computation; in nature, varying refraction, houses and trees shift rise and set by a few minutes.</li>
               <li>Moonlight is really about 400,000 times weaker than sunlight; here it is boosted and bluish so that shadows remain visible. The moon in the sky is shown 2.2 times enlarged.</li>
             </ul>
             <p>The photographic 3D tour by cp360pano is a hosted tour without an exportable model, good for comparison: <a href="https://cp360pano.com/st-marien-zu-luebeck-in-360-grad/" target="_blank" rel="noopener">St. Mary's in 360° and 3D</a>.</p>
@@ -786,7 +794,11 @@ const MASK_GLSL=(function(){
 /* ---------------- Zeit & Sonne ---------------- */
 function lastSundayUtc(y,m){ const d=new Date(Date.UTC(y,m+1,0)); d.setUTCDate(d.getUTCDate()-d.getUTCDay()); return Date.UTC(y,m,d.getUTCDate(),1); }
 function berlinOffsetMin(u){ const y=new Date(u).getUTCFullYear(); return (u>=lastSundayUtc(y,2)&&u<lastSundayUtc(y,9))?120:60; }
-function localToUtc(y,m,d,min){ const base=Date.UTC(y,m,d)+min*60000; let u=base-3600000; if(berlinOffsetMin(u)===120){ const u2=base-7200000; if(berlinOffsetMin(u2)===120) u=u2; } return u; }
+function localToUtc(y,m,d,min){ const base=Date.UTC(y,m,d)+min*60000; let u=base-3600000; if(berlinOffsetMin(u)===120){ const u2=base-7200000; if(berlinOffsetMin(u2)===120) u=u2; else u=lastSundayUtc(new Date(u).getUTCFullYear(),2); } return u; }   // 02:00–02:59 am Umstellungstag im März gibt es nicht: alle diese Minuten zeigen den Umstellungsmoment (03:00 MESZ), so läuft die Zeit nie rückwärts
+// Zeitumstellung: Tag der Umstellung erkennen; 02:00–02:59 gibt es im März nicht und im Oktober zweimal (das Modell zeigt dann den zweiten Durchlauf, MEZ)
+function dstInfo(y,m,d,min){ const u=localToUtc(y,m,d,min), off=berlinOffsetMin(u), loc=(u-Date.UTC(y,m,d))/60000+off;   // tatsächliche Ortszeit in Minuten ab Mitternacht
+  const spring=Date.UTC(y,m,d)===Date.UTC(y,2,new Date(lastSundayUtc(y,2)).getUTCDate()), fall=Date.UTC(y,m,d)===Date.UTC(y,9,new Date(lastSundayUtc(y,9)).getUTCDate());
+  return {utc:u,off,loc,gap:spring&&min>=120&&min<180,fold:fall&&min>=120&&min<180}; }
 function berlinNow(){ const u=Date.now(); const l=new Date(u+berlinOffsetMin(u)*60000); return {y:l.getUTCFullYear(),m:l.getUTCMonth(),d:l.getUTCDate(),minutes:l.getUTCHours()*60+l.getUTCMinutes()}; }
 function sunPos(ms){
   const n=ms/86400000+2440587.5-2451545.0;
@@ -2628,7 +2640,7 @@ function fitSky(){
 function panoUniforms(){ const g=panoGeom(), pr=renderer.getPixelRatio(), u=panoMat.uniforms;
   u.uAz.value=PANO.az; u.uElB.value=PANO.elB; u.uKx.value=PANO.kx*pr; u.uKy.value=PANO.ky*pr; u.uYB.value=g.yb*pr; u.uW.value=g.W*pr; u.uAxis.value=state.axis; drawPanoGrid(); }
 // Himmelsrichtungen und Höhenlinien als Overlay
-function drawPanoGrid(){ const svg=$('#panoGrid'); if(!state.pano){ svg.setAttribute('hidden',''); return; } svg.removeAttribute('hidden');
+function drawPanoGrid(){ const svg=$('#panoGrid'); $('#panoNote').hidden=!state.pano; if(!state.pano){ svg.setAttribute('hidden',''); return; } svg.removeAttribute('hidden');
   const g=panoGeom(), X=az=>g.W/2+(((az-PANO.az+540)%360)-180)*PANO.kx, Y=el=>g.H-g.yb-(el-PANO.elB)*PANO.ky;
   svg.setAttribute('viewBox','0 0 '+g.W+' '+g.H); let s='';
   for(const el of [0,30,60]){ const y=Y(el); if(y<0||y>g.H) continue; s+='<line class="'+(el?'el':'hz')+'" x1="0" x2="'+g.W+'" y1="'+y+'" y2="'+y+'"/>'+(el?'<text class="elt" x="8" y="'+(y-4)+'">'+el+'°</text>':''); }
@@ -2808,8 +2820,8 @@ function drawCompassStatic(){
   compass.innerHTML=s;
 }
 function updateReadouts(){
-  const tzName=tzN(berlinOffsetMin(localToUtc(state.y,state.m,state.d,state.minutes)));
-  $('#timeOut').textContent=fmtT(state.minutes); $('#tzName').textContent=tzName;
+  const di=dstInfo(state.y,state.m,state.d,state.minutes), tzName=tzN(di.off);
+  $('#timeOut').textContent=fmtT(di.loc); $('#tzName').textContent=tzName;   // angezeigt wird die tatsächliche Ortszeit des berechneten Zeitpunkts
   $('#time').value=Math.round(state.minutes);
   $('#rEl').textContent=fmtDeg(cur.el);
   $('#rAz').textContent=fmtDeg(cur.az)+' '+dirName(cur.az);
@@ -2833,6 +2845,9 @@ function updateReadouts(){
     nb.textContent=!state.moon?tr('Die Sonne steht unter dem Horizont','The sun is below the horizon'):m.el<=0?pre+tr(' · der Mond steht unter dem Horizont',' · the moon is below the horizon')
       :useMoon&&moonStr>0.03?pre+tr(' · Mondlicht, ',' · moonlight, ')+moonPhaseName(m.elong)+', '+Math.round(m.k*100)+tr(' % beleuchtet',' % lit'):pre+' · '+moonPhaseName(m.elong)+tr(', kaum Mondlicht',', hardly any moonlight'); }
   const et=eclBanner(); if(et){ nb.hidden=false; nb.textContent=et; }
+  const dsi=dstInfo(state.y,state.m,state.d,state.minutes);
+  if(dsi.gap){ nb.hidden=false; nb.textContent=tr('Zeitumstellung: Die Uhr springt von 2 auf 3 Uhr – 2:00 bis 2:59 gibt es heute nicht','Clocks go forward from 2 to 3 am – 2:00 to 2:59 does not exist today'); }
+  else if(dsi.fold){ nb.hidden=false; nb.textContent=tr('Zeitumstellung: 2–3 Uhr gibt es heute zweimal – gezeigt wird der zweite Durchlauf (MEZ)','Clocks go back: 2–3 am occurs twice today – showing the second pass (CET)'); }
 }
 function eclBanner(){
   if(eclObsc>0&&cur.el>-0.5) return (eclS.mag>=1?tr('Totale Sonnenfinsternis','Total solar eclipse'):tr('Partielle Sonnenfinsternis','Partial solar eclipse'))+' · '+Math.round(eclObsc*100)+tr(' % der Sonnenscheibe bedeckt',' % of the sun covered');
@@ -3024,6 +3039,8 @@ function updateClockCard(){
     [tr('Mondphase','Moon phase'),moonPhaseName(st.age/CKR.MC*360),m?moonPhaseName(m.elong):'–']];
   $('#ckCmp').innerHTML=rows.map(r=>'<tr><th scope="row">'+r[0]+'</th><td>'+r[1]+'</td><td'+(r[1]!==r[2]&&r[0]!==rows[0][0]&&r[0]!==rows[2][0]?' class="dif"':'')+'>'+r[2]+'</td></tr>').join('');
   const dt=(st.hrs-woz)*60, dm=ageSky!==null?(st.age-ageSky)*24*60:null;
+  { const r=$('#ckRange'), y0=CK?CK.y0:1911, y1=CK&&CK.cal?CK.y0+CK.cal.length-1:2080, out=!ci;
+    r.hidden=!out; if(out) r.textContent=tr('Die Kalenderscheibe der Uhr ist für '+y0+'–'+y1+' beschriftet. Für '+y+' stehen dort keine Sonntagsbuchstaben und keine Finsternisse; die Zeiger laufen weiter wie gebaut.','The clock’s calendar disk is inscribed for '+y0+'–'+y1+'. For '+y+' it shows no Sunday letters and no eclipses; the hands keep running as built.'); }
   $('#ckNote').textContent=tr('Die Uhr zeigt die gesetzliche Zeit; die wahre Ortszeit (WOZ) der Sonne liegt ','The clock shows civil time; apparent solar time (AST) is ')+ckDiff(dt)+(dt>=0?tr(' dahinter.',' behind.'):tr(' davor.',' ahead.'))
     +(dm!==null?tr(' Der Mond der Uhr ',' The clock’s moon is ')+(Math.abs(dm)<30?tr('stimmt fast genau','almost exact'):ckDiff(dm)+(dm>0?tr(' voraus',' ahead'):tr(' zurück',' behind')))+tr('; Behrens rechnet mit 6940 : 6705 statt mit dem wechselnden wahren Mondlauf.','; Behrens uses a fixed 6940 : 6705 ratio, the real moon’s motion varies.'):'');
   const mc=$('#ckMini'); if(mc&&clk.canvas){ const g=mc.getContext('2d'); g.clearRect(0,0,mc.width,mc.height); g.drawImage(clk.canvas,0,0,mc.width,mc.height); }
@@ -3249,12 +3266,12 @@ async function saveImage(){
   if(state.pano){ try{ const svg=$('#panoGrid').cloneNode(true); svg.setAttribute('xmlns','http://www.w3.org/2000/svg'); svg.setAttribute('width',W); svg.setAttribute('height',H);
       const st=document.createElementNS('http://www.w3.org/2000/svg','style'); st.textContent=PANO_CSS; svg.insertBefore(st,svg.firstChild);
       const img=new Image(); img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(svg)); await img.decode(); g.drawImage(img,0,0,W,H); }catch(e){} }
-  const tzName=tzN(berlinOffsetMin(localToUtc(state.y,state.m,state.d,state.minutes)));
+  const di=dstInfo(state.y,state.m,state.d,state.minutes), tzName=tzN(di.off);
   const dateTxt=LANG==='en'?state.d+' '+MON_EN[state.m]+' '+state.y:pad2(state.d)+'.'+pad2(state.m+1)+'.'+state.y;
   g.fillStyle='#f5f6f3'; g.fillRect(0,H,W,bar); g.fillStyle='#1e1a17'; g.font='700 '+Math.round(17*pr)+'px Georgia, serif'; g.textBaseline='middle';
   g.fillText(tr('St. Marien zu Lübeck – Licht und Schatten',"St. Mary's, Lübeck – Light and Shadow"),Math.round(14*pr),H+bar/2);
   g.font=Math.round(14*pr)+'px "IBM Plex Mono", monospace'; g.textAlign='right'; g.fillStyle='#5e5852';
-  g.fillText(dateTxt+' · '+fmtT(state.minutes)+' '+tzName+' · '+$('#viewTxt').textContent,W-Math.round(14*pr),H+bar/2);
+  g.fillText(dateTxt+' · '+fmtT(di.loc)+' '+tzName+' · '+$('#viewTxt').textContent,W-Math.round(14*pr),H+bar/2);
   const blob=await new Promise(r=>c.toBlob(r,'image/png')); if(!blob){ msg.textContent=tr('Das Bild konnte nicht erstellt werden.','The image could not be created.'); return; }
   const name='St-Marien_'+state.y+'-'+pad2(state.m+1)+'-'+pad2(state.d)+'_'+fmtT(state.minutes).replace(':','')+'.png';
   if(dlNS){ try{ await dlNS.save({filename:name,data:blob}); msg.textContent=tr('Bild gespeichert.','Image saved.'); }

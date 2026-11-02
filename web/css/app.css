@@ -104,7 +104,8 @@ input[type=range]{width:100%;accent-color:var(--brick);margin:0}
 .cx{border:0;background:none;font-size:22px;line-height:1;width:30px;height:30px;border-radius:5px;color:var(--muted)}
 .cx:hover{background:var(--chip);color:var(--ink)}
 .cbody{overflow:auto;padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;min-height:0}
-.sunblock{flex-direction:row;align-items:center;gap:14px}
+.sunblock{flex-direction:row;flex-wrap:wrap;align-items:center;gap:14px}
+.sunblock .sunnote{flex:1 1 100%;margin-top:0}
 #compass{width:108px;height:108px;flex:none}
 #compass .ring{fill:none;stroke:var(--line);stroke-width:1}
 #compass .ring2{fill:none;stroke:var(--line);stroke-width:.6;stroke-dasharray:1.5 2}
@@ -271,6 +272,10 @@ body.touring .joy{display:none}
 body.touring .yearnote{display:none}
 .night{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px) + var(--tbh) + 8px);
   background:var(--lbl-bg);color:var(--lbl-fg);font-size:13px;padding:5px 12px;border-radius:999px;white-space:nowrap;max-width:calc(100% - 28px);overflow:hidden;text-overflow:ellipsis}
+.panonote{position:absolute;z-index:2;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px) + var(--tbh) + 44px);
+  width:min(520px,calc(100% - 28px));margin:0;background:var(--lbl-bg);color:var(--lbl-fg);font-size:12px;line-height:1.35;padding:5px 12px;border-radius:10px;text-align:center;opacity:.9}
+.panonote[hidden]{display:none}
+.card .note{color:var(--muted);margin-top:6px}
 .err{position:absolute;inset:0;z-index:5;background:var(--bg);display:grid;place-items:center;padding:24px;text-align:center;color:var(--ink)}
 
 #loader{position:absolute;inset:0;z-index:4;display:grid;place-items:center;padding:16px;background:color-mix(in srgb,var(--bg) 82%,transparent);transition:opacity .45s ease,visibility .45s}

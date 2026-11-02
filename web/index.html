@@ -17,6 +17,7 @@
   <div id="stage"></div>
   <div id="labels"></div>
   <svg id="panoGrid" aria-hidden="true" hidden></svg>
+  <p class="panonote" id="panoNote" hidden data-en="The sky view is a schematic projection: compass direction across, altitude upwards. Distances and shapes therefore look different from the sky seen with the eye.">Die Himmelsansicht ist eine schematische Projektion: Himmelsrichtung nach rechts, Höhe nach oben. Abstände und Formen wirken deshalb anders als beim Blick mit dem Auge zum Himmel.</p>
   <header class="brand">
     <h1><span class="h1a" data-en="St. Mary's">St. Marien</span> <span class="h1b" data-en="Light and Shadow">Licht und Schatten</span></h1>
     <p class="eyebrow" data-en="53.868° N · 10.685° E · axis 98.5°">53,868° N · 10,685° O · Achse 98,5°</p>
@@ -73,7 +74,7 @@
           <div><dt data-en="Highest">Höchststand</dt><dd id="rMax">–</dd></div>
           <div><dt id="rLitLbl">Fenster besonnt</dt><dd id="rLit">–</dd></div>
         </dl>
-      
+        <p class="small note sunnote" data-en="Rise and set: the upper edge of the sun touches a free horizon (standard definition: centre of the sun about 0.8° below the geometric horizon, average refraction). Houses, trees and the weather shift the visible moment by a few minutes.">Auf- und Untergang: Der obere Sonnenrand berührt den freien Horizont (Standarddefinition: Sonnenmitte rund 0,8° unter dem geometrischen Horizont, mittlere Lichtbrechung). Häuser, Bäume und Wetter verschieben den sichtbaren Moment um einige Minuten.</p>
     </div>
   </section>
 
@@ -93,6 +94,7 @@
         </div>
         <p class="small" id="mNext"></p>
         <p class="small" id="mEcl"></p>
+        <p class="small note" data-en="Rise and set: upper limb of the moon on a free horizon, with average refraction. In the 3D view the moon is drawn 2.2 times larger and its light is boosted so that phase and position are easy to see; real moonlight is about 400,000 times weaker than sunlight.">Auf- und Untergang: oberer Mondrand am freien Horizont, mit mittlerer Lichtbrechung. In der 3D-Ansicht ist der Mond 2,2-fach vergrößert und sein Licht verstärkt, damit Phase und Lage gut zu erkennen sind; echtes Mondlicht ist rund 400 000-mal schwächer als Sonnenlicht.</p>
         <div class="btnrow"><button class="chip" id="goSolEcl" data-en="Next solar eclipse">Nächste Sonnenfinsternis</button><button class="chip" id="goLunEcl" data-en="Next lunar eclipse">Nächste Mondfinsternis</button></div>
         <div class="btnrow"><button class="chip" id="goFull" data-en="Next full-moon night">Nächste Vollmondnacht</button><button class="chip" id="goNew" data-en="Next new moon">Nächster Neumond</button></div>
       
@@ -144,6 +146,7 @@
         <h3 class="ck3" data-en="Clock versus sky">Uhr gegen Himmel</h3>
         <table class="ckcmp"><thead><tr><th></th><th data-en="Clock">Uhr</th><th data-en="Sky">Himmel</th></tr></thead><tbody id="ckCmp"></tbody></table>
         <p class="small" id="ckNote"></p>
+        <p class="small note" id="ckRange" hidden></p>
         <p class="small l-de">Die Uhr von Paul Behrens (1955–1976) ersetzt die 1942 zerstörte Uhr von 1561–66. Der goldene Sonnenzeiger umläuft das 24-Stunden-Zifferblatt einmal am Tag. Die Sternscheibe mit 13 Sternbildern in wahrer Größe dreht sich einmal je Sterntag, der Mondzeiger in 24 h 50 min; die Kugel daran zeigt die Mondphase. Darunter dreht sich die Kalenderscheibe einmal im Jahr, der feste Zeiger links weist auf den Tag.</p>
         <p class="small l-en">Paul Behrens’ clock (1955–1976) replaces the clock of 1561–66 destroyed in 1942. The golden sun hand circles the 24-hour dial once a day. The star disk with 13 constellations at their true size turns once per sidereal day, the moon hand in 24 h 50 min; the ball on it shows the phase. Below, the calendar disk turns once a year; the fixed pointer on the left marks the day.</p>
         <p class="small adv l-de">Zifferblatt und Rechnung folgen der Simulation „astro-uhr-app“: Mond 6940 : 6705 nach dem 19-jährigen Mondzyklus, Sternscheibe 366¼ : 365¼. Daten der Kalenderscheibe: Jahre 1911–2080, Finsternisse 2000–2036. Das Gehäuse ist ein entzerrtes Foto (13,45 m hoch, Zifferblatt und Kalenderscheibe je 3 m). Der Figurenumgang zur Mittagszeit ist nicht nachgebildet.</p>
@@ -239,7 +242,7 @@
             <li>Farbig verglast nach Fotos (Nutzung freigegeben): Westfenster (Auferstehungsfenster, H. G. von Stockhausen), beide Totentanzfenster (A. Mahlau, 1955/56), Tympanon über dem Nordportal (M. Lüpertz, 2002), Briefkapelle (J. Schreiter), Marientidenkapelle (Wappenfenster), Wappenfenster der Gedenkkapelle im Südturm. Alle übrigen Fenster sind helle Rechteckverglasung; in den Chorkapellen tragen sie kleine Wappenscheiben (Stiftungen von 1953), hier vereinfacht und nicht den einzelnen Fenstern zugeordnet.</li>
             <li>Die Gewölbe von Umgang und Kapellen und die Kapellenhöhen sind vereinfacht.</li>
           </ul>
-          <p><strong>Mond:</strong> Bahn nach der verkürzten Mondtheorie von Meeus (Astronomical Algorithms, Kap. 47) mit Parallaxe für Lübeck; gegen eine Ephemeridenrechnung (PyEphem) geprüft: Höhe auf 0,01°, Auf- und Untergang auf 5 s, Voll- und Neumond auf etwa 30 s genau. Mondlicht ist in Wirklichkeit rund 400 000-mal schwächer als Sonnenlicht; hier ist es stark angehoben und bläulich, damit Schatten und Lichtflecke sichtbar bleiben. Der Mond am Himmel ist 2,2-fach vergrößert. Sterne: die 66 hellsten.</p>
+          <p><strong>Mond:</strong> Bahn nach der verkürzten Mondtheorie von Meeus (Astronomical Algorithms, Kap. 47) mit Parallaxe für Lübeck; gegen eine Ephemeridenrechnung (PyEphem, 2026–2027) geprüft: Höhe und Azimut auf etwa 0,01°, Auf- und Untergang auf unter 1 Minute, Voll- und Neumond auf etwa 1 Minute genau. Sonne nach den Formeln des Astronomical Almanac mit Lichtbrechung: Höhe und Azimut auf etwa 0,01°, Auf- und Untergang auf unter 1 Minute. Das ist die Rechengenauigkeit; in der Natur verschieben wechselnde Lichtbrechung, Häuser und Bäume Auf- und Untergang um einige Minuten. Mondlicht ist in Wirklichkeit rund 400 000-mal schwächer als Sonnenlicht; hier ist es stark angehoben und bläulich, damit Schatten und Lichtflecke sichtbar bleiben. Der Mond am Himmel ist 2,2-fach vergrößert. Sterne: die 66 hellsten.</p>
           <p>Geobasisdaten: © GeoBasis-DE/LVermGeo SH, bDOM20 und LoD2, Kacheln 32_610_5970 und 32_610_5969.</p>
           <p>Der fotografische 3D-Rundgang von cp360pano ist ein gehosteter Rundgang ohne exportierbares Modell. Er eignet sich gut zum Vergleich: <a href="https://cp360pano.com/st-marien-zu-luebeck-in-360-grad/" target="_blank" rel="noopener">St. Marien in 360° und 3D</a>.</p>
         
@@ -265,7 +268,7 @@
             <ul>
               <li>Surroundings within 200 m: 273 buildings from LoD2; terrain and trees derived from the surface model. Trees are solid bodies there and cast more shade than in reality; they can be switched off.</li>
               <li>Heights refer to 13.0 m above sea level (DHHN2016) as the church floor.</li>
-              <li>Sun: Astronomical Almanac formulas with refraction and daylight saving time. Moon: abridged lunar theory after Meeus with parallax for Lübeck. Checked against PyEphem and published moon calendars: positions to 0.01°, rise and set to under a minute, full and new moons to 1–2 minutes.</li>
+              <li>Sun: Astronomical Almanac formulas with refraction and daylight saving time. Moon: abridged lunar theory after Meeus with parallax for Lübeck. Checked against PyEphem (2026–2027): altitude and azimuth of sun and moon to about 0.01°, rise and set to under a minute, full and new moons to about a minute. That is the accuracy of the computation; in nature, varying refraction, houses and trees shift rise and set by a few minutes.</li>
               <li>Moonlight is really about 400,000 times weaker than sunlight; here it is boosted and bluish so that shadows remain visible. The moon in the sky is shown 2.2 times enlarged.</li>
             </ul>
             <p>The photographic 3D tour by cp360pano is a hosted tour without an exportable model, good for comparison: <a href="https://cp360pano.com/st-marien-zu-luebeck-in-360-grad/" target="_blank" rel="noopener">St. Mary's in 360° and 3D</a>.</p>
