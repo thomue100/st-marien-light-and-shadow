@@ -1,6 +1,6 @@
 {
   "name": "st-marien-light-and-shadow",
-  "version": "0.40.0",
+  "version": "0.41.0",
   "private": true,
   "description": "Interaktives 3D-Lichtmodell von St. Marien zu Lübeck: Kirche als Sonnenuhr, Sonnenuhr am Südturm, Astronomische Uhr, Licht und Schatten.",
   "scripts": {
