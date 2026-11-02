@@ -1,4 +1,4 @@
-St. Marien zu Lübeck – Lichtmodell, Webfassung
+St. Marien zu Lübeck – Licht und Schatten, Webfassung
 ===============================================
 
 Inhalt
@@ -11,11 +11,11 @@ Inhalt
 
 Veröffentlichen
   1. Den ganzen Ordner unverändert auf den Webserver laden, z. B. nach
-     https://www.<ihre-domain>/lichtmodell/
-  2. Aufruf: https://www.<ihre-domain>/lichtmodell/
+     https://www.<ihre-domain>/licht-und-schatten/
+  2. Aufruf: https://www.<ihre-domain>/licht-und-schatten/
   3. Einbetten in eine bestehende Seite (z. B. im CMS als HTML-Block):
-     <iframe src="/lichtmodell/" style="width:100%;height:80vh;border:0"
-             allow="fullscreen; web-share; clipboard-write" title="St. Marien Lichtmodell"></iframe>
+     <iframe src="/licht-und-schatten/" style="width:100%;height:80vh;border:0"
+             allow="fullscreen; web-share; clipboard-write" title="St. Marien – Licht und Schatten"></iframe>
 
 Wichtig
   - Die Webfassung braucht einen Webserver; per Doppelklick von der Festplatte

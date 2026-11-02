@@ -291,6 +291,7 @@ body.touring .yearnote{display:none}
   .brand{padding:6px 10px;max-width:calc(100% - 140px);gap:4px 8px}
   .brandbtns{margin-left:0}
   h1{font-size:18px}
+  h1 .h1b{display:block;font-size:14px;line-height:1.1;letter-spacing:.03em}   /* schmal: Untertitel in eigener Zeile */
   .eyebrow{display:none}
   .viewpick{left:auto;right:max(14px,env(safe-area-inset-right,0px));transform:none}
   .vbtn{padding:6px 11px}
@@ -311,7 +312,7 @@ body.touring .yearnote{display:none}
   .joy{width:84px;height:84px}
   .tourcard{top:auto;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));width:auto;transform:none;
     bottom:calc(10px + env(safe-area-inset-bottom,0px));padding:10px 12px 10px;gap:4px;max-height:48%;overflow:auto}
-  .tourcard.quizcard{top:calc(60px + env(safe-area-inset-top,0px));bottom:auto;max-height:46%}
+  .tourcard.quizcard{top:calc(98px + env(safe-area-inset-top,0px));bottom:auto;max-height:46%}
   .tourcard h3{font-size:16px}
   .tourcard p{font-size:13.5px;line-height:1.4}
   .tourcard:not(.open) #tourText{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}

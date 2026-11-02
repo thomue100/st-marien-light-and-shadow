@@ -20,4 +20,4 @@ s=s.replace("Die 3D-Bibliothek konnte nicht geladen werden. Bitte Seite neu lade
 head='<!doctype html>\n<html lang="de">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n<style>:root{color-scheme:light dark}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>\n'
 i=s.index('<div id="app">'); s=head+s[:i]+'</head>\n<body>\n'+s[i:]+'\n</body>\n</html>\n'
 assert 'https://cdn' not in s and 'googleapis' not in s
-open(ROOT+'/dist/St-Marien-Lichtmodell-offline.html','w',encoding='utf-8').write(s); print(len(s)//1024,'KB')
+open(ROOT+'/dist/St-Marien-Licht-und-Schatten-offline.html','w',encoding='utf-8').write(s); print(len(s)//1024,'KB')

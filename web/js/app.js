@@ -20,7 +20,7 @@ function applyStaticLang(){
   document.querySelectorAll('[data-en-aria]').forEach(el=>{ if(el.dataset.deAria===undefined) el.dataset.deAria=el.getAttribute('aria-label')||''; el.setAttribute('aria-label',LANG==='en'?el.dataset.enAria:el.dataset.deAria); });
   document.querySelectorAll('[data-en-title]').forEach(el=>{ if(el.dataset.deTitle===undefined) el.dataset.deTitle=el.getAttribute('title')||''; el.setAttribute('title',LANG==='en'?el.dataset.enTitle:el.dataset.deTitle); });
   const lb=document.getElementById('langBtn'); if(lb){ lb.textContent=LANG==='en'?'DE':'EN'; lb.setAttribute('lang',LANG==='en'?'de':'en'); }
-  document.title=tr('St. Marien Lichtmodell',"St. Mary's Light Model");
+  document.title=tr('St. Marien – Licht und Schatten',"St. Mary's – Light and Shadow");
 }
 applyStaticLang();
 if(ldText) ldText.textContent=tr('3D-Bibliothek wird geladen','Loading 3D library');
@@ -2434,23 +2434,21 @@ const QZ=[
   q:()=>[tr('Die Sonnenuhr','The sundial'),tr('Fliegen Sie zur Sonnenuhr am Südturm. Welche Jahreszahl steht auf der Platte?','Fly to the sundial on the south tower. Which year is written on the plate?')],
   opts:()=>[['1561',0],['1968',1],['2002',0]],
   hint:()=>{ goView('sonnenuhr'); return tr('Schauen Sie in die obere rechte Ecke der Platte.','Look at the upper right corner of the plate.'); },
-  ok:()=>tr('Richtig: rechts oben steht 1968, links »REN« – wahrscheinlich für »renoviert«. Die Zahl nennt also eine Erneuerung, nicht das Alter der Sonnenuhr. 1561 begann der Bau der alten Astronomischen Uhr, 2002 entstand das Lüpertz-Fenster über dem Nordportal.','Correct: 1968 is at the top right, »REN« at the top left – probably for »renovated«. So the year marks a renewal, not the age of the sundial. 1561 is when work on the old astronomical clock began, 2002 the year of the Lüpertz window above the north portal.'),
+  ok:()=>tr('Richtig: rechts oben steht 1968, links »REN« – wahrscheinlich für »renoviert«. Die Zahl nennt also eine Erneuerung, nicht das Alter der Sonnenuhr.','Correct: 1968 is at the top right, »REN« at the top left – probably for »renovated«. So the year marks a renewal, not the age of the sundial.'),
   no:()=>tr('Nicht ganz. Schauen Sie noch einmal genau auf die Platte, oben rechts.','Not quite. Have another close look at the plate, top right.')},
  {kind:'set',view:'sonnenuhr',min:11*60,m:4,d:10,card:'sd',
   q:()=>[tr('Wahre Zeit und Uhrzeit','True time and clock time'),tr('Es ist der 10. Mai. Stellen Sie die Uhrzeit so ein, dass der Schatten auf der Sonnenuhr genau 12 Uhr zeigt.','It is 10 May. Set the time so that the shadow on the sundial shows exactly 12 o’clock.')],
   hint:()=>{ goView('sonnenuhr'); if(matchMedia('(min-width: 900px)').matches) openCard('sd'); return tr('Ziehen Sie den Zeitregler langsam; die Karte »Sonnenuhr« zeigt die Ablesung in Minuten.','Move the time slider slowly; the »Sundial« card shows the reading to the minute.'); },
   check:()=>!state.playing&&sd.show!==null&&sd.lit&&Math.abs(sd.show-12)<=5/60,
   solve:()=>{ let m=state.minutes; for(let k=0;k<3;k++){ const p=sunPos(localToUtc(state.y,state.m,state.d,m)), w=((12+p.H/15)%24+24)%24; m+=(12-w)*60; } setMinutes(Math.round(m)); $('#time').value=String(Math.round(m)); },
-  ok:()=>{ const off=berlinOffsetMin(localToUtc(state.y,state.m,state.d,state.minutes)), d=Math.round(state.minutes-12*60);
-    const when=fmtT(state.minutes)+' '+tzN(off);
-    return tr('Richtig: die Sonnenuhr zeigt 12 Uhr, Ihre Uhr ',"Correct: the sundial shows 12 o’clock, your watch ")+when+'. '+
-     (Math.abs(d)<=2?tr('Heute liegen beide zufällig fast gleich. ','Today the two happen to be almost equal. '):tr('Das sind '+Math.abs(d)+' Minuten '+(d>0?'später':'früher')+'. ','That is '+Math.abs(d)+' minutes '+(d>0?'later':'earlier')+'. '))+
-     tr('Die Sonnenuhr zeigt die wahre Ortszeit: Lübeck liegt auf 10,7° Ost statt auf 15°, das macht 17 Minuten; dazu kommt die Zeitgleichung von bis zu ±16 Minuten über das Jahr – und im Sommer eine Stunde Sommerzeit.','The sundial shows true local time: Lübeck lies at 10.7° east instead of 15°, which accounts for 17 minutes; on top comes the equation of time of up to ±16 minutes over the year – and one hour of summer time.'); }},
- {kind:'mc',view:'uhr',ecl:true,
-  q:()=>[tr('Finsternisse','Eclipses'),tr('Wann ist die nächste Sonnenfinsternis, die man in Lübeck sehen kann?','When is the next solar eclipse that can be seen from Lübeck?')],
+  ok:()=>{ const off=berlinOffsetMin(localToUtc(state.y,state.m,state.d,state.minutes)), when=fmtT(state.minutes);
+    return tr('Richtig: die Sonnenuhr zeigt 12 Uhr, Ihre Armbanduhr aber schon '+when+' Uhr. Die Sonnenuhr richtet sich nach der Sonne: 12 Uhr ist, wenn die Sonne genau im Süden steht. Unsere Uhren zeigen dagegen überall in Deutschland dieselbe Zeit. Lübeck liegt weit im Westen, deshalb steht die Sonne hier erst später im Süden'+(off===120?' – und im Sommer kommt noch eine Stunde Sommerzeit dazu.':'.'),
+              'Correct: the sundial shows 12 o’clock, but your watch already says '+when+'. The sundial follows the sun: 12 o’clock is when the sun stands due south. Our clocks, however, show the same time all over Germany. Lübeck lies far to the west, so the sun reaches the south later here'+(off===120?' – and in summer there is an extra hour of daylight saving time.':'.')); }},
+ {kind:'mc',view:'uhr',ecl:true,today:true,
+  q:()=>[tr('Finsternisse','Eclipses'),tr('Von heute an gerechnet: Wann ist die nächste Sonnenfinsternis, die man in Lübeck sehen kann?','Counting from today: when is the next solar eclipse that can be seen from Lübeck?')],
   opts:()=>{ const e=quiz.ecl; return [[fmtDateL(e.s.max),1],[fmtDateL(e.l.max),0],[fmtDateL(e.s2.max),0]]; },
-  hint:()=>{ openCard('moon'); setTimeout(updateEclText,0); return tr('Die Karte »Mond« nennt die nächsten Finsternisse; unter »Besondere Tage« springen Sie direkt hin.','The »Moon« card lists the next eclipses; »Special days« takes you straight there.'); },
-  ok:()=>{ const e=quiz.ecl.s; return tr('Richtig: ','Correct: ')+eclWhen(e.max)+tr(', die Sonne ist dann zu '+Math.round(e.cover*100)+' % bedeckt. Die Kalenderscheibe der Astronomischen Uhr verzeichnet für jedes Jahr die Finsternisse – berechnet lange im Voraus. Das andere Datum ist eine Mondfinsternis.',', when '+Math.round(e.cover*100)+' % of the sun will be covered. The calendar disc of the astronomical clock lists the eclipses of every year – computed long in advance. The other date is a lunar eclipse.'); },
+  hint:()=>{ qzToday(); openCard('moon'); setTimeout(updateEclText,0); return tr('Die Karte »Mond« nennt die nächsten Finsternisse; unter »Besondere Tage« springen Sie direkt hin.','The »Moon« card lists the next eclipses; »Special days« takes you straight there.'); },
+  ok:()=>{ const e=quiz.ecl.s, l=fmtDateL(quiz.ecl.l.max), s2=fmtDateL(quiz.ecl.s2.max); return tr('Richtig: ','Correct: ')+eclWhen(e.max)+tr(', die Sonne ist dann zu '+Math.round(e.cover*100)+' % bedeckt. Am '+l+' ist eine Mondfinsternis, am '+s2+' die übernächste Sonnenfinsternis. Die Kalenderscheibe der Astronomischen Uhr verzeichnet für jedes Jahr die Finsternisse.',', when '+Math.round(e.cover*100)+' % of the sun will be covered. '+l+' is a lunar eclipse, '+s2+' the solar eclipse after that. The calendar disc of the astronomical clock lists the eclipses of every year.'); },
   no:()=>tr('Nicht ganz – vielleicht eine Mondfinsternis oder eine spätere? Die Karte »Mond« hilft.','Not quite – perhaps a lunar eclipse or a later one? The »Moon« card helps.')},
  {kind:'pick',view:'aussen',
   q:()=>[tr('Ein Fenster mit Totenkopf','A window with a skull'),tr('Eines der Fenster zeigt einen Totenkopf. Suchen Sie es und tippen Sie darauf.','One of the windows shows a skull. Find it and tap it.')],
@@ -2465,7 +2463,9 @@ function quizStart(){ if(tour.i!==null) tourEnd(); if(state.playing) setPlaying(
     l=eclipseScan(t,60,'l').find(e=>e.visible&&e.type!=='penumbral'&&e.max>=t);
   quiz.ecl=s&&s2&&l?{s,s2,l}:null;
   quiz.list=QZ.filter(q=>!q.ecl||quiz.ecl); quiz.score=0; quiz.done=[]; document.body.classList.add('quizzing'); qzGo(0); }
-function qzSetup(q){ const n=berlinNow(); if(q.min!==undefined){ state.minutes=q.min; setDate(n.y,q.m!==undefined?q.m:n.m,q.d!==undefined?q.d:n.d); } if(q.view&&state.view!==q.view) goView(q.view); openCard(null); }
+// Finsternis-Aufgabe: Modell auf heute stellen, damit Karte »Mond« und »Besondere Tage« dieselbe Finsternis nennen wie die Antworten
+function qzToday(){ if(state.playing) setPlaying(false); const n=berlinNow(); state.minutes=n.minutes; setDate(n.y,n.m,n.d); }
+function qzSetup(q){ const n=berlinNow(); if(q.today) qzToday(); if(q.min!==undefined){ state.minutes=q.min; setDate(n.y,q.m!==undefined?q.m:n.m,q.d!==undefined?q.d:n.d); } if(q.view&&state.view!==q.view) goView(q.view); openCard(null); }
 function qzGo(i){ quiz.i=i; quiz.state='ask'; quiz.fb=null; quiz.picked=null; quiz.t0=performance.now(); quiz.order=null; $('#qzHint').classList.remove('hot');
   if(i<quiz.list.length) qzSetup(quiz.list[i]); qzRender(); const f=i<quiz.list.length?$('#qzHint'):$('#qzNext'); f.focus({preventScroll:true}); }
 function qzRender(){ const el=$('#quiz'), i=quiz.i, N=quiz.list.length; el.hidden=false;
@@ -2556,7 +2556,7 @@ async function saveImage(){
   const tzName=tzN(berlinOffsetMin(localToUtc(state.y,state.m,state.d,state.minutes)));
   const dateTxt=LANG==='en'?state.d+' '+MON_EN[state.m]+' '+state.y:pad2(state.d)+'.'+pad2(state.m+1)+'.'+state.y;
   g.fillStyle='#f5f6f3'; g.fillRect(0,H,W,bar); g.fillStyle='#1e1a17'; g.font='700 '+Math.round(17*pr)+'px Georgia, serif'; g.textBaseline='middle';
-  g.fillText(tr('St. Marien zu Lübeck',"St. Mary's, Lübeck"),Math.round(14*pr),H+bar/2);
+  g.fillText(tr('St. Marien zu Lübeck – Licht und Schatten',"St. Mary's, Lübeck – Light and Shadow"),Math.round(14*pr),H+bar/2);
   g.font=Math.round(14*pr)+'px "IBM Plex Mono", monospace'; g.textAlign='right'; g.fillStyle='#5e5852';
   g.fillText(dateTxt+' · '+fmtT(state.minutes)+' '+tzName+' · '+$('#viewTxt').textContent,W-Math.round(14*pr),H+bar/2);
   const blob=await new Promise(r=>c.toBlob(r,'image/png')); if(!blob){ msg.textContent=tr('Das Bild konnte nicht erstellt werden.','The image could not be created.'); return; }
