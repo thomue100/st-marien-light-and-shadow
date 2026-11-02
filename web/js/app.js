@@ -2375,8 +2375,8 @@ const TOUR=[
   de:['Vollmondnacht','Das ist die nächste Vollmondnacht. Auch das Mondlicht fällt durch die Fenster, und sogar die Sonnenuhr wirft dann einen Schatten. Sie zeigt allerdings die »Mondzeit«, die das Modell in wahre Zeit umrechnet.'],
   en:['Full-moon night','This is the next full-moon night. Moonlight falls through the windows too, and even the sundial casts a shadow. It then shows “lunar time”, which the model converts to true time.']},
  {v:'sued',now:true,choice:true,
-  de:['Wie geht es weiter?','Das Modell zeigt wieder den heutigen Tag. Testen Sie Ihr Wissen in einem Quiz mit fünf Aufgaben, die Sie im Modell lösen, oder erkunden Sie selbst: Rechts finden Sie Sonnenstand, Mond, Sonnenuhr, Astronomische Uhr, Darstellung, Licht und Teilen, oben weitere Ansichten.'],
-  en:["What next?","The model is back at today. Test yourself in a quiz with five tasks you solve in the model, or explore on your own: on the right you find sun, moon, sundial, astronomical clock, display, light and sharing; at the top more views."]}];
+  de:['Wie geht es weiter?','Das Modell zeigt wieder den heutigen Tag. Testen Sie Ihr Wissen in einem Quiz mit fünf Aufgaben, die Sie im Modell lösen, probieren Sie Experimente zu Sonne, Sonnenuhr, Licht und Mond aus – oder erkunden Sie selbst: Rechts finden Sie alle Bereiche (die Experimente unter dem Kolben), oben weitere Ansichten.'],
+  en:["What next?","The model is back at today. Test yourself in a quiz with five tasks you solve in the model, try experiments on sun, sundial, light and moon – or explore on your own: on the right you find all panels (the experiments under the flask), at the top more views."]}];
 const tour={i:null};
 function tourApply(s){
   if(state.playing) setPlaying(false);
@@ -2401,14 +2401,14 @@ function showTour(){
   $('#tourTitle').textContent=txt[0]; $('#tourText').textContent=txt[1];
   $('#tourEnd').textContent=tr('Beenden','End'); $('#tourPrev').hidden=i===0; $('#tourPrev').textContent=tr('Zurück','Back');
   $('#tourNext').textContent=i===TOUR.length-1?tr('Fertig','Done'):tr('Weiter','Next');
-  tourChoice(s.choice?[['quiz',tr('Quiz starten','Start the quiz')],['free',tr('Selbst entdecken','Explore on my own')],['tour',tr('Rundgang wiederholen','Repeat the tour')]]:null);
+  tourChoice(s.choice?[['quiz',tr('Quiz starten','Start the quiz')],['exp',tr('Experimente','Experiments')],['free',tr('Selbst entdecken','Explore on my own')],['tour',tr('Rundgang wiederholen','Repeat the tour')]]:null);
   tourWhen(); tourFit();
 }
 // Wahl statt Weiter: am Anfang (Willkommen) und an der letzten Station
 function tourChoice(list){ const c=$('#tourChoice'), bt=$('#tour .tbtns'); c.hidden=!list; $('#tourEnd').hidden=$('#tourNext').hidden=!!list; bt.style.display=list&&$('#tourPrev').hidden?'none':'';
-  if(!list) return; c.querySelectorAll('button').forEach((b,k)=>{ b.dataset.go=list[k][0]; b.textContent=list[k][1]; }); }
+  if(!list) return; c.querySelectorAll('button').forEach((b,k)=>{ b.hidden=!list[k]; if(!list[k]) return; b.dataset.go=list[k][0]; b.textContent=list[k][1]; }); }
 $('#tourChoice').addEventListener('click',e=>{ const g=e.target.closest('button')&&e.target.closest('button').dataset.go; if(!g) return; lsSet('stm-welcomed','1');
-  if(g==='tour') tourGo(0); else if(g==='quiz'){ tourEnd(); quizStart(); } else { tourEnd(); if(state.view!=='sued') goView('sued'); } });
+  if(g==='tour') tourGo(0); else if(g==='quiz'){ tourEnd(); quizStart(); } else if(g==='exp'){ tourEnd(); document.querySelectorAll('.exppanel').forEach(p=>p.hidden=true); $('#expList').hidden=false; openCard('exp'); } else { tourEnd(); if(state.view!=='sued') goView('sued'); } });
 // Datum und Uhrzeit der Station in der Kopfzeile (auf dem Smartphone ist die Zeitleiste während des Rundgangs ausgeblendet)
 function tourWhen(){ const w=$('#tourWhen'); if(!w) return;
   w.textContent=tour.i!==null&&tour.i>=0?' · '+ckFmtDay(state.d,state.m)+' · '+fmtT(state.minutes)+' '+tzN(berlinOffsetMin(localToUtc(state.y,state.m,state.d,state.minutes))):''; }
