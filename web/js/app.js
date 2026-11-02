@@ -345,7 +345,7 @@ const diamondTex=canvasTex(128,128,(g,w,h)=>{   // helle Rechteckverglasung in B
   g.strokeStyle='#3a3d40'; g.lineWidth=3; for(let i=0;i<=3;i++){ g.beginPath(); g.moveTo(i*w/3,0); g.lineTo(i*w/3,h); g.stroke(); } for(let j=0;j<=2;j++){ g.beginPath(); g.moveTo(0,j*h/2); g.lineTo(w,j*h/2); g.stroke(); }
 },null);
 
-/* Glasmalerei-Atlas: 8 Spalten = 8 Fenstertypen. Typen 0, 1, 2, 4, 5, 6 = Fotos der Fenster (1, 2, 4, 5, 6 eigene Fotos 2026, entzerrt; 0 Westfenster: Herkunft des Fotos noch zu klären), 3 = gemalt.
+/* Glasmalerei-Atlas: 8 Spalten = 8 Fenstertypen. Typen 1, 2, 4, 5, 6 = eigene Fotos der Fenster (2026, entzerrt); 0 Westfenster = neutrale Platzhalter-Verglasung (Bildrechte), 3 = gemalt.
    Gezeichnet wird in 256 × 1024 Einheiten pro Spalte, gespeichert mit doppelter Auflösung (512 × 2048 Pixel). */
 const NT=8, ATL=1024, COL=256, AS=2;
 const GLASS=await DATA.glass;
@@ -360,17 +360,9 @@ const atlasCanvas=document.createElement('canvas'); atlasCanvas.width=COL*NT*AS;
         g.fillStyle=colorAt(u,v,r); g.fillRect(ox+x,y,w,rh); g.strokeStyle='rgba(22,20,20,.92)'; g.lineWidth=2.2; g.strokeRect(ox+x+1,y+1,w-2,rh-2); x+=w; }
       y+=rh; } }
   const clip=ox=>{ g.save(); g.beginPath(); g.rect(ox,0,COL,ATL); g.clip(); };
-  // 0 Westfenster: dichtes Mosaik in Rot und Blau mit hellen Splittern, helle Figuren oben
-  if(HASPHOTO(0)) { g.fillStyle='#8c8f96'; g.fillRect(0*COL,0,COL,ATL); } else
-  { const ox=0, r=rng(101);
-    const reds=['#9e1b1b','#c4281f','#7d1414','#d84a2a'], blues=['#14307a','#1f4fb0','#2c64c8','#0f2458','#3b3f9a'], whites=['#f1f1ea','#dfe6ee','#ffffff'], warm=['#e8b23a','#f0d070','#3f8a4a','#5aa05a'];
-    cells(ox,101,(u,v,rr)=>{ const n=Math.sin(u*9.1+v*4.3)+Math.sin(v*13.7-u*5.2)*0.8+Math.sin((u+v)*21.0)*0.35;
-      if(rr()<0.07) return pick(whites,rr); if(rr()<0.05) return pick(warm,rr); return n>0.45?pick(reds,rr):pick(blues,rr); });
-    clip(ox); g.strokeStyle='rgba(246,246,240,.9)'; g.lineCap='round';
-    for(let k=0;k<80;k++){ const x=ox+r()*COL, y=r()*ATL, a=(r()-0.5)*1.2+(r()<0.5?0:Math.PI/2), l=20+r()*70; g.lineWidth=2+r()*4; g.beginPath(); g.moveTo(x,y); g.lineTo(x+Math.cos(a)*l,y+Math.sin(a)*l); g.stroke(); }
-    const fig=(cx,cy,s)=>{ g.fillStyle='#f4f2ea'; g.strokeStyle='#2a2a2a'; g.lineWidth=2; g.beginPath(); g.arc(cx,cy-60*s,13*s,0,7); g.fill(); g.stroke();
-      g.beginPath(); g.moveTo(cx-16*s,cy-44*s); g.lineTo(cx+16*s,cy-44*s); g.lineTo(cx+28*s,cy+70*s); g.lineTo(cx-28*s,cy+70*s); g.closePath(); g.fill(); g.stroke(); };
-    fig(ox+COL*0.64,ATL*0.22,1.0); fig(ox+COL*0.36,ATL*0.25,0.8); g.restore(); }
+  // 0 Westfenster: bewusst neutrale, nicht nachempfundene Verglasung (Bildrechte des Kunstwerks); helle getönte Rechteckscheiben
+  { const ox=0; const tints=['#f2ece0','#e9e4d8','#efe7d2','#e3e8ea','#ece2cf','#f4f0e6','#dfe4e2','#eadfca'];
+    cells(ox,101,(u,v,rr)=>tints[(rr()*tints.length)|0]); }
   // 1 Totentanz: Craquelé-Grund, Reigen aus Tod und Lebenden in drei Bahnen
   if(HASPHOTO(1)) { g.fillStyle='#8c8f96'; g.fillRect(1*COL,0,COL,ATL); } else
   { const ox=COL, r=rng(202); g.fillStyle='#eceee9'; g.fillRect(ox,0,COL,ATL); clip(ox);
@@ -449,7 +441,7 @@ function colColor(k){ const cg=ccCanvas.getContext('2d'); cg.clearRect(k*8,0,8,3
   const d=cg.getImageData(k*8,0,8,32).data; let r=0,g=0,b=0,n=0;
   for(let i=0;i<d.length;i+=4){ r+=d[i]; g+=d[i+1]; b+=d[i+2]; n++; } const c=new THREE.Color(r/n/255,g/n/255,b/n/255); const m=Math.max(c.r,c.g,c.b,1e-3); return c.multiplyScalar(1/m); }
 // gemalte Spalten: feste Mittelwerte (spart das langsame Auslesen des großen Atlas); Fotospalten: aus dem Foto selbst
-const typeColor=[[1,.8,.8],[1,.98,.95],[1,.93,.92],[1,.92,.92],[.8,.8,1],[1,1,.96],[1,.98,.95],[1,1,1]].map(c=>new THREE.Color(c[0],c[1],c[2]));
+const typeColor=[[1,.97,.92],[1,.98,.95],[1,.93,.92],[1,.92,.92],[.8,.8,1],[1,1,.96],[1,.98,.95],[1,1,1]].map(c=>new THREE.Color(c[0],c[1],c[2]));
 function imgColor(img){ const cg=ccCanvas.getContext('2d'); cg.clearRect(0,0,8,32); cg.drawImage(img,0,0,8,32); const d=cg.getImageData(0,0,8,32).data; let r=0,g=0,b=0,n=0;
   for(let i=0;i<d.length;i+=4){ r+=d[i]; g+=d[i+1]; b+=d[i+2]; n++; } const c=new THREE.Color(r/n/255,g/n/255,b/n/255); const m=Math.max(c.r,c.g,c.b,1e-3); return c.multiplyScalar(1/m); }
 // Fotos der Fenster laden und in ihre Spalten legen (bis dahin stehen die gemalten Fassungen)
