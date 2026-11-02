@@ -160,7 +160,62 @@
     <div class="chead"><h2 data-en="Experiments">Experimente</h2><button class="cx" aria-label="Schließen" data-en-aria="Close">×</button></div>
     <div class="cbody">
       <div id="expList" class="explist">
+        <button class="explink" data-exp="ks"><b data-en="The church as a sundial">Die Kirche als Sonnenuhr</b><span data-en="Why does the sun stand so high in summer and so low in winter?">Warum steht die Sonne im Sommer so hoch und im Winter so tief?</span></button>
+        <button class="explink" data-exp="su"><b data-en="Sundial and wristwatch">Sonnenuhr und Armbanduhr</b><span data-en="On which day do the sundial and your watch show the same time?">An welchem Tag zeigen Sonnenuhr und Armbanduhr dieselbe Zeit?</span></button>
+        <button class="explink" data-exp="lk"><b data-en="Light calendar of a window">Lichtkalender eines Fensters</b><span data-en="When does sunlight fall directly through a window of St. Mary’s?">Wann fällt Sonnenlicht direkt durch ein Fenster von St. Marien?</span></button>
+        <button class="explink" data-exp="au"><b data-en="Astronomical clock and sky">Astronomische Uhr und Himmel</b><span data-en="What does the clock show – and what really happens in the sky?">Was zeigt die Uhr – und was geschieht wirklich am Himmel?</span></button>
         <button class="explink" data-exp="mt"><b data-en="The moon between the towers">Mond zwischen den Türmen</b><span data-en="For photographers: when does the moon stand in the gap between the two towers?">Für Fotografen: Wann steht der Mond im Spalt zwischen den beiden Türmen?</span></button>
+      </div>
+      <div id="exp-ks" class="exppanel" hidden>
+        <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
+        <h3 class="ck3" data-en="The church as a sundial">Die Kirche als Sonnenuhr</h3>
+        <p class="small" data-en="The towers cast a shadow across the town – like the rod of a giant sundial. How does it change between summer and winter?">Die Türme werfen ihren Schatten über die Stadt – wie der Stab einer riesigen Sonnenuhr. Wie ändert er sich zwischen Sommer und Winter?</p>
+        <p class="small"><b data-en="Try it:">Ausprobieren:</b> <span data-en="Switch between the two days at the same clock time and compare the tower shadow. Then play each day.">Schalten Sie zur gleichen Uhrzeit zwischen den beiden Tagen um und vergleichen Sie den Turmschatten. Spielen Sie dann jeden Tag ab.</span></p>
+        <div class="btnrow segp" id="ksSeg"><button class="chip" data-m="5" data-en="21 June">21. Juni</button><button class="chip" data-m="11" data-en="21 December">21. Dezember</button><button class="chip" id="ksPlay" data-en="Play the day">Tag abspielen</button></div>
+        <dl class="readout">
+          <div><dt data-en="Sun now">Sonne jetzt</dt><dd id="ksEl">–</dd></div>
+          <div><dt data-en="Tower shadow now">Turmschatten jetzt</dt><dd id="ksSh">–</dd></div>
+          <div><dt data-en="Highest at midday">Mittags höchstens</dt><dd id="ksMax">–</dd></div>
+          <div><dt data-en="Length of day">Tageslänge</dt><dd id="ksLen">–</dd></div>
+        </dl>
+        <details class="expx"><summary data-en="Why is that?">Warum ist das so?</summary>
+          <p class="small" data-en="The earth’s axis is tilted by 23.4° against its orbit. In summer the northern hemisphere leans towards the sun: in Lübeck (53.9° north) it stands almost 60° high at midday and the day lasts over 17 hours. In winter it reaches only about 13° and the day lasts about 7 hours. The distance to the sun has nothing to do with it – the earth is even closest to the sun in early January.">Die Erdachse ist um 23,4° gegen die Erdbahn geneigt. Im Sommer ist die Nordhalbkugel der Sonne zugeneigt: In Lübeck (53,9° Nord) steht sie mittags fast 60° hoch, der Tag dauert über 17 Stunden. Im Winter erreicht sie nur rund 13°, der Tag dauert etwa 7 Stunden. Mit dem Abstand zur Sonne hat das nichts zu tun – die Erde ist ihr Anfang Januar sogar am nächsten.</p>
+          <p class="small"><b data-en="In short:">Kurz:</b> <span data-en="High sun – short shadow, long day. Low sun – long shadow, short day. The tilt of the earth’s axis makes the seasons.">Hohe Sonne – kurzer Schatten, langer Tag. Tiefe Sonne – langer Schatten, kurzer Tag. Die Neigung der Erdachse macht die Jahreszeiten.</span></p>
+        </details>
+      </div>
+      <div id="exp-su" class="exppanel" hidden>
+        <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
+        <h3 class="ck3" data-en="Sundial and wristwatch">Sonnenuhr und Armbanduhr</h3>
+        <p class="small" data-en="The sundial on the south tower shows 12 o’clock when the sun stands due south. On which day does your watch show 12 o’clock at the same moment?">Die Sonnenuhr am Südturm zeigt 12 Uhr, wenn die Sonne genau im Süden steht. An welchem Tag zeigt Ihre Armbanduhr im selben Augenblick ebenfalls 12 Uhr?</p>
+        <p class="small"><b data-en="Try it:">Ausprobieren:</b> <span data-en="Change the date below; the model always sets the moment at which the sundial shows 12 o’clock. Or jump to a notable day:">Ändern Sie unten das Datum; das Modell stellt jeweils den Augenblick ein, in dem die Sonnenuhr 12 Uhr zeigt. Oder springen Sie zu einem besonderen Tag:</span></p>
+        <div class="btnrow" id="suBtns"><button class="chip" data-k="today" data-en="Today">Heute</button><button class="chip" data-k="min" data-en="Smallest difference">Kleinster Unterschied</button><button class="chip" data-k="win" data-en="Largest in winter">Größter im Winter</button><button class="chip" data-k="sum" data-en="Largest in summer">Größter im Sommer</button></div>
+        <p class="small expres" id="suNow"></p>
+        <details class="expx"><summary data-en="Why is that?">Warum ist das so?</summary>
+          <p class="small" data-en="Three things add up. First: our clocks follow the sun at Görlitz (15° east); Lübeck lies further west, so the sun reaches the south here about 17 minutes later. Second: the sun does not keep perfect time – because the earth’s orbit is an ellipse and its axis is tilted, true noon wanders by up to 16 minutes over the year (the equation of time). Third: in summer the clocks are put forward one hour.">Drei Dinge kommen zusammen. Erstens: Unsere Uhren richten sich nach der Sonne in Görlitz (15° Ost); Lübeck liegt weiter westlich, hier steht die Sonne rund 17 Minuten später im Süden. Zweitens: Die Sonne geht nicht gleichmäßig – weil die Erdbahn eine Ellipse und die Erdachse geneigt ist, wandert der wahre Mittag übers Jahr um bis zu 16 Minuten hin und her (Zeitgleichung). Drittens: Im Sommer wird die Uhr eine Stunde vorgestellt.</p>
+          <p class="small"><b data-en="In short:">Kurz:</b> <span data-en="In Lübeck the sundial is never exactly right by the watch – at best, in early November, it is only about a minute behind. A sundial shows the sun’s time at its own place, our watches an agreed time for a whole country.">In Lübeck stimmt die Sonnenuhr nie ganz genau mit der Armbanduhr überein – am besten Anfang November, dann geht sie nur etwa eine Minute nach. Eine Sonnenuhr zeigt die Zeit der Sonne am eigenen Ort, unsere Uhren eine vereinbarte Zeit für ein ganzes Land.</span></p>
+        </details>
+      </div>
+      <div id="exp-lk" class="exppanel" hidden>
+        <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
+        <h3 class="ck3" data-en="Light calendar of a window">Lichtkalender eines Fensters</h3>
+        <p class="small" data-en="The position of the sun alone does not decide whether light falls through a window: its direction, height and size matter, and so do buttresses, roofs and the houses around. Choose a window – the model works out for the whole year when direct sunlight comes in.">Der Sonnenstand allein entscheidet nicht, ob Licht durch ein Fenster fällt: Es kommt auf Richtung, Höhe und Größe des Fensters an und auf Strebepfeiler, Dächer und Häuser ringsum. Wählen Sie ein Fenster – das Modell rechnet für das ganze Jahr aus, wann direktes Sonnenlicht hineinfällt.</p>
+        <label class="ctl"><span data-en="Window">Fenster</span><select id="lkWin"></select></label>
+        <canvas id="lkCv" class="lkcv" width="600" height="300" role="img" aria-label="Lichtkalender: Monate von oben nach unten, Uhrzeit von links nach rechts" data-en-aria="Light calendar: months top to bottom, time of day left to right"></canvas>
+        <p class="small" id="lkSum"></p>
+        <p class="small"><b data-en="Try it:">Ausprobieren:</b> <span data-en="Tap a bright spot – the model jumps to that day and hour and shows the window from inside.">Tippen Sie auf eine helle Stelle – das Modell springt zu diesem Tag und dieser Stunde und zeigt das Fenster von innen.</span></p>
+        <p class="small note" data-en="Yellow: direct sunlight reaches the window (the brighter, the more of it). Grey: daytime without direct sun. Dark: night. Computed for the 1st and 15th of each month in 15-minute steps, with shading by the church itself and by houses within 200 m (trees if switched on); tracery, glass and clouds are not included. Light falling in and the brightness inside are two different things.">Gelb: Direktes Sonnenlicht erreicht das Fenster (je heller, desto mehr davon). Grau: Tag ohne direkte Sonne. Dunkel: Nacht. Berechnet für den 1. und 15. jedes Monats in 15-Minuten-Schritten, mit Verdeckung durch die Kirche selbst und durch Häuser im Umkreis von 200 m (Bäume, wenn eingeschaltet); Maßwerk, Glas und Wolken sind nicht berücksichtigt. Einfallendes Licht und die Helligkeit im Raum sind zweierlei.</p>
+      </div>
+      <div id="exp-au" class="exppanel" hidden>
+        <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
+        <h3 class="ck3" data-en="Astronomical clock and sky">Astronomische Uhr und Himmel</h3>
+        <p class="small" data-en="The astronomical clock is a historical instrument with its own gear trains and calendar. Its hands follow average motions – the real sun and moon do not. How far apart do they drift?">Die Astronomische Uhr ist ein historisches Instrument mit eigenen Getrieben und eigenem Kalender. Ihre Zeiger folgen mittleren Bewegungen – Sonne und Mond am Himmel tun das nicht. Wie weit laufen beide auseinander?</p>
+        <p class="small"><b data-en="Try it:">Ausprobieren:</b> <span data-en="Step forward month by month and watch how far the clock’s moon runs ahead of or behind the real one; step a day to see the phase change.">Gehen Sie Monat für Monat weiter und beobachten Sie, wie weit der Mond der Uhr dem echten voraus- oder hinterherläuft; mit „+1 Tag“ sehen Sie, wie sich die Phase ändert.</span></p>
+        <div class="btnrow" id="auBtns"><button class="chip" data-d="0" data-en="Today">Heute</button><button class="chip" data-d="1" data-en="+1 day">+1 Tag</button><button class="chip" data-d="30" data-en="+1 month">+1 Monat</button><button class="chip" data-d="365" data-en="+1 year">+1 Jahr</button></div>
+        <table class="ckcmp"><thead><tr><th></th><th data-en="Clock">Uhr</th><th data-en="Sky">Himmel</th></tr></thead><tbody id="auCmp"></tbody></table>
+        <p class="small expres" id="auNote"></p>
+        <details class="expx"><summary data-en="Why is that?">Warum ist das so?</summary>
+          <p class="small" data-en="The clock’s moon hand turns with a fixed gear ratio (6940 : 6705, from the 19-year lunar cycle) and so follows the average month of 29.5 days. The real moon moves on an ellipse, sometimes faster, sometimes slower, so the two drift apart by hours and come together again. The sun hand shows clock time, not the true solar time of a sundial. None of this is an error of the clock – it is how the instrument was built, and the model shows it unchanged.">Der Mondzeiger der Uhr dreht sich mit einem festen Übersetzungsverhältnis (6940 : 6705, aus dem 19-jährigen Mondzyklus) und folgt damit dem mittleren Monat von 29,5 Tagen. Der echte Mond läuft auf einer Ellipse mal schneller, mal langsamer; deshalb laufen beide um Stunden auseinander und wieder zusammen. Der Sonnenzeiger zeigt die Uhrzeit, nicht die wahre Ortszeit einer Sonnenuhr. Das alles ist kein Fehler der Uhr, sondern ihre Bauweise – das Modell zeigt sie unverändert.</p>
+        </details>
       </div>
       <div id="exp-mt" class="exppanel" hidden>
         <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>

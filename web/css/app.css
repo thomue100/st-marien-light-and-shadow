@@ -287,6 +287,12 @@ body.touring .yearnote{display:none}
 .mtres button:hover,.mtres button:focus-visible{border-color:var(--brick)}
 .mtres b{font-weight:600}
 .mtres .mtq{color:var(--muted)}
+.segp .chip[aria-pressed="true"]{background:var(--brick);border-color:var(--brick);color:#fff}
+.expx summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--brick)}
+.expx p{margin-top:6px}
+.expres{font-weight:600}
+.lkcv{width:100%;height:auto;border-radius:6px;cursor:crosshair;touch-action:manipulation}
+#lkWin{flex:1;min-width:0;font:inherit;font-size:13px}
 .card .note{color:var(--muted);margin-top:6px}
 .err{position:absolute;inset:0;z-index:5;background:var(--bg);display:grid;place-items:center;padding:24px;text-align:center;color:var(--ink)}
 

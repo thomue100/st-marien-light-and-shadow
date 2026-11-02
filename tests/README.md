@@ -11,3 +11,4 @@ Automatische Prüfungen mit einem kopflosen Chromium (puppeteer-core + @sparticu
 
 Ergebnis des Genauigkeitsvergleichs (Stand v42, 2026–2027): Sonne Höhe/Azimut max. 0,012°, Mond (ohne Refraktion) max. 0,007°, Auf-/Untergang Sonne und Mond max. 44 s (Standarddefinition: oberer Rand, Refraktion 34′), Voll-/Neumond max. 66 s.
 | `mt.js` | Assistent „Mond zwischen den Türmen“: Draufsicht, Fingertipp auf die Achse, Terminsuche West/Ost, Kameraansicht |
+| `exp.js` | Experimente 1–4: Sommer/Winter, Sonnenuhr und Armbanduhr, Lichtkalender (alle Fenster, Sprung per Fingertipp), Astronomische Uhr und Himmel |
