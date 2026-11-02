@@ -345,7 +345,7 @@ const diamondTex=canvasTex(128,128,(g,w,h)=>{   // helle Rechteckverglasung in B
   g.strokeStyle='#3a3d40'; g.lineWidth=3; for(let i=0;i<=3;i++){ g.beginPath(); g.moveTo(i*w/3,0); g.lineTo(i*w/3,h); g.stroke(); } for(let j=0;j<=2;j++){ g.beginPath(); g.moveTo(0,j*h/2); g.lineTo(w,j*h/2); g.stroke(); }
 },null);
 
-/* Glasmalerei-Atlas: 8 Spalten = 8 Fenstertypen. Typen 0, 1, 4, 5, 6 = Fotos der Fenster (Nutzung freigegeben), 2, 3 = gemalt.
+/* Glasmalerei-Atlas: 8 Spalten = 8 Fenstertypen. Typen 0, 1, 2, 4, 5, 6 = Fotos der Fenster (1, 2, 4, 5, 6 eigene Fotos 2026, entzerrt; 0 Westfenster: Herkunft des Fotos noch zu klären), 3 = gemalt.
    Gezeichnet wird in 256 × 1024 Einheiten pro Spalte, gespeichert mit doppelter Auflösung (512 × 2048 Pixel). */
 const NT=8, ATL=1024, COL=256, AS=2;
 const GLASS=await DATA.glass;
