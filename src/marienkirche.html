@@ -266,6 +266,18 @@ body.touring .yearnote{display:none}
 .panonote{position:absolute;z-index:2;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px) + var(--tbh) + 44px);
   width:min(520px,calc(100% - 28px));margin:0;background:var(--lbl-bg);color:var(--lbl-fg);font-size:12px;line-height:1.35;padding:5px 12px;border-radius:10px;text-align:center;opacity:.9}
 .panonote[hidden]{display:none}
+.explist{display:flex;flex-direction:column;gap:8px}
+.explink{display:flex;flex-direction:column;gap:2px;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--chip);color:var(--ink);font:inherit;cursor:pointer}
+.explink:hover,.explink:focus-visible{border-color:var(--brick)}
+.explink span{font-size:13px;color:var(--muted)}
+.exppanel[hidden],.explist[hidden]{display:none}
+.expback{align-self:flex-start}
+#mtSide .chip[aria-pressed="true"]{background:var(--brick);border-color:var(--brick);color:#fff}
+.mtres{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto}
+.mtres button{width:100%;text-align:left;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--chip);color:var(--ink);font:inherit;font-size:13px;line-height:1.35;cursor:pointer}
+.mtres button:hover,.mtres button:focus-visible{border-color:var(--brick)}
+.mtres b{font-weight:600}
+.mtres .mtq{color:var(--muted)}
 .card .note{color:var(--muted);margin-top:6px}
 .err{position:absolute;inset:0;z-index:5;background:var(--bg);display:grid;place-items:center;padding:24px;text-align:center;color:var(--ink)}
 
@@ -399,6 +411,7 @@ body.touring .yearnote{display:none}
     <button class="rbtn" data-card="moon" title="Mond" aria-label="Mond" data-en-title="Moon" data-en-aria="Moon" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg></button>
     <button class="rbtn" data-card="sd" title="Sonnenuhr" aria-label="Sonnenuhr" data-en-title="Sundial" data-en-aria="Sundial" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17h18M5 17a7 7 0 0 1 14 0"/><path d="M12 17L8.5 9.5"/><path d="M12 5v2M5.6 7.6l1.4 1.4M18.4 7.6L17 9"/></svg></button>
     <button class="rbtn" data-card="clock" title="Astronomische Uhr" aria-label="Astronomische Uhr" data-en-title="Astronomical clock" data-en-aria="Astronomical clock" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.6"/><path d="M12 3.5v1.8M12 18.7v1.8M3.5 12h1.8M18.7 12h1.8"/><path d="M13.9 10.2l3.6-3.4"/></svg></button>
+    <button class="rbtn" data-card="exp" title="Experimente" aria-label="Experimente" data-en-title="Experiments" data-en-aria="Experiments" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6.2L4.8 18.4A1.8 1.8 0 0 0 6.4 21h11.2a1.8 1.8 0 0 0 1.6-2.6L14 9.2V3"/><path d="M7.4 15h9.2"/></svg></button>
     <button class="rbtn" data-card="disp" title="Darstellung" aria-label="Darstellung" data-en-title="Display" data-en-aria="Display" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
     <button class="rbtn" data-card="light" title="Licht" aria-label="Licht" data-en-title="Light" data-en-aria="Light" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></button>
     <button class="rbtn" data-card="info" title="Über das Modell" aria-label="Über das Modell" data-en-title="About the model" data-en-aria="About the model" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></button>
@@ -495,6 +508,27 @@ body.touring .yearnote{display:none}
         <p class="small adv l-de">Zifferblatt und Rechnung folgen der Simulation „astro-uhr-app“: Mond 6940 : 6705 nach dem 19-jährigen Mondzyklus, Sternscheibe 366¼ : 365¼. Daten der Kalenderscheibe: Jahre 1911–2080, Finsternisse 2000–2036. Das Gehäuse ist ein entzerrtes Foto (13,45 m hoch, Zifferblatt und Kalenderscheibe je 3 m). Der Figurenumgang zur Mittagszeit ist nicht nachgebildet.</p>
         <p class="small adv l-en">Dial and arithmetic follow the “astro-uhr-app” simulation: moon 6940 : 6705 from the 19-year lunar cycle, star disk 366¼ : 365¼. Calendar disk data: years 1911–2080, eclipses 2000–2036. The case is a rectified photo (13.45 m tall, dial and calendar disk 3 m each). The noon procession of figures is not modelled.</p>
         <button class="chip more"><span class="mshow" data-en="More details">Mehr Details</span><span class="mhide" data-en="Fewer details">Weniger Details</span></button>
+    </div>
+  </section>
+
+  <section class="card" id="card-exp" hidden aria-label="Experimente" data-en-aria="Experiments">
+    <div class="chead"><h2 data-en="Experiments">Experimente</h2><button class="cx" aria-label="Schließen" data-en-aria="Close">×</button></div>
+    <div class="cbody">
+      <div id="expList" class="explist">
+        <button class="explink" data-exp="mt"><b data-en="The moon between the towers">Mond zwischen den Türmen</b><span data-en="For photographers: when does the moon stand in the gap between the two towers?">Für Fotografen: Wann steht der Mond im Spalt zwischen den beiden Türmen?</span></button>
+      </div>
+      <div id="exp-mt" class="exppanel" hidden>
+        <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
+        <h3 class="ck3" data-en="The moon between the towers">Mond zwischen den Türmen</h3>
+        <p class="small" data-en="Your position lies on the extended church axis. Choose it in the top view or with the slider; the model finds the moments in the next six months when the moon stands between the north and south tower.">Ihr Standort liegt auf der verlängerten Kirchenachse. Wählen Sie ihn in der Draufsicht oder mit dem Regler; das Modell findet die Augenblicke der nächsten sechs Monate, in denen der Mond zwischen Nord- und Südturm steht.</p>
+        <div class="btnrow" id="mtSide"><button class="chip" data-side="w" aria-pressed="true" data-en="From the west">Von Westen</button><button class="chip" data-side="e" aria-pressed="false" data-en="From the east">Von Osten</button><button class="chip" id="mtTopBtn" data-en="Top view">Draufsicht</button></div>
+        <label class="ctl"><span data-en="Distance to the towers">Entfernung zu den Türmen</span><input type="range" id="mtDist" min="150" max="2000" step="10" value="700"><output id="mtDistOut">700 m</output></label>
+        <p class="small" id="mtGeo"></p>
+        <div class="btnrow"><button class="btn" id="mtFind" data-en="Find dates (6 months)">Termine suchen (6 Monate)</button></div>
+        <p class="small" id="mtSum"></p>
+        <ol class="mtres" id="mtRes"></ol>
+        <p class="small note" data-en="Directions and heights of moon and towers are computed exactly; the moon is shown at its true size in the camera view. Buildings are only modelled within 200 m of the church and the ground beyond is assumed flat at Trave level – whether a house or tree near your position blocks the view, the model cannot tell. Weather is not included.">Richtung und Höhe von Mond und Türmen sind genau berechnet; in der Kameraansicht ist der Mond in wahrer Größe gezeigt. Gebäude kennt das Modell nur im Umkreis von 200 m um die Kirche, darüber hinaus ist ebenes Gelände auf Höhe der Trave angenommen – ob ein Haus oder Baum in der Nähe Ihres Standorts die Sicht versperrt, kann es nicht beurteilen. Das Wetter ist nicht berücksichtigt.</p>
+      </div>
     </div>
   </section>
 
@@ -2363,7 +2397,7 @@ function skyAt(el,idx,out){ let i=0; while(i<SKY_KEYS.length-1&&el>SKY_KEYS[i+1]
   const t=b[0]===a[0]?0:clamp01((el-a[0])/(b[0]-a[0])); ca.set(a[idx]); cb.set(b[idx]); return out.copy(ca).lerp(cb,t); }
 // Mond am Himmel: Scheibe, die zur Kamera zeigt; die Lichtgrenze ergibt sich aus der Sonnenrichtung (beleuchtete Halbkugel),
 // die Mare-Zeichnung ist nach dem Himmelsnordpol ausgerichtet. Dargestellt 2,2-fach vergrößert, damit er sichtbar bleibt.
-const MOON_MAG=2.2, SKY_R=1800;
+let MOON_MAG=2.2; const SKY_R=1800;   // Assistent »Mond zwischen den Türmen«: Kameraansicht in wahrer Größe
 const moonTex=canvasTex(256,256,(g,w,h)=>{
   const r=rng(91); g.fillStyle='#000'; g.fillRect(0,0,w,h);
   g.save(); g.beginPath(); g.arc(128,128,127,0,7); g.clip();
@@ -2595,7 +2629,7 @@ function hintFor(){
   return tr('Ziehen: umsehen · Mausrad oder W/S: vorwärts, rückwärts · A/D: seitlich · Q/E: hoch, runter','Drag: look around · Wheel or W/S: forward, back · A/D: sideways · Q/E: up, down'); }
 function applyMode(mode,minD,walk){
   state.mode=mode; state.walk=walk||null; state.skyView=false;
-  if(mode==='orbit'){ Object.assign(controls,{enableZoom:true,minDistance:minD||5,maxDistance:yr.on||state.view==='jahr'?1600:800,minPolarAngle:0.03,maxPolarAngle:Math.PI*0.62,rotateSpeed:0.55,panSpeed:1}); }
+  if(mode==='orbit'){ Object.assign(controls,{enableZoom:true,minDistance:minD||5,maxDistance:state.view==='mtTop'?20000:yr.on||state.view==='jahr'?1600:800,minPolarAngle:0.03,maxPolarAngle:Math.PI*0.62,rotateSpeed:0.55,panSpeed:1}); }
   else { Object.assign(controls,{enableZoom:false,minDistance:0.05,maxDistance:20,minPolarAngle:0.06*Math.PI,maxPolarAngle:0.94*Math.PI,rotateSpeed:-0.38,panSpeed:0.7}); }
   $('#hint').textContent=hintFor();
   if(state.skyView){ $('#hint').classList.remove('gone'); setTimeout(()=>$('#hint').classList.add('gone'),7000); }
@@ -2673,11 +2707,14 @@ renderer.domElement.addEventListener('pointerup',()=>{ panoDrag=null; });
 function panoZoom(f){ const g=panoGeom(); PANO.kx=Math.max(g.W/360,Math.min(40,PANO.kx*f)); PANO.ky=Math.max(1,Math.min(40,PANO.ky*f)); panoUniforms(); dirty=true; }
 const busyState={panoWarm:false,hideOnPano:false};
 function busyShow(t){ $('#busyTxt').textContent=t; $('#busy').hidden=false; }
+function busyText(t){ $('#busyTxt').textContent=t; }
 function busyHide(){ $('#busy').hidden=true; }
 function goView(name,instant){
   if(name==='himmel') fitSky();
   const v=VIEWS[name]; if(!v) return;
-  scene.fog.near=name==='jahr'?1200:350; scene.fog.far=name==='jahr'?4000:1700;   // Jahreslauf: von hoch oben ohne Dunst
+  { const far=name==='jahr'||name==='mtTop'||name==='mtCam'; scene.fog.near=far?2500:350; scene.fog.far=far?9000:1700; if(name==='jahr'){ scene.fog.near=1200; scene.fog.far=4000; } }
+  MOON_MAG=name==='mtCam'?1:2.2;
+  { const nf=name==='mtTop'?[5,15000]:[0.2,5000]; if(camera.near!==nf[0]){ camera.near=nf[0]; camera.far=nf[1]; camera.updateProjectionMatrix(); } }   // Jahreslauf: von hoch oben ohne Dunst
   { const fv=v.fov||55; if(camera.fov!==fv){ camera.fov=fv; camera.updateProjectionMatrix(); } }
   if(v.mode==='pano'&&!busyState.panoWarm){ busyShow(tr('Himmelsansicht wird berechnet …','Preparing the sky view …')); busyState.panoWarm=true; busyState.hideOnPano=true;
     requestAnimationFrame(()=>setTimeout(()=>goView(name,instant),40)); return; }
@@ -2689,7 +2726,7 @@ function goView(name,instant){
     updateLabelsVisibility(); panoUniforms(); joyShow(); dirty=true; return; }
   if(state.pano){ state.pano=false; controls.enabled=true; drawPanoGrid(); }
   document.querySelectorAll('#views button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===name)));
-  state.view=name; { const vb=document.querySelector('#views button[data-view="'+name+'"]'); $('#viewTxt').textContent=vb?vb.textContent:name==='totenkopf'?tr('Totentanz: Nordportal','Dance of Death: north portal'):name==='sonnenuhr'?tr('Sonnenuhr','Sundial'):name==='uhrblatt'?tr('Uhr: Zifferblatt','Clock: dial'):name==='finsternis'?tr('Finsternis','Eclipse'):name==='jahr'?tr('Jahreslauf','Year'):name==='uhrkalender'?tr('Uhr: Kalenderscheibe','Clock: calendar disk'):tr('eigene','custom'); }
+  state.view=name; { const vb=document.querySelector('#views button[data-view="'+name+'"]'); $('#viewTxt').textContent=vb?vb.textContent:name==='mtTop'?tr('Draufsicht: Standort wählen','Top view: choose position'):name==='mtCam'?tr('Blick vom Standort','View from your position'):name==='totenkopf'?tr('Totentanz: Nordportal','Dance of Death: north portal'):name==='sonnenuhr'?tr('Sonnenuhr','Sundial'):name==='uhrblatt'?tr('Uhr: Zifferblatt','Clock: dial'):name==='finsternis'?tr('Finsternis','Eclipse'):name==='jahr'?tr('Jahreslauf','Year'):name==='uhrkalender'?tr('Uhr: Kalenderscheibe','Clock: calendar disk'):tr('eigene','custom'); }
   const tp=new V3(...v.pos);
   const tt=v.mode==='inside'?tp.clone().add(new V3(...v.dir).normalize().multiplyScalar(1.2)):new V3(...v.tgt);
   setCut(v.cut); setExp(v.exp);
@@ -2972,7 +3009,7 @@ $('#axisReset').addEventListener('click',()=>setAxis(AXIS_MEASURED));
 $('#tintTog').addEventListener('change',e=>{ state.tint=e.target.checked; TINT.uTintOn.value=e.target.checked?1:0; dirty=true; });
 // Karten der Symbolleiste: immer nur eine offen
 function openCard(k){ document.querySelectorAll('.card').forEach(c=>{ c.hidden=c.id!=='card-'+k; });
-  document.querySelectorAll('.rbtn').forEach(b=>b.setAttribute('aria-expanded',String(b.dataset.card===k))); }
+  document.querySelectorAll('.rbtn').forEach(b=>b.setAttribute('aria-expanded',String(b.dataset.card===k))); if(typeof mtSync==='function') mtSync(); }
 document.querySelectorAll('.rbtn').forEach(b=>b.addEventListener('click',()=>openCard(b.getAttribute('aria-expanded')==='true'?null:b.dataset.card)));
 document.querySelectorAll('.card .cx').forEach(b=>b.addEventListener('click',()=>openCard(null)));
 // Aufklappmenüs (Ansicht, besondere Tage): schließen bei Klick daneben und mit Esc
@@ -2996,7 +3033,7 @@ function refreshLang(){
   $('#playTxt').textContent=state.playing?tr('Anhalten','Pause'):tr('Tagesverlauf','Play day');
   { const vb=document.querySelector('#views button[data-view="'+state.view+'"]'); $('#viewTxt').textContent=state.pano?tr('Himmel: Sonnen- und Mondbahn','Sky: paths of sun and moon'):vb?vb.textContent:tr('eigene','custom'); }
   $('#hint').textContent=hintFor(); setCut(state.cut); setExp(state.exp); setAmb(state.amb); $('#axisOut').textContent=fmtDeg(state.axis); $('#sdWedgeOut').textContent=fmtDeg(state.sdWedge); if(state.pano) drawPanoGrid();
-  if(tour.i!==null) showTour(); if(quiz.i!==null) qzRender(); updateShare(); updateSun(true); }
+  if(tour.i!==null) showTour(); if(quiz.i!==null) qzRender(); mtGeo(); mtRender(); updateShare(); updateSun(true); }
 $('#langBtn').addEventListener('click',()=>{ LANG=LANG==='en'?'de':'en'; lsSet('stm-lang',LANG); refreshLang(); });
 
 /* ---------------- Karte: Astronomische Uhr ---------------- */
@@ -3133,6 +3170,94 @@ $('#tbFold').addEventListener('click',()=>setTbOpen(!document.body.classList.con
 if(lsGet('stm-tbopen')==='1') document.body.classList.add('tbopen');
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&tour.i!==null&&$('#views').hidden&&$('#presets').hidden) tourEnd(); });
 
+/* ---------------- Experimente: Mond zwischen den Türmen (Assistent für Fotografen) ---------------- */
+// Standort auf der Verlängerung der Kirchenachse (z = 0), westlich oder östlich der Türme. Der Mond steht »zwischen den Türmen«,
+// wenn seine Richtung die Ebene der Turmachsen (x = TW.xc) zwischen den beiden Turmmitten und unterhalb der Helmspitzen trifft
+// und der Blick dorthin nicht von Dach, Turm oder (im Umkreis von 200 m) von Häusern verdeckt ist.
+const MZT={side:'w',dist:700,res:null,busy:false,zN:(TW.n[0]+TW.n[1])/2,zS:(TW.s[0]+TW.s[1])/2,top:Math.min(T_GTIP[0]+T_HELM[0],T_GTIP[1]+T_HELM[1])};
+MZT.zc=(MZT.zN+MZT.zS)/2; MZT.half=(MZT.zS-MZT.zN)/2;
+function mtObs(){ const x=TW.xc+(MZT.side==='w'?-MZT.dist:MZT.dist), g=envG?envSample(envG,ENV.gn,ENV.gstep,x,0):-1e9;
+  return new V3(x,(g>-1e8?g:(ENV?ENV.base:0))+1.7,0); }
+// Markierung: rote Achse in beide Richtungen und Standort-Stecknadel, nur solange der Assistent offen ist
+const mtGroup=new THREE.Group(); mtGroup.visible=false; scene.add(mtGroup);
+{ const m=new THREE.MeshBasicMaterial({color:0xd0402a,depthTest:false,transparent:true,opacity:0.85,fog:false});
+  const g=new THREE.PlaneGeometry(4300,1); g.rotateX(-Math.PI/2); MZT.axis=new THREE.Mesh(g,m); MZT.axis.position.set(TW.xc,0.4,0); MZT.axis.renderOrder=20; mtGroup.add(MZT.axis);
+  const pm=new THREE.MeshBasicMaterial({color:0xffd23c,depthTest:false,transparent:true,fog:false});
+  MZT.pin=new THREE.Mesh(new THREE.RingGeometry(0.7,1,40).rotateX(-Math.PI/2),pm); MZT.pin.renderOrder=21; mtGroup.add(MZT.pin);
+  MZT.pole=new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.6,30,8).translate(0,15,0),new THREE.MeshBasicMaterial({color:0xffd23c,fog:false})); mtGroup.add(MZT.pole); }
+function mtActive(){ return !$('#card-exp').hidden&&!$('#exp-mt').hidden; }
+function mtSync(){ const on=mtActive()||state.view==='mtTop'; mtGroup.visible=on&&state.view!=='mtCam'; if(!on) return;
+  const W=renderer.domElement.clientWidth||800, v=VIEWS.mtTop, mpp=v&&state.view==='mtTop'?2*v.pos[1]*Math.tan(27.5*rad)*camera.aspect/W:MZT.dist*0.002;   // Meter je Bildpunkt in der Draufsicht
+  const O=mtObs(), sc=Math.max(4,mpp*11); MZT.pin.position.set(O.x,O.y+0.5,0); MZT.pin.scale.setScalar(sc); MZT.pole.position.set(O.x,O.y-1.7,0); MZT.pole.scale.set(sc/4,Math.max(1,MZT.dist/400),sc/4);
+  MZT.axis.scale.z=Math.max(1.5,mpp*3); dirty=true; }
+function mtGeo(){ const d=MZT.dist, O=mtObs(), w=2*Math.atan(MZT.half/d)/rad, top=Math.atan((MZT.top-O.y)/d)/rad;
+  $('#mtDistOut').textContent=dc(String(d))+' m';
+  $('#mtGeo').textContent=tr('Von dort erscheinen die Turmspitzen '+fmtDeg(top)+' hoch; die Turmmitten liegen '+fmtDeg(w)+' auseinander, der Mond ist 0,5° groß. ','From there the spires appear '+fmtDeg(top)+' high; the tower centres are '+fmtDeg(w)+' apart, the moon is 0.5° across. ')
+    +(MZT.side==='w'?tr('Von Westen sieht man den Mond hinter den Türmen meist aufgehen.','From the west you mostly see the moon rising behind the towers.'):tr('Von Osten sieht man ihn über Chor und Dach hinweg untergehen.','From the east you see it setting beyond the choir and roof.')); }
+function mtSetSide(sd){ const ch=MZT.side!==sd; MZT.side=sd; if(ch&&state.view==='mtTop') setTimeout(()=>mtTopView(),0); document.querySelectorAll('#mtSide [data-side]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.side===sd))); mtClear(); }
+function mtSetDist(d){ MZT.dist=Math.round(Math.min(2000,Math.max(150,d))/10)*10; $('#mtDist').value=MZT.dist; mtClear(); }
+function mtClear(){ MZT.res=null; $('#mtRes').innerHTML=''; $('#mtSum').textContent=''; mtGeo(); mtSync(); }
+function mtTopView(instant){   // ganze Achse der gewählten Seite (bis 2 km) samt Kirche im freien Bildteil (neben bzw. über der offenen Karte)
+  const sg=MZT.side==='w'?-1:1, x0=Math.min(TW.xc-sg*170,TW.xc+sg*2060), x1=Math.max(TW.xc-sg*170,TW.xc+sg*2060), span=x1-x0;
+  const cv=renderer.domElement.getBoundingClientRect(), W=cv.width||1, H=cv.height||1, card=$('#card-exp'); let fx0=0.02, fx1=0.98, fy0=0.12, fy1=0.88;
+  if(!card.hidden){ const r=card.getBoundingClientRect(); if(r.top>H*0.3) fy1=Math.max(0.3,(r.top-cv.top)/H-0.03); else fx1=Math.max(0.35,(r.left-cv.left)/W-0.03); }
+  const a=W/H, tanH=Math.tan(27.5*rad)*a, totW=span/(fx1-fx0), h=totW/(2*tanH), totH=totW/a;
+  const cx=(x0+x1)/2-((fx0+fx1)/2-0.5)*totW, cz=(0.5-(fy0+fy1)/2)*totH;
+  VIEWS.mtTop={pos:[cx,h,cz+h*0.02],tgt:[cx,0,cz],mode:'orbit',cut:60,exp:0.85,fov:55}; goView('mtTop',instant); mtSync(); }
+// Ist der Mond in Richtung D vom Standort O aus zwischen den Türmen zu sehen? Gibt den seitlichen Versatz zur Mitte (m in der Turmebene) zurück, sonst null
+const _mtD=new V3(), _mtP=new V3();
+function mtTest(O,el,az,slack){ sunVec(el,az,_mtD); if(O.x<TW.xc?_mtD.x<=1e-6:_mtD.x>=-1e-6) return null;
+  const t=(TW.xc-O.x)/_mtD.x; _mtP.copy(O).addScaledVector(_mtD,t); const dz=_mtP.z-MZT.zc;
+  if(Math.abs(dz)>MZT.half+slack||_mtP.y>MZT.top+slack||_mtP.y<20-slack) return null;
+  return {dz,y:_mtP.y,t}; }
+function mtVisible(O,t){ rc.set(O,_mtD); const far=rc.far; rc.far=t+25; const hit=rc.intersectObjects(occluders,false).length>0; rc.far=far; if(hit) return false;
+  if(!envH) return true; const st=1/Math.max(Math.hypot(_mtD.x,_mtD.z),1e-3);   // Häuser im Umkreis von 200 m (ohne die Kirche selbst)
+  for(let u=2;u<t;u+=st){ const x=O.x+_mtD.x*u, z=O.z+_mtD.z*u, y=O.y+_mtD.y*u; if(Math.abs(x)>199||Math.abs(z)>199) continue; if(x>-58&&x<64&&Math.abs(z)<36) continue;
+    if(envHeightAt(x,z)>y) return false; }
+  return true; }
+async function mtSearch(){ if(MZT.busy) return; MZT.busy=true; document.querySelectorAll('#exp-mt button,#exp-mt input').forEach(x=>x.disabled=true); busyShow(tr('Termine werden gesucht …','Searching dates …'));
+  await new Promise(r=>setTimeout(r,30));
+  const O=mtObs(), now=Date.now(), t0=Math.floor(now/60000)*60000, t1=t0+183*86400000, st=4*60000, fine=15000, out=[];
+  const slack=14+MZT.dist*0.025;
+  let tick=performance.now();
+  for(let t=t0;t<t1;t+=st){
+    if(performance.now()-tick>150){ busyText(tr('Termine werden gesucht … ','Searching dates … ')+Math.round((t-t0)/(t1-t0)*100)+' %'); await new Promise(r=>setTimeout(r,0)); tick=performance.now(); }
+    const m=moonPos(t); if(m.el<-1) continue; if(!mtTest(O,m.el,m.az,slack)) continue;
+    let ev=null;   // fein: 15 s im Umkreis
+    for(let u=t-st;u<=t+st;u+=fine){ const q=moonPos(u), r=mtTest(O,q.el,q.az,0); const ok=r&&q.el>0&&mtVisible(O,r.t);
+      if(ok){ if(!ev) ev={a:u,b:u,best:u,bd:Math.abs(r.dz),bel:q.el,baz:q.az,by:r.y}; else { ev.b=u; if(Math.abs(r.dz)<ev.bd){ ev.bd=Math.abs(r.dz); ev.best=u; ev.bel=q.el; ev.baz=q.az; ev.by=r.y; } } }
+      else if(ev) break; }
+    if(ev){ const last=out[out.length-1]; if(last&&ev.a-last.b<=st+fine){ if(ev.bd<last.bd) Object.assign(last,{best:ev.best,bd:ev.bd,bel:ev.bel,baz:ev.baz,by:ev.by}); last.b=Math.max(last.b,ev.b); }
+      else out.push(ev); t=Math.max(t,ev.b); } }
+  out.forEach(e=>{ const mp=moonPos(e.best); e.k=mp.k; e.elong=mp.elong; e.sun=sunPos(e.best).el; e.rising=moonPos(e.best+600000).el>e.bel; });
+  MZT.res={list:out,O:O.toArray(),side:MZT.side,dist:MZT.dist,from:t0}; busyHide(); MZT.busy=false; document.querySelectorAll('#exp-mt button,#exp-mt input').forEach(x=>x.disabled=false); mtRender(); }
+function mtSunTxt(el){ return el>-0.83?tr('Tag','daylight'):el>-6?tr('bürgerliche Dämmerung','civil twilight'):el>-12?tr('nautische Dämmerung (blaue Stunde)','nautical twilight (blue hour)'):tr('Nacht','night'); }
+function mtRender(){ const ul=$('#mtRes'); ul.innerHTML=''; const R=MZT.res; if(!R) return;
+  $('#mtSum').textContent=R.list.length?tr(R.list.length+' Termine in den nächsten sechs Monaten, zum Ansehen antippen:',R.list.length+' dates in the next six months, tap to view:')
+    :tr('In den nächsten sechs Monaten steht der Mond von hier aus nicht sichtbar zwischen den Türmen. Probieren Sie eine andere Entfernung.','From here the moon does not stand visibly between the towers in the next six months. Try another distance.');
+  R.list.forEach((e,i)=>{ const li=document.createElement('li'), b=document.createElement('button'), off=berlinOffsetMin(e.best), l=new Date(e.best+off*60000), la=new Date(e.a+off*60000), lb=new Date(e.b+off*60000);
+    const day=LANG==='en'?WD_EN[l.getUTCDay()]+' '+l.getUTCDate()+' '+MON_EN[l.getUTCMonth()]+' '+l.getUTCFullYear():WD[l.getUTCDay()]+' '+l.getUTCDate()+'.'+(l.getUTCMonth()+1)+'.'+l.getUTCFullYear();
+    const hm=d=>pad2(d.getUTCHours())+':'+pad2(d.getUTCMinutes());
+    b.innerHTML='<b>'+day+', '+hm(l)+' '+tzN(off)+'</b><br><span class="mtq">'+tr('im Spalt ','in the gap ')+hm(la)+'–'+hm(lb)+' · '+(e.rising?tr('aufgehend','rising'):tr('sinkend','setting'))+' · '+tr('Höhe ','altitude ')+fmtDeg(e.bel)+'<br>'
+      +moonPhaseName(e.elong)+', '+Math.round(e.k*100)+tr(' % beleuchtet',' % lit')+' · '+mtSunTxt(e.sun)+'</span>';
+    b.addEventListener('click',()=>mtShow(e)); li.appendChild(b); ul.appendChild(li); }); }
+function mtShow(e){ if(state.playing) setPlaying(false); if(!state.moon){ state.moon=true; $('#moonTog').checked=true; }
+  gotoInstant(e.best); const O=new V3(...MZT.res.O), D=sunVec(e.bel,e.baz,new V3()), f=2*Math.atan(Math.max(70,MZT.half*2.2)/MZT.res.dist)/rad*1.3;
+  VIEWS.mtCam={pos:O.toArray(),dir:D.toArray(),mode:'inside',cut:60,exp:1.0,fov:Math.min(40,Math.max(2.5,f))};
+  goView('mtCam'); if(!matchMedia('(min-width: 900px)').matches) openCard(null); }
+document.querySelectorAll('#expList .explink').forEach(b=>b.addEventListener('click',()=>{ $('#expList').hidden=true; $('#exp-'+b.dataset.exp).hidden=false; if(b.dataset.exp==='mt'){ mtGeo(); mtSync(); mtTopView(); } }));
+document.querySelectorAll('.exppanel .expback').forEach(b=>b.addEventListener('click',()=>{ b.closest('.exppanel').hidden=true; $('#expList').hidden=false; mtSync(); }));
+document.querySelectorAll('#mtSide [data-side]').forEach(b=>b.addEventListener('click',()=>mtSetSide(b.dataset.side)));
+$('#mtTopBtn').addEventListener('click',()=>mtTopView());
+$('#mtDist').addEventListener('input',e=>mtSetDist(+e.target.value));
+$('#mtFind').addEventListener('click',mtSearch);
+// Draufsicht: Fingertipp auf oder neben die rote Linie setzt den Standort (Seite und Entfernung)
+{ let pd=null; renderer.domElement.addEventListener('pointerdown',e=>{ pd={x:e.clientX,y:e.clientY,t:performance.now()}; });
+  addEventListener('pointerup',e=>{ const p=pd; pd=null; if(!p||state.view!=='mtTop'||tween) return; if(Math.hypot(e.clientX-p.x,e.clientY-p.y)>6||performance.now()-p.t>700) return;
+    const r=renderer.domElement.getBoundingClientRect(); if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom) return;
+    rc.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);
+    const hit=new V3(); if(!rc.ray.intersectPlane(new THREE.Plane(new V3(0,1,0),0),hit)) return;
+    const dx=hit.x-TW.xc; if(Math.abs(dx)<100) return; MZT.side=dx<0?'w':'e'; mtSetSide(MZT.side); mtSetDist(Math.abs(dx)); }); }
 /* ---------------- Quiz: fünf Aufgaben, die man im Modell löst ---------------- */
 // Arten: set = Zustand einstellen, das Modell prüft laufend; mc = ablesen und wählen; pick = Fenster antippen
 const fmtDateL=ms=>{ const l=new Date(ms+berlinOffsetMin(ms)*60000); return LANG==='en'?l.getUTCDate()+' '+CK_MON_EN[l.getUTCMonth()]+' '+l.getUTCFullYear():l.getUTCDate()+'. '+CK_MON[l.getUTCMonth()]+' '+l.getUTCFullYear(); };
@@ -3289,6 +3414,7 @@ new ResizeObserver(()=>{ if(Math.abs((chart.clientWidth||0)-CHW)>2){ drawChart()
 let last=performance.now();
 function loop(now){
   requestAnimationFrame(loop);
+  if(MZT.busy){ last=now; return; }   // während der Terminsuche nicht zeichnen
   const dt=Math.min(0.06,(now-last)/1000); last=now;
   if(state.playing&&yr.on) yearTick(dt);
   else if(state.playing){ const fast=(cur.el<-4&&!(useMoon&&moonStr>0.05))?6:1; let m=state.minutes+state.speed*dt*fast; if(m>=1440) m-=1440; state.minutes=m; updateSun(); if(state.pano) panoMarks(); }

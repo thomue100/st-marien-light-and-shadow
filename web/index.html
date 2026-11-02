@@ -56,6 +56,7 @@
     <button class="rbtn" data-card="moon" title="Mond" aria-label="Mond" data-en-title="Moon" data-en-aria="Moon" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg></button>
     <button class="rbtn" data-card="sd" title="Sonnenuhr" aria-label="Sonnenuhr" data-en-title="Sundial" data-en-aria="Sundial" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17h18M5 17a7 7 0 0 1 14 0"/><path d="M12 17L8.5 9.5"/><path d="M12 5v2M5.6 7.6l1.4 1.4M18.4 7.6L17 9"/></svg></button>
     <button class="rbtn" data-card="clock" title="Astronomische Uhr" aria-label="Astronomische Uhr" data-en-title="Astronomical clock" data-en-aria="Astronomical clock" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.6"/><path d="M12 3.5v1.8M12 18.7v1.8M3.5 12h1.8M18.7 12h1.8"/><path d="M13.9 10.2l3.6-3.4"/></svg></button>
+    <button class="rbtn" data-card="exp" title="Experimente" aria-label="Experimente" data-en-title="Experiments" data-en-aria="Experiments" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6.2L4.8 18.4A1.8 1.8 0 0 0 6.4 21h11.2a1.8 1.8 0 0 0 1.6-2.6L14 9.2V3"/><path d="M7.4 15h9.2"/></svg></button>
     <button class="rbtn" data-card="disp" title="Darstellung" aria-label="Darstellung" data-en-title="Display" data-en-aria="Display" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
     <button class="rbtn" data-card="light" title="Licht" aria-label="Licht" data-en-title="Light" data-en-aria="Light" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></button>
     <button class="rbtn" data-card="info" title="Über das Modell" aria-label="Über das Modell" data-en-title="About the model" data-en-aria="About the model" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></button>
@@ -152,6 +153,27 @@
         <p class="small adv l-de">Zifferblatt und Rechnung folgen der Simulation „astro-uhr-app“: Mond 6940 : 6705 nach dem 19-jährigen Mondzyklus, Sternscheibe 366¼ : 365¼. Daten der Kalenderscheibe: Jahre 1911–2080, Finsternisse 2000–2036. Das Gehäuse ist ein entzerrtes Foto (13,45 m hoch, Zifferblatt und Kalenderscheibe je 3 m). Der Figurenumgang zur Mittagszeit ist nicht nachgebildet.</p>
         <p class="small adv l-en">Dial and arithmetic follow the “astro-uhr-app” simulation: moon 6940 : 6705 from the 19-year lunar cycle, star disk 366¼ : 365¼. Calendar disk data: years 1911–2080, eclipses 2000–2036. The case is a rectified photo (13.45 m tall, dial and calendar disk 3 m each). The noon procession of figures is not modelled.</p>
         <button class="chip more"><span class="mshow" data-en="More details">Mehr Details</span><span class="mhide" data-en="Fewer details">Weniger Details</span></button>
+    </div>
+  </section>
+
+  <section class="card" id="card-exp" hidden aria-label="Experimente" data-en-aria="Experiments">
+    <div class="chead"><h2 data-en="Experiments">Experimente</h2><button class="cx" aria-label="Schließen" data-en-aria="Close">×</button></div>
+    <div class="cbody">
+      <div id="expList" class="explist">
+        <button class="explink" data-exp="mt"><b data-en="The moon between the towers">Mond zwischen den Türmen</b><span data-en="For photographers: when does the moon stand in the gap between the two towers?">Für Fotografen: Wann steht der Mond im Spalt zwischen den beiden Türmen?</span></button>
+      </div>
+      <div id="exp-mt" class="exppanel" hidden>
+        <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
+        <h3 class="ck3" data-en="The moon between the towers">Mond zwischen den Türmen</h3>
+        <p class="small" data-en="Your position lies on the extended church axis. Choose it in the top view or with the slider; the model finds the moments in the next six months when the moon stands between the north and south tower.">Ihr Standort liegt auf der verlängerten Kirchenachse. Wählen Sie ihn in der Draufsicht oder mit dem Regler; das Modell findet die Augenblicke der nächsten sechs Monate, in denen der Mond zwischen Nord- und Südturm steht.</p>
+        <div class="btnrow" id="mtSide"><button class="chip" data-side="w" aria-pressed="true" data-en="From the west">Von Westen</button><button class="chip" data-side="e" aria-pressed="false" data-en="From the east">Von Osten</button><button class="chip" id="mtTopBtn" data-en="Top view">Draufsicht</button></div>
+        <label class="ctl"><span data-en="Distance to the towers">Entfernung zu den Türmen</span><input type="range" id="mtDist" min="150" max="2000" step="10" value="700"><output id="mtDistOut">700 m</output></label>
+        <p class="small" id="mtGeo"></p>
+        <div class="btnrow"><button class="btn" id="mtFind" data-en="Find dates (6 months)">Termine suchen (6 Monate)</button></div>
+        <p class="small" id="mtSum"></p>
+        <ol class="mtres" id="mtRes"></ol>
+        <p class="small note" data-en="Directions and heights of moon and towers are computed exactly; the moon is shown at its true size in the camera view. Buildings are only modelled within 200 m of the church and the ground beyond is assumed flat at Trave level – whether a house or tree near your position blocks the view, the model cannot tell. Weather is not included.">Richtung und Höhe von Mond und Türmen sind genau berechnet; in der Kameraansicht ist der Mond in wahrer Größe gezeigt. Gebäude kennt das Modell nur im Umkreis von 200 m um die Kirche, darüber hinaus ist ebenes Gelände auf Höhe der Trave angenommen – ob ein Haus oder Baum in der Nähe Ihres Standorts die Sicht versperrt, kann es nicht beurteilen. Das Wetter ist nicht berücksichtigt.</p>
+      </div>
     </div>
   </section>
 

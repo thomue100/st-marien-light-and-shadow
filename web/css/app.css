@@ -275,6 +275,18 @@ body.touring .yearnote{display:none}
 .panonote{position:absolute;z-index:2;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px) + var(--tbh) + 44px);
   width:min(520px,calc(100% - 28px));margin:0;background:var(--lbl-bg);color:var(--lbl-fg);font-size:12px;line-height:1.35;padding:5px 12px;border-radius:10px;text-align:center;opacity:.9}
 .panonote[hidden]{display:none}
+.explist{display:flex;flex-direction:column;gap:8px}
+.explink{display:flex;flex-direction:column;gap:2px;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--chip);color:var(--ink);font:inherit;cursor:pointer}
+.explink:hover,.explink:focus-visible{border-color:var(--brick)}
+.explink span{font-size:13px;color:var(--muted)}
+.exppanel[hidden],.explist[hidden]{display:none}
+.expback{align-self:flex-start}
+#mtSide .chip[aria-pressed="true"]{background:var(--brick);border-color:var(--brick);color:#fff}
+.mtres{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto}
+.mtres button{width:100%;text-align:left;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--chip);color:var(--ink);font:inherit;font-size:13px;line-height:1.35;cursor:pointer}
+.mtres button:hover,.mtres button:focus-visible{border-color:var(--brick)}
+.mtres b{font-weight:600}
+.mtres .mtq{color:var(--muted)}
 .card .note{color:var(--muted);margin-top:6px}
 .err{position:absolute;inset:0;z-index:5;background:var(--bg);display:grid;place-items:center;padding:24px;text-align:center;color:var(--ink)}
 
