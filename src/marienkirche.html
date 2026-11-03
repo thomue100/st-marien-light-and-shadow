@@ -266,6 +266,13 @@ body.touring .yearnote{display:none}
 .panonote{position:absolute;z-index:2;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px) + var(--tbh) + 44px);
   width:min(520px,calc(100% - 28px));margin:0;background:var(--lbl-bg);color:var(--lbl-fg);font-size:12px;line-height:1.35;padding:5px 12px;border-radius:10px;text-align:center;opacity:.9}
 .panonote[hidden]{display:none}
+[data-gl]{text-decoration:underline dotted;text-underline-offset:2px;cursor:help}
+.glpop{position:fixed;z-index:20;max-width:min(300px,calc(100vw - 24px));background:var(--lbl-bg);color:var(--lbl-fg);font-size:13px;line-height:1.4;padding:8px 11px;border-radius:8px;box-shadow:var(--shadow)}
+.glpop[hidden]{display:none}
+.glpop b{display:block;margin-bottom:2px}
+.dstep{padding:4px 9px;font-size:15px;line-height:1}
+.rail.lbls .rbtn{position:relative}
+.rail.lbls .rbtn::after{content:attr(title);position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);white-space:nowrap;background:var(--lbl-bg);color:var(--lbl-fg);font-size:12.5px;padding:3px 9px;border-radius:6px;pointer-events:none}
 .explist{display:flex;flex-direction:column;gap:8px}
 .explink{display:flex;flex-direction:column;gap:2px;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--chip);color:var(--ink);font:inherit;cursor:pointer}
 .explink:hover,.explink:focus-visible{border-color:var(--brick)}
@@ -299,6 +306,12 @@ body.touring .yearnote{display:none}
 .ld-bar i{display:block;height:100%;width:5%;background:var(--brick);transition:width .3s ease}
 @media (prefers-reduced-motion: reduce){ .ld-spin{animation:none;border-color:var(--brick)} }
 @media (max-width:1100px){ .tb-sum{display:none} }
+@media (max-width:440px){ #presetBtn .pl{display:none} #presetBtn .pl+span{display:inline-block} #presetBtn .pl+span::first-letter{text-transform:uppercase} }
+@media (max-width:410px){ .brand h1{font-size:16.5px} .brandbtns{gap:4px} .brandbtns .chip{padding:3px 7px;font-size:12.5px} .vbtn{padding:5px 9px;font-size:13.5px} }
+/* Handy quer (breit, aber niedrig): Ansicht-Knopf nach rechts, damit er die Kopfzeile nicht verdeckt */
+@media (max-height:520px) and (min-width:761px){ .viewpick{left:auto;right:max(14px,env(safe-area-inset-right,0px));transform:none} }
+/* niedrige Bildschirme (Handy quer): Leiste zweispaltig, damit sie nicht in die Zeitleiste ragt */
+@media (max-height:520px){ .rail{display:grid;grid-template-columns:repeat(2,auto);gap:3px} .rail .rbtn{width:32px;height:32px} .rail .rbtn svg{width:18px;height:18px} }
 @media (max-width:1560px){ .brand .eyebrow{display:none} }
 @media (max-width:760px){
   :root{--tbh:126px}
@@ -319,7 +332,12 @@ body.touring .yearnote{display:none}
   #playTxt{display:none}
   .btn{padding:5px 9px}
   input[type=date]{flex:1;min-width:8.5em}
-  .hint{display:none}
+  .hint{white-space:normal;text-align:center;border-radius:10px;font-size:12px;width:max-content}
+  .card .chead h2{cursor:pointer}
+  .card .chead h2::after{content:' ▾';font-size:.8em;color:var(--muted)}
+  .card.min .chead h2::after{content:' ▴'}
+  .card.min .cbody{display:none}
+  .dstep{order:1}
   /* Rundgang: Zeitleiste und Leiste rechts ausblenden, Karte als schmale Leiste unten, Text auf drei Zeilen gekürzt */
   body.touring .timebar, body.touring .rail, body.touring .night{display:none}
   .yearnote{top:auto;bottom:calc(10px + env(safe-area-inset-bottom,0px) + var(--tbh) + 8px);left:10px;right:10px;width:auto;font-size:12.5px;padding:8px 10px}
@@ -341,7 +359,8 @@ body.touring .yearnote{display:none}
   #nowBtn,.timebar .pp{order:1}
   .tbfold{display:grid;place-items:center;order:1;padding:4px 8px}
   #play,#speed{order:3}
-  #speed{flex:0 0 auto;width:6.2em;min-width:0}
+  #speed{flex:0 0 auto;width:7.6em;min-width:0}
+  #date{min-width:7.2em}
   .tb-track{order:3;flex:1 1 60px;min-width:60px;height:18px}
   .tb-clock{order:3;flex-direction:row;align-items:baseline;gap:5px}
   .tb-clock output{font-size:18px}
@@ -378,6 +397,7 @@ body.touring .yearnote{display:none}
   <div id="stage"></div>
   <div id="labels"></div>
   <svg id="panoGrid" aria-hidden="true" hidden></svg>
+  <div class="glpop" id="glPop" role="tooltip" hidden></div>
   <p class="panonote" id="panoNote" hidden data-en="The sky view is a schematic projection: compass direction across, altitude upwards. Distances and shapes therefore look different from the sky seen with the eye.">Die Himmelsansicht ist eine schematische Projektion: Himmelsrichtung nach rechts, Höhe nach oben. Abstände und Formen wirken deshalb anders als beim Blick mit dem Auge zum Himmel.</p>
   <header class="brand">
     <h1><span class="h1a" data-en="St. Mary's">St. Marien</span> <span class="h1b" data-en="Light and Shadow">Licht und Schatten</span></h1>
@@ -429,8 +449,8 @@ body.touring .yearnote{display:none}
     <div class="cbody sunblock">
       <svg id="compass" viewBox="-50 -50 100 100" role="img" aria-label="Kompass mit Sonnenstand und Kirchenachse" data-en-aria="Compass with sun position and church axis"></svg>
       <dl class="readout">
-          <div><dt data-en="Sun altitude">Sonnenhöhe</dt><dd id="rEl">–</dd></div>
-          <div><dt data-en="Azimuth">Azimut</dt><dd id="rAz">–</dd></div>
+          <div><dt data-gl="alt" data-en="Sun altitude">Sonnenhöhe</dt><dd id="rEl">–</dd></div>
+          <div><dt data-gl="az" data-en="Azimuth">Azimut</dt><dd id="rAz">–</dd></div>
           <div><dt data-en="Rise">Aufgang</dt><dd id="rRise">–</dd></div>
           <div><dt data-en="Set">Untergang</dt><dd id="rSet">–</dd></div>
           <div><dt data-en="Highest">Höchststand</dt><dd id="rMax">–</dd></div>
@@ -446,12 +466,12 @@ body.touring .yearnote{display:none}
         <div class="moonrow">
           <svg id="moonIcon" viewBox="-50 -50 100 100" role="img" aria-label="Mondphase, wie von der Nordhalbkugel gesehen" data-en-aria="Moon phase as seen from the northern hemisphere"></svg>
           <dl class="readout">
-            <div><dt data-en="Moon altitude">Mondhöhe</dt><dd id="mEl">–</dd></div>
-            <div><dt data-en="Azimuth">Azimut</dt><dd id="mAz">–</dd></div>
+            <div><dt data-gl="alt" data-en="Moon altitude">Mondhöhe</dt><dd id="mEl">–</dd></div>
+            <div><dt data-gl="az" data-en="Azimuth">Azimut</dt><dd id="mAz">–</dd></div>
             <div><dt data-en="Rise">Aufgang</dt><dd id="mRise">–</dd></div>
             <div><dt data-en="Set">Untergang</dt><dd id="mSet">–</dd></div>
             <div><dt data-en="Illuminated">Beleuchtet</dt><dd id="mIll">–</dd></div>
-            <div><dt data-en="Moon age">Mondalter</dt><dd id="mAge">–</dd></div>
+            <div><dt data-gl="age" data-en="Moon age">Mondalter</dt><dd id="mAge">–</dd></div>
           </dl>
         </div>
         <p class="small" id="mNext"></p>
@@ -469,7 +489,7 @@ body.touring .yearnote{display:none}
         <div class="btnrow"><button class="chip" id="sdGo" data-en="Look at it">Ansehen</button><button class="chip" id="sdMoonGo" data-en="At full moon">Bei Vollmond</button></div>
         <dl class="readout">
           <div><dt data-en="Clock time">Uhrzeit</dt><dd id="sdClock">–</dd></div>
-          <div><dt data-en="Apparent solar time">Wahre Ortszeit</dt><dd id="sdWoz">–</dd></div>
+          <div><dt data-gl="woz" data-en="Apparent solar time">Wahre Ortszeit</dt><dd id="sdWoz">–</dd></div>
           <div><dt id="sdShowLbl">Sonnenuhr zeigt</dt><dd id="sdShow">–</dd></div>
           <div class="adv"><dt id="sdDiffLbl">gegenüber Uhrzeit</dt><dd id="sdDiff">–</dd></div>
           <div class="adv"><dt id="sdErrLbl">Ablesefehler</dt><dd id="sdErr">–</dd></div>
@@ -495,9 +515,9 @@ body.touring .yearnote{display:none}
         <div class="ckrow">
           <canvas id="ckMini" width="256" height="256" role="img" aria-label="Zifferblatt der Uhr zur eingestellten Zeit" data-en-aria="Clock dial at the chosen time"></canvas>
           <dl class="readout">
-            <div><dt data-en="Day letter">Tagesbuchstabe</dt><dd id="ckLetter">–</dd></div>
-            <div><dt data-en="Sunday letter">Sonntagsbuchst.</dt><dd id="ckSun">–</dd></div>
-            <div><dt data-en="Golden number">Goldene Zahl</dt><dd id="ckGold">–</dd></div>
+            <div><dt data-gl="dl" data-en="Day letter">Tagesbuchstabe</dt><dd id="ckLetter">–</dd></div>
+            <div><dt data-gl="sl" data-en="Sunday letter">Sonntagsbuchst.</dt><dd id="ckSun">–</dd></div>
+            <div><dt data-gl="gz" data-en="Golden number">Goldene Zahl</dt><dd id="ckGold">–</dd></div>
             <div><dt data-en="Easter">Ostern</dt><dd id="ckEaster">–</dd></div>
           </dl>
         </div>
@@ -581,7 +601,7 @@ body.touring .yearnote{display:none}
       <div id="exp-mt" class="exppanel" hidden>
         <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
         <h3 class="ck3" data-en="The moon between the towers">Mond zwischen den Türmen</h3>
-        <p class="small" data-en="Your position lies on the extended church axis. Choose it in the top view or with the slider; the model finds the moments in the next six months when the moon stands between the north and south tower.">Ihr Standort liegt auf der verlängerten Kirchenachse. Wählen Sie ihn in der Draufsicht oder mit dem Regler; das Modell findet die Augenblicke der nächsten sechs Monate, in denen der Mond zwischen Nord- und Südturm steht.</p>
+        <p class="small" data-en="Your position lies on the extended church axis. Choose it in the top view or with the slider; the model finds the moments in the six months from the date set below when the moon stands between the north and south tower.">Ihr Standort liegt auf der verlängerten Kirchenachse. Wählen Sie ihn in der Draufsicht oder mit dem Regler; das Modell findet die Augenblicke in den sechs Monaten ab dem unten eingestellten Datum, in denen der Mond zwischen Nord- und Südturm steht.</p>
         <div class="btnrow" id="mtSide"><button class="chip" data-side="w" aria-pressed="true" data-en="From the west">Von Westen</button><button class="chip" data-side="e" aria-pressed="false" data-en="From the east">Von Osten</button><button class="chip" id="mtTopBtn" data-en="Top view">Draufsicht</button></div>
         <label class="ctl"><span data-en="Distance to the towers">Entfernung zu den Türmen</span><input type="range" id="mtDist" min="150" max="2000" step="10" value="700"><output id="mtDistOut">700 m</output></label>
         <p class="small" id="mtGeo"></p>
@@ -631,6 +651,7 @@ body.touring .yearnote{display:none}
           <p>Es ist ein vereinfachtes Modell und noch in Arbeit. Details der Ausstattung fehlen, und manches ist nach Fotos geschätzt.</p>
           <p>Farbige Fenster nach Fotos (Nutzung freigegeben): Totentanzfenster (A. Mahlau), Tympanon über dem Nordportal (M. Lüpertz), Briefkapelle (J. Schreiter), Wappenfenster der Marientidenkapelle und der Gedenkkapelle im Südturm. Totentanz-, Tympanon-, Briefkapellen- und Wappenfenster sowie die Astronomische Uhr nach eigenen Fotos des Projekts (2026), perspektivisch entzerrt. Das Westfenster (Auferstehungsfenster, H. G. von Stockhausen) ist vorerst nur vereinfacht als helle, neutrale Verglasung dargestellt.</p>
           <p>Astronomische Uhr: Gehäuse nach einem entzerrten Foto, Zifferblatt, Kalenderscheibe und Rechnung nach der Simulation „astro-uhr-app“.</p>
+          <p>Wählbar sind die Jahre 1911 bis 2080 – der Zeitraum, den die Kalenderscheibe der Astronomischen Uhr abdeckt.</p>
           <p>Geobasisdaten: © GeoBasis-DE/LVermGeo SH, bDOM20 und LoD2.</p>
           <div class="adv wrap">
           
@@ -680,7 +701,7 @@ body.touring .yearnote{display:none}
             <li>Farbig verglast nach Fotos (Nutzung freigegeben): beide Totentanzfenster (A. Mahlau, 1955/56), Tympanon über dem Nordportal (M. Lüpertz, 2002), Briefkapelle (J. Schreiter), Marientidenkapelle (Wappenfenster), Wappenfenster der Gedenkkapelle im Südturm. Das Westfenster (Auferstehungsfenster, H. G. von Stockhausen) ist vorerst vereinfacht als neutrale Verglasung dargestellt. Alle übrigen Fenster sind helle Rechteckverglasung; in den Chorkapellen tragen sie kleine Wappenscheiben (Stiftungen von 1953), hier vereinfacht und nicht den einzelnen Fenstern zugeordnet.</li>
             <li>Die Gewölbe von Umgang und Kapellen und die Kapellenhöhen sind vereinfacht.</li>
           </ul>
-          <p><strong>Mond:</strong> Bahn nach der verkürzten Mondtheorie von Meeus (Astronomical Algorithms, Kap. 47) mit Parallaxe für Lübeck; gegen eine Ephemeridenrechnung (PyEphem, 2026–2027) geprüft: Höhe und Azimut auf etwa 0,01°, Auf- und Untergang auf unter 1 Minute, Voll- und Neumond auf etwa 1 Minute genau. Sonne nach den Formeln des Astronomical Almanac mit Lichtbrechung: Höhe und Azimut auf etwa 0,01°, Auf- und Untergang auf unter 1 Minute. Das ist die Rechengenauigkeit; in der Natur verschieben wechselnde Lichtbrechung, Häuser und Bäume Auf- und Untergang um einige Minuten. Mondlicht ist in Wirklichkeit rund 400 000-mal schwächer als Sonnenlicht; hier ist es stark angehoben und bläulich, damit Schatten und Lichtflecke sichtbar bleiben. Der Mond am Himmel ist 2,2-fach vergrößert. Sterne: die 66 hellsten.</p>
+          <p><strong>Mond:</strong> Bahn nach der verkürzten Mondtheorie von Meeus (Astronomical Algorithms, Kap. 47) mit Parallaxe für Lübeck; Sonne nach den Formeln des Astronomical Almanac mit Lichtbrechung. Für 1911–2080 gegen die JPL-Ephemeride DE421 (bis 2053) und PyEphem (danach) geprüft: Höhe und Azimut von Sonne und Mond auf etwa 0,03° (meist 0,01°), Auf- und Untergang auf unter 1 Minute, Voll- und Neumond sowie Finsternisse auf 1–3 Minuten genau. Das ist die Rechengenauigkeit; in der Natur verschieben wechselnde Lichtbrechung, Häuser und Bäume Auf- und Untergang um einige Minuten. Mondlicht ist in Wirklichkeit rund 400 000-mal schwächer als Sonnenlicht; hier ist es stark angehoben und bläulich, damit Schatten und Lichtflecke sichtbar bleiben. Der Mond am Himmel ist 2,2-fach vergrößert. Sterne: die 66 hellsten.</p>
           <p>Geobasisdaten: © GeoBasis-DE/LVermGeo SH, bDOM20 und LoD2, Kacheln 32_610_5970 und 32_610_5969.</p>
           <p>Der fotografische 3D-Rundgang von cp360pano ist ein gehosteter Rundgang ohne exportierbares Modell. Er eignet sich gut zum Vergleich: <a href="https://cp360pano.com/st-marien-zu-luebeck-in-360-grad/" target="_blank" rel="noopener">St. Marien in 360° und 3D</a>.</p>
         
@@ -691,6 +712,7 @@ body.touring .yearnote{display:none}
           <p>It is a simplified model and a work in progress. Details of the furnishings are missing, and some things are estimated from photos.</p>
           <p>Stained glass after photos (used with permission): Dance of Death windows (A. Mahlau), tympanum above the north portal (M. Lüpertz), Briefkapelle (J. Schreiter), coat-of-arms windows of the Marientiden Chapel and of the Memorial Chapel in the south tower. The clear windows of the choir chapels carry small coat-of-arms panes (donated in 1953), shown here in simplified form. Dance of Death, tympanum, Briefkapelle and coat-of-arms windows and the astronomical clock after the project’s own photographs (2026), corrected for perspective. The west window (Resurrection window, H. G. von Stockhausen) is for now shown only in simplified form as plain, neutral glazing.</p>
           <p>Astronomical clock: case from a rectified photo; dial, calendar disk and arithmetic after the “astro-uhr-app” simulation.</p>
+          <p>Dates can be chosen from 1911 to 2080 – the years covered by the calendar disk of the astronomical clock.</p>
           <p>Geodata: © GeoBasis-DE/LVermGeo SH, bDOM20 and LoD2.</p>
           <div class="adv wrap">
             <p>Position, axis and main dimensions are matched to the official LoD2 building model (2025) and the bDOM20 surface model (aerial survey April 2023). Windows, wall thicknesses, interior and vaults are added, as LoD2 only contains the outer shell.</p>
@@ -706,7 +728,7 @@ body.touring .yearnote{display:none}
             <ul>
               <li>Surroundings within 200 m: 273 buildings from LoD2; terrain and trees derived from the surface model. Trees are solid bodies there and cast more shade than in reality; they can be switched off.</li>
               <li>Heights refer to 13.0 m above sea level (DHHN2016) as the church floor.</li>
-              <li>Sun: Astronomical Almanac formulas with refraction and daylight saving time. Moon: abridged lunar theory after Meeus with parallax for Lübeck. Checked against PyEphem (2026–2027): altitude and azimuth of sun and moon to about 0.01°, rise and set to under a minute, full and new moons to about a minute. That is the accuracy of the computation; in nature, varying refraction, houses and trees shift rise and set by a few minutes.</li>
+              <li>Sun: Astronomical Almanac formulas with refraction and daylight saving time. Moon: abridged lunar theory after Meeus with parallax for Lübeck. Checked for 1911–2080 against the JPL ephemeris DE421 (to 2053) and PyEphem (after): altitude and azimuth of sun and moon to about 0.03° (mostly 0.01°), rise and set to under a minute, full and new moons and eclipses to 1–3 minutes. That is the accuracy of the computation; in nature, varying refraction, houses and trees shift rise and set by a few minutes.</li>
               <li>Moonlight is really about 400,000 times weaker than sunlight; here it is boosted and bluish so that shadows remain visible. The moon in the sky is shown 2.2 times enlarged.</li>
             </ul>
             <p>The photographic 3D tour by cp360pano is a hosted tour without an exportable model, good for comparison: <a href="https://cp360pano.com/st-marien-zu-luebeck-in-360-grad/" target="_blank" rel="noopener">St. Mary's in 360° and 3D</a>.</p>
@@ -768,9 +790,11 @@ body.touring .yearnote{display:none}
 
   <footer class="timebar" aria-label="Datum und Uhrzeit" data-en-aria="Date and time">
     <div class="tb-ctrl">
-      <input type="date" id="date" aria-label="Datum" data-en-aria="Date">
+      <button class="chip dstep" id="dayPrev" aria-label="Einen Tag zurück" data-en-aria="One day back">‹</button>
+      <input type="date" id="date" min="1911-01-01" max="2080-12-31" aria-label="Datum (1911–2080)" data-en-aria="Date (1911–2080)">
+      <button class="chip dstep" id="dayNext" aria-label="Einen Tag vor" data-en-aria="One day forward">›</button>
       <button class="chip" id="nowBtn" data-en="Now">Jetzt</button>
-      <div class="pp"><button class="chip" id="presetBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="presets" data-en="Special days ▾">Besondere Tage ▾</button><div class="pmenu" id="presets" role="menu" hidden></div></div>
+      <div class="pp"><button class="chip" id="presetBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="presets"><span class="pl" data-en="Special ">Besondere </span><span data-en="days ▾">Tage ▾</span></button><div class="pmenu" id="presets" role="menu" hidden></div></div>
       <button class="btn" id="play" aria-label="Tagesverlauf abspielen" data-en-aria="Play the day"><svg viewBox="0 0 12 12" id="playIcon"><path d="M2 1l9 5-9 5z"/></svg><span id="playTxt" data-en="Play day">Tagesverlauf</span></button>
       <select id="speed" aria-label="Geschwindigkeit" data-en-aria="Speed">
         <option value="10">10 min/s</option>
@@ -788,7 +812,7 @@ body.touring .yearnote{display:none}
         <svg id="chart" role="img" aria-label="Sonnenhöhe (Fläche) und Mondhöhe (gestrichelt) im Tagesverlauf; klicken setzt die Uhrzeit" data-en-aria="Sun altitude (area) and moon altitude (dashed) over the day; click to set the time"></svg>
         <input type="range" id="time" min="0" max="1439" step="1" aria-label="Uhrzeit" data-en-aria="Time">
       </div>
-      <div class="tb-clock"><output id="timeOut">12:00</output><span class="small" id="tzName">MEZ</span></div>
+      <div class="tb-clock"><output id="timeOut">12:00</output><span class="small" id="tzName" data-gl="tz">MEZ</span></div>
     </div>
   </footer>
 </div>
@@ -1000,8 +1024,14 @@ function moonPhaseTime(ms,target,dir){
 // Sonne genauer nach Meeus Kap. 25 (wahre Länge + Aberration, ohne Nutation wie beim Mond), Zeit TT ≈ UT + ΔT.
 // Sonnenfinsternis: topozentrische Örter von Sonne und Mond, Bedeckung als Flächenanteil der Sonnenscheibe.
 // Mondfinsternis: geozentrischer Abstand des Mondes vom Gegenpunkt der Sonne, Kern- und Halbschatten nach Danjon.
-function deltaT(ms){ const y=new Date(ms).getUTCFullYear()+(new Date(ms).getUTCMonth()+0.5)/12, t=y-2000;   // Espenak & Meeus, 2005–2050
-  return y<2005?63.86+0.3345*t-0.060374*t*t:62.92+0.32217*t+0.005589*t*t; }
+function deltaT(ms){ const q=new Date(ms), y=q.getUTCFullYear()+(q.getUTCMonth()+0.5)/12;   // Espenak & Meeus (NASA), Polynome 1900–2150
+  if(y<1920){ const t=y-1900; return -2.79+1.494119*t-0.0598939*t*t+0.0061966*t*t*t-0.000197*t*t*t*t; }
+  if(y<1941){ const t=y-1920; return 21.20+0.84493*t-0.076100*t*t+0.0020936*t*t*t; }
+  if(y<1961){ const t=y-1950; return 29.07+0.407*t-t*t/233+t*t*t/2547; }
+  if(y<1986){ const t=y-1975; return 45.45+1.067*t-t*t/260-t*t*t/718; }
+  if(y<2005){ const t=y-2000; return 63.86+0.3345*t-0.060374*t*t+0.0017275*t*t*t+0.000651814*t**4+0.00002373599*t**5; }
+  if(y<2050){ const t=y-2000; return 62.92+0.32217*t+0.005589*t*t; }
+  const u=(y-1820)/100; return -20+32*u*u-0.5628*(2150-y); }
 function sunPrecise(ms){
   const T=(ms/86400000+2440587.5-2451545.0+deltaT(ms)/86400)/36525;
   const L0=280.46646+36000.76983*T+0.0003032*T*T, M=(357.52911+35999.05029*T-0.0001537*T*T)*rad, e=0.016708634-0.000042037*T;
@@ -1093,11 +1123,18 @@ function moonRiseSet(t0,t1){ let rise=null,set=null,prev=null; const st=300000;
 /* ---------------- Renderer ---------------- */
 const stage=$('#stage');
 const coarse=matchMedia('(pointer:coarse)').matches;
+const lowEnd=coarse&&((navigator.deviceMemory||8)<=4||(navigator.hardwareConcurrency||8)<=4);   // ältere Handys: weniger Pixel, kleinere Schatten- und Umgebungstexturen
 let renderer;
 try{ renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'}); }
 catch(e){ ldDone(); stage.innerHTML='<div class="err">'+tr('WebGL ist in diesem Browser nicht verfügbar.','WebGL is not available in this browser.')+'</div>'; return; }
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,lowEnd?1.5:2));
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+// Handy im Hintergrund o. Ä.: Browser entzieht den Grafikspeicher. Statt schwarzer Fläche Hinweis und Neuladen mit der aktuellen Ansicht
+renderer.domElement.addEventListener('webglcontextlost',e=>{ e.preventDefault(); if(document.getElementById('glLost')) return;
+  const d=document.createElement('div'); d.id='glLost'; d.className='err';
+  d.innerHTML='<div><p>'+tr('Der Browser hat die 3D-Darstellung unterbrochen (z. B. weil die Seite im Hintergrund war).','The browser interrupted the 3D view (for example because the page was in the background).')+'</p><button class="btn" id="glReload">'+tr('Neu laden','Reload')+'</button></div>';
+  document.getElementById('stage').appendChild(d);
+  document.getElementById('glReload').addEventListener('click',()=>{ try{ history.replaceState(null,'','#'+stateCode()); }catch(x){} location.reload(); }); });
 renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1;
 renderer.localClippingEnabled=true;
@@ -2430,7 +2467,7 @@ function drawYearChart(){
 /* ---------------- Licht & Himmel ---------------- */
 const SC=new V3(7,25,0);
 const sun=new THREE.DirectionalLight(0xffffff,3);
-const smSize=Math.min(coarse?2048:4096,renderer.capabilities.maxTextureSize);
+const smSize=Math.min(lowEnd?1024:coarse?2048:4096,renderer.capabilities.maxTextureSize);
 sun.castShadow=true; sun.shadow.mapSize.set(smSize,smSize);
 Object.assign(sun.shadow.camera,{left:-85,right:85,top:85,bottom:-85,near:1,far:800});
 sun.shadow.bias=-0.0003; sun.shadow.normalBias=0.05; sun.shadow.camera.updateProjectionMatrix();
@@ -2679,7 +2716,8 @@ const VIEWS={
   jahr:{pos:[40,215,215],tgt:[-48,0,-125],mode:'orbit',cut:60,exp:0.85}   // Jahreslauf: Kirche und Schattenspur der Südturmspitze
 };
 function hintFor(){
-  if(state.pano) return tr('Ziehen: Himmel drehen und kippen · Mausrad: Ausschnitt vergrößern oder verkleinern','Drag: turn and tilt the sky · Wheel: zoom in or out');
+  if(state.pano) return coarse?tr('Ziehen: Himmel drehen und kippen','Drag: turn and tilt the sky'):tr('Ziehen: Himmel drehen und kippen · Mausrad: Ausschnitt vergrößern oder verkleinern','Drag: turn and tilt the sky · Wheel: zoom in or out');
+  if(state.mode==='orbit'&&coarse) return tr('Ein Finger: drehen · zwei Finger: verschieben und zoomen','One finger: rotate · two fingers: pan and zoom');
   if(state.mode==='orbit') return tr('Ziehen: drehen · Rechtsklick oder zwei Finger: verschieben · Mausrad: zoomen · WASD: gehen','Drag: rotate · Right-click or two fingers: pan · Wheel: zoom · WASD: move');
   if(state.walk) return tr('Ziehen: umsehen · W/A/S/D, Pfeiltasten oder Mausrad: in der Laterne umhergehen','Drag: look around · W/A/S/D, arrow keys or wheel: walk around the lantern');
   if(coarse) return tr('Ziehen: umsehen · Steuerkreis unten links: gehen','Drag: look around · Pad at bottom left: walk');
@@ -2697,7 +2735,7 @@ function applyMode(mode,minD,walk){
 // (Azimut waagerecht, Höhe senkrecht, beide linear). So bleiben die Bahnen von Sonne und Mond auch über 180° und mehr
 // als natürliche Bögen sichtbar. Standpunkt: 140 m hoch, 170 m von der Kirche entfernt auf der den Bahnen abgewandten Seite,
 // damit die Kirche unten im Bild liegt und nichts den Himmel verdeckt.
-const cubeRT=new THREE.WebGLCubeRenderTarget(coarse?768:1280,{type:THREE.HalfFloatType,generateMipmaps:false,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter});
+const cubeRT=new THREE.WebGLCubeRenderTarget(lowEnd?512:coarse?768:1280,{type:THREE.HalfFloatType,generateMipmaps:false,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter});
 const cubeCam=new THREE.CubeCamera(0.5,6000,cubeRT);
 const panoMat=new THREE.ShaderMaterial({depthTest:false,depthWrite:false,toneMapped:false,
   uniforms:{uCube:{value:cubeRT.texture},uAz:{value:180},uElB:{value:-30},uKx:{value:6},uKy:{value:6},uYB:{value:0},uW:{value:1000},uAxis:{value:98.5}},
@@ -2977,7 +3015,9 @@ function goFullMoon(){ const nf=moonPhaseTime(localToUtc(state.y,state.m,state.d
 // Finsternisse: nächste von Lübeck aus sichtbare ab dem eingestellten Tag (Mondfinsternisse mit Kernschatten)
 const eclCache={key:null,s:null,l:null};
 function nextEclipses(){ const t=Date.UTC(state.y,state.m,state.d), key=state.y+'-'+state.m+'-'+state.d; if(eclCache.key===key) return eclCache;
-  eclCache.key=key; eclCache.s=eclipseScan(t,1,'s')[0]||null; eclCache.l=eclipseScan(t,60,'l').find(e=>e.visible&&e.type!=='penumbral'&&e.max>=t)||null; return eclCache; }
+  eclCache.key=key; eclCache.s=eclipseScan(t,6,'s').find(e=>e.cover>=0.005)||null;   // streifende Finsternisse unter 0,5 % Bedeckung nicht nennen eclCache.l=eclipseScan(t,60,'l').find(e=>e.visible&&e.type!=='penumbral'&&e.max>=t)||null;
+  for(const k of ['s','l']) if(eclCache[k]&&eclCache[k].max>DATE_MAX+864e5) eclCache[k]=null;   // nur innerhalb des wählbaren Zeitraums
+  return eclCache; }
 function eclWhen(ms){ const off=berlinOffsetMin(ms), l=new Date(ms+off*60000), hm=pad2(l.getUTCHours())+':'+pad2(l.getUTCMinutes());
   return LANG==='en'?WD_EN[l.getUTCDay()]+' '+l.getUTCDate()+' '+MON_EN[l.getUTCMonth()]+' '+l.getUTCFullYear()+', '+hm+' '+tzN(off):WD[l.getUTCDay()]+' '+l.getUTCDate()+'.'+(l.getUTCMonth()+1)+'.'+l.getUTCFullYear()+', '+hm+' '+tzN(off); }
 function eclText(e){ if(!e) return '–';
@@ -2995,14 +3035,19 @@ $('#goLunEcl').addEventListener('click',()=>goEclipse(nextEclipses().l));
 document.querySelector('.rbtn[data-card="moon"]').addEventListener('click',()=>setTimeout(updateEclText,0));
 function goNewMoon(){ const nn=moonPhaseTime(localToUtc(state.y,state.m,state.d,state.minutes)+3600000,0,1); if(nn!==null) gotoInstant(nn,22*60); }
 function setMinutes(m){ state.minutes=m; updateSun(); if(state.pano) panoMarks(); if(yr.on){ yr.mez=yrMez(); yrBuild(); } }
-function setDate(y,m,d){ state.y=y; state.m=m; state.d=d; $('#date').value=y+'-'+pad2(m+1)+'-'+pad2(d); computeDay(); updateSun(true); }
+// Wählbarer Zeitraum = Jahre der Kalenderscheibe der Astronomischen Uhr
+const DATE_MIN=Date.UTC(1911,0,1), DATE_MAX=Date.UTC(2080,11,31);
+function clampYMD(y,m,d){ let t=Date.UTC(+y||2026,+m||0,+d||1); if(!isFinite(t)) t=Date.UTC(2026,0,1); t=Math.min(DATE_MAX,Math.max(DATE_MIN,t)); const q=new Date(t); return [q.getUTCFullYear(),q.getUTCMonth(),q.getUTCDate()]; }
+function setDate(y,m,d){ [y,m,d]=clampYMD(y,m,d); state.y=y; state.m=m; state.d=d; $('#date').value=y+'-'+pad2(m+1)+'-'+pad2(d); computeDay(); updateSun(true); }
 function setCut(v){ state.cut=v; $('#cut').value=v; cutPlane.constant=v>=60?500:v; $('#cutOut').textContent=v>=60?tr('aus','off'):dc(v.toFixed(1))+' m'; dirty=true; }
 function setExp(v){ state.exp=v; $('#exp').value=v; renderer.toneMappingExposure=v*(1+0.15*(1-smooth(-7,-1.5,cur.el))*(state.moon?1:0)); $('#expOut').textContent=dc(v.toFixed(2)); dirty=true; }
 function setAmb(v){ state.amb=v; $('#amb').value=v; TINT.uAmbIn.value=v; $('#ambOut').textContent=Math.round(v*100)+' %'; dirty=true; }
 function setAxis(v){ state.axis=v; $('#axis').value=v; $('#axisOut').textContent=fmtDeg(v); drawCompassStatic(); buildSunPath(); sdOrient(); updateSun(true); }
 
-$('#date').addEventListener('change',e=>{ const p=e.target.value.split('-').map(Number); if(p.length===3&&p[0]){ setDate(p[0],p[1]-1,p[2]); if(yr.on){ if(p[0]!==yr.year) yrBuild(); else yrMark(); } } });
+$('#date').addEventListener('change',e=>{ const p=e.target.value.split('-').map(Number); if(p.length!==3||!p[0]){ e.target.value=state.y+'-'+pad2(state.m+1)+'-'+pad2(state.d); return; } { const c=clampYMD(p[0],p[1]-1,p[2]); p[0]=c[0]; p[1]=c[1]+1; p[2]=c[2]; } if(p.length===3&&p[0]){ setDate(p[0],p[1]-1,p[2]); if(yr.on){ if(p[0]!==yr.year) yrBuild(); else yrMark(); } } });
 $('#time').addEventListener('input',e=>setMinutes(+e.target.value));
+function stepDay(k){ const t=new Date(Date.UTC(state.y,state.m,state.d)+k*864e5); setDate(t.getUTCFullYear(),t.getUTCMonth(),t.getUTCDate()); if(yr.on) yrMark(); }
+$('#dayPrev').addEventListener('click',()=>stepDay(-1)); $('#dayNext').addEventListener('click',()=>stepDay(1));
 $('#nowBtn').addEventListener('click',()=>{ const n=berlinNow(); state.minutes=n.minutes; setDate(n.y,n.m,n.d); });
 const presetsEl=$('#presets');
 function buildPresets(){ presetsEl.innerHTML='';
@@ -3069,7 +3114,7 @@ $('#sdWedge').addEventListener('input',e=>{ state.sdWedge=+e.target.value; sdOri
 $('#axisReset').addEventListener('click',()=>setAxis(AXIS_MEASURED));
 $('#tintTog').addEventListener('change',e=>{ state.tint=e.target.checked; TINT.uTintOn.value=e.target.checked?1:0; dirty=true; });
 // Karten der Symbolleiste: immer nur eine offen
-function openCard(k){ document.querySelectorAll('.card').forEach(c=>{ c.hidden=c.id!=='card-'+k; });
+function openCard(k){ document.querySelectorAll('.card').forEach(c=>{ c.hidden=c.id!=='card-'+k; c.classList.remove('min'); }); const gp=document.getElementById('glPop'); if(gp) gp.hidden=true;
   document.querySelectorAll('.rbtn').forEach(b=>b.setAttribute('aria-expanded',String(b.dataset.card===k))); if(typeof mtSync==='function') mtSync(); }
 document.querySelectorAll('.rbtn').forEach(b=>b.addEventListener('click',()=>openCard(b.getAttribute('aria-expanded')==='true'?null:b.dataset.card)));
 document.querySelectorAll('.card .cx').forEach(b=>b.addEventListener('click',()=>openCard(null)));
@@ -3082,6 +3127,31 @@ menu($('#viewBtn'),$('#views')); menu($('#presetBtn'),$('#presets'));
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!e.defaultPrevented&&document.querySelector('.card:not([hidden])')&&$('#views').hidden&&$('#presets').hidden) openCard(null); });
 // Bedienhinweis nach dem ersten Ziehen oder nach 9 s ausblenden
 { const hide=()=>$('#hint').classList.add('gone'); renderer.domElement.addEventListener('pointerdown',hide,{once:true}); setTimeout(hide,9000); }
+// Nach dem Rundgang bzw. beim ersten freien Erkunden: Bedienhinweis zeigen und die Symbole der Leiste kurz beschriften (einmal je Gerät)
+let hintTimer=null;
+function showHint(ms){ const h=$('#hint'); h.textContent=hintFor(); h.classList.remove('gone'); clearTimeout(hintTimer); hintTimer=setTimeout(()=>h.classList.add('gone'),ms||8000);
+  renderer.domElement.addEventListener('pointerdown',()=>h.classList.add('gone'),{once:true}); }
+function introExplore(){ showHint(9000); if(lsGet('stm-raillbl')==='1') return; lsSet('stm-raillbl','1');
+  const r=document.querySelector('.rail'); r.classList.add('lbls'); setTimeout(()=>r.classList.remove('lbls'),7000); }
+// Glossar: Begriffe mit gepunkteter Unterstreichung antippen
+const GL={alt:['Höhe','Altitude','Winkel über dem Horizont: 0° liegt am Horizont, 90° genau über Ihnen. Je höher die Sonne, desto kürzer die Schatten.','Angle above the horizon: 0° is on the horizon, 90° straight overhead. The higher the sun, the shorter the shadows.'],
+  az:['Azimut','Azimuth','Himmelsrichtung, im Uhrzeigersinn von Norden gezählt: 90° ist Osten, 180° Süden, 270° Westen.','Compass direction, counted clockwise from north: 90° is east, 180° south, 270° west.'],
+  age:['Mondalter','Moon age','Tage seit dem letzten Neumond. Nach gut 7 Tagen ist Halbmond, nach etwa 15 Tagen Vollmond, nach 29,5 Tagen wieder Neumond.','Days since the last new moon. After about 7 days it is half moon, after about 15 days full moon, after 29.5 days new moon again.'],
+  woz:['Wahre Ortszeit','Apparent solar time','Zeit nach dem Sonnenstand am eigenen Ort: 12 Uhr ist, wenn die Sonne genau im Süden steht. Diese Zeit zeigt die Sonnenuhr.','Time by the sun at your own place: 12 o’clock is when the sun stands due south. This is the time a sundial shows.'],
+  tz:['MEZ und MESZ','CET and CEST','Mitteleuropäische Zeit, die gesetzliche Uhrzeit. Sie richtet sich nach dem Sonnenstand auf 15° Ost (Görlitz). Im Sommer gilt die Sommerzeit MESZ, eine Stunde später.','Central European Time, the legal clock time. It follows the sun at 15° east (Görlitz). In summer, daylight saving time (CEST) is one hour ahead.'],
+  dl:['Tagesbuchstabe','Day letter','Im Kirchenkalender tragen die Tage des Jahres reihum die Buchstaben A bis G, beginnend mit A am 1. Januar. Die Kalenderscheibe der Uhr zeigt ihn für jeden Tag.','In the church calendar the days of the year carry the letters A to G in turn, starting with A on 1 January. The clock’s calendar disk shows it for every day.'],
+  sl:['Sonntagsbuchstabe','Sunday letter','Der Tagesbuchstabe, der in einem Jahr auf die Sonntage fällt. Mit ihm findet man zu jedem Datum den Wochentag; Schaltjahre haben zwei.','The day letter that falls on the Sundays of a year. With it you can find the weekday of any date; leap years have two.'],
+  gz:['Goldene Zahl','Golden number','Stellung des Jahres im 19-jährigen Mondzyklus (1 bis 19). Nach 19 Jahren fallen die Mondphasen wieder auf dieselben Kalendertage; daraus berechnet man den Ostertermin.','Position of the year in the 19-year lunar cycle (1 to 19). After 19 years the moon phases fall on the same calendar days again; Easter is computed from it.']};
+document.addEventListener('click',e=>{ const t=e.target.closest('[data-gl]'), p=$('#glPop');
+  if(!t){ if(!p.hidden&&!p.contains(e.target)) p.hidden=true; return; }
+  const g=GL[t.dataset.gl]; if(!g) return; if(!p.hidden&&p.dataset.k===t.dataset.gl){ p.hidden=true; return; }
+  p.dataset.k=t.dataset.gl; p.innerHTML='<b>'+(LANG==='en'?g[1]:g[0])+'</b>'+(LANG==='en'?g[3]:g[2]); p.hidden=false;
+  const r=t.getBoundingClientRect(), w=p.offsetWidth, h=p.offsetHeight; let x=Math.min(innerWidth-w-12,Math.max(12,r.left)), y=r.bottom+6; if(y+h>innerHeight-8) y=r.top-h-6;
+  p.style.left=x+'px'; p.style.top=Math.max(8,y)+'px'; });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') $('#glPop').hidden=true; });
+document.querySelectorAll('[data-gl]').forEach(el=>{ el.tabIndex=0; el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); el.click(); } }); });
+// Karten auf dem Smartphone über die Überschrift ein- und ausklappen, damit die Szene sichtbar wird
+document.querySelectorAll('.card .chead h2').forEach(h=>h.addEventListener('click',()=>{ if(matchMedia('(max-width: 760px)').matches) h.closest('.card').classList.toggle('min'); }));
 
 
 /* ---------------- Einfache und erweiterte Ansicht ---------------- */
@@ -3218,7 +3288,7 @@ function tourFit(){ const c=$('#tour'), t=$('#tourText'), b=$('#tourMore'); if(!
 $('#tourMore').addEventListener('click',()=>{ const c=$('#tour'), o=c.classList.toggle('open'); $('#tourMore').textContent=o?tr('weniger','less'):tr('mehr','more'); });
 addEventListener('resize',()=>{ if(tour.i!==null) tourFit(); });
 function tourGo(i){ tour.i=i; showTour(); if(i>=0) tourApply(TOUR[i]); $('#tourNext').focus({preventScroll:true}); }
-function tourEnd(){ if(state.playing&&tour.i!==null&&tour.i>=0) setPlaying(false); if(tour.i!==null&&tour.i>=0){ state.speed=30; $('#speed').value='30'; } tour.i=null; $('#tour').hidden=true; document.body.classList.remove('touring'); lsSet('stm-welcomed','1'); }
+function tourEnd(){ if(state.playing&&tour.i!==null&&tour.i>=0) setPlaying(false); if(tour.i!==null&&tour.i>=0){ state.speed=30; $('#speed').value='30'; } tour.i=null; $('#tour').hidden=true; document.body.classList.remove('touring'); lsSet('stm-welcomed','1'); if(!quiz||quiz.i===null) setTimeout(introExplore,400); }
 $('#tourNext').addEventListener('click',()=>{ if(tour.i===TOUR.length-1) tourEnd(); else { lsSet('stm-welcomed','1'); tourGo(tour.i+1); } });
 $('#tourPrev').addEventListener('click',()=>{ if(tour.i>0) tourGo(tour.i-1); });
 $('#tourEnd').addEventListener('click',tourEnd);
@@ -3279,7 +3349,7 @@ function mtVisible(O,t){ rc.set(O,_mtD); const far=rc.far; rc.far=t+25; const hi
   return true; }
 async function mtSearch(){ if(MZT.busy) return; MZT.busy=true; document.querySelectorAll('#exp-mt button,#exp-mt input').forEach(x=>x.disabled=true); busyShow(tr('Termine werden gesucht …','Searching dates …'));
   await new Promise(r=>setTimeout(r,30));
-  const O=mtObs(), now=Date.now(), t0=Math.floor(now/60000)*60000, t1=t0+183*86400000, st=4*60000, fine=15000, out=[];
+  const O=mtObs(), t0=Math.max(localToUtc(state.y,state.m,state.d,0),DATE_MIN), t1=Math.min(t0+183*86400000,DATE_MAX+864e5), st=4*60000, fine=15000, out=[];
   const slack=14+MZT.dist*0.025;
   let tick=performance.now();
   for(let t=t0;t<t1;t+=st){
@@ -3295,8 +3365,8 @@ async function mtSearch(){ if(MZT.busy) return; MZT.busy=true; document.querySel
   MZT.res={list:out,O:O.toArray(),side:MZT.side,dist:MZT.dist,from:t0}; busyHide(); MZT.busy=false; document.querySelectorAll('#exp-mt button,#exp-mt input').forEach(x=>x.disabled=false); mtRender(); }
 function mtSunTxt(el){ return el>-0.83?tr('Tag','daylight'):el>-6?tr('bürgerliche Dämmerung','civil twilight'):el>-12?tr('nautische Dämmerung (blaue Stunde)','nautical twilight (blue hour)'):tr('Nacht','night'); }
 function mtRender(){ const ul=$('#mtRes'); ul.innerHTML=''; const R=MZT.res; if(!R) return;
-  $('#mtSum').textContent=R.list.length?tr(R.list.length+' Termine in den nächsten sechs Monaten, zum Ansehen antippen:',R.list.length+' dates in the next six months, tap to view:')
-    :tr('In den nächsten sechs Monaten steht der Mond von hier aus nicht sichtbar zwischen den Türmen. Probieren Sie eine andere Entfernung.','From here the moon does not stand visibly between the towers in the next six months. Try another distance.');
+  $('#mtSum').textContent=R.list.length?tr(R.list.length+' Termine in den sechs Monaten ab '+fmtDateL(R.from)+', zum Ansehen antippen:',R.list.length+' dates in the six months from '+fmtDateL(R.from)+', tap to view:')
+    :tr('In diesen sechs Monaten steht der Mond von hier aus nicht sichtbar zwischen den Türmen. Probieren Sie eine andere Entfernung.','From here the moon does not stand visibly between the towers in these six months. Try another distance.');
   R.list.forEach((e,i)=>{ const li=document.createElement('li'), b=document.createElement('button'), off=berlinOffsetMin(e.best), l=new Date(e.best+off*60000), la=new Date(e.a+off*60000), lb=new Date(e.b+off*60000);
     const day=LANG==='en'?WD_EN[l.getUTCDay()]+' '+l.getUTCDate()+' '+MON_EN[l.getUTCMonth()]+' '+l.getUTCFullYear():WD[l.getUTCDay()]+' '+l.getUTCDate()+'.'+(l.getUTCMonth()+1)+'.'+l.getUTCFullYear();
     const hm=d=>pad2(d.getUTCHours())+':'+pad2(d.getUTCMinutes());
@@ -3339,7 +3409,7 @@ function expTick(){ if(!expReady) return; try{
     document.querySelectorAll('#ksSeg [data-m]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.m===state.m&&state.d===21))); }
   if(expPanel('su')) suText();
   if(expPanel('au')) auTable();
-  if(expPanel('lk')) lkDraw();
+  if(expPanel('lk')){ if(LK.cur&&LK.cur.y!==state.y&&!LK.busy) lkRun(); else lkDraw(); }
 }catch(e){ console.warn(e); } }
 const TOWER_H=124.95;
 // 1 Kirche als Sonnenuhr
@@ -3386,7 +3456,7 @@ async function lkRun(){ if(LK.busy) return; const c=LK.list[LK.sel]; if(!c) retu
         LD.copy(_lkL); let ok=0; for(const o of w.occ){ rc.set(o,_lkL); if(!envBlocked(o)&&rc.intersectObjects(occluders,false).length===0) ok++; } g[r*LK_COLS+k]=ok/w.occ.length; }
       if(performance.now()-tick>150){ LD.copy(_lkSave); busyText(tr('Lichtkalender wird berechnet … ','Computing the light calendar … ')+Math.round((r+1)/LK_ROWS*100)+' %'); await new Promise(res=>setTimeout(res,0)); tick=performance.now(); } }
     LD.copy(_lkSave); LK.cache[key]=g; busyHide(); LK.busy=false; }
-  LK.cur={g:LK.cache[key],w}; lkDraw(); lkSum(); }
+  LK.cur={g:LK.cache[key],w,y:state.y}; lkDraw(); lkSum(); }
 function lkSum(){ const g=LK.cur.g; let days=0, any=new Set(), first=null, last=null, hrs=0;
   for(let r=0;r<LK_ROWS;r++){ let lit=false; for(let k=0;k<LK_COLS;k++){ const v=g[r*LK_COLS+k]; if(v>0.3){ lit=true; hrs+=0.25; } } if(lit) any.add(r); }
   $('#lkSum').textContent=any.size?tr('Direktes Sonnenlicht an '+any.size+' von 24 Stichtagen, zusammen etwa '+Math.round(hrs)+' Stunden.','Direct sunlight on '+any.size+' of 24 sample days, about '+Math.round(hrs)+' hours in all.')
@@ -3528,11 +3598,11 @@ function updateShare(){ if($('#card-share').hidden) return; $('#shareUrl').value
 function applyCode(str){
   const q=new URLSearchParams(String(str||'').replace(/^[^#]*#/,'').replace(/^#/,'')); if(!q.get('d')) return false;
   if(q.get('l')&&q.get('l')!==LANG){ LANG=q.get('l')==='en'?'en':'de'; refreshLang(); }
-  const [y,mo,d]=q.get('d').split('-').map(Number); if(!y) return false;
+  const [y,mo,d]=q.get('d').split('-').map(Number); if(!Number.isFinite(y)||!Number.isFinite(mo)||!Number.isFinite(d)||mo<1||mo>12||d<1||d>31) return false;
   if(tour.i!==null) tourEnd();
-  state.minutes=Math.max(0,Math.min(1439,+q.get('t')||720)); setDate(y,mo-1,d);
+  { const t=q.get('t')===null||q.get('t')===''?NaN:+q.get('t'); state.minutes=Number.isFinite(t)?Math.max(0,Math.min(1439,t)):720; } setDate(y,mo-1,Math.min(d,new Date(Date.UTC(y,mo,0)).getUTCDate()));
   const v=q.get('v'); if(v&&VIEWS[v]) goView(v,true);
-  if(v==='himmel'&&q.get('p')){ const a=q.get('p').split(',').map(Number); if(a.length===4){ Object.assign(PANO,{az:a[0],elB:a[1],kx:a[2],ky:a[3]}); panoUniforms(); } }
+  if(v==='himmel'&&q.get('p')){ const a=q.get('p').split(',').map(Number); if(a.length===4&&a.every(Number.isFinite)){ Object.assign(PANO,{az:a[0],elB:a[1],kx:a[2],ky:a[3]}); panoUniforms(); } }
   else if(q.get('c')){ const c=q.get('c').split(',').map(Number); if(c.length===6&&c.every(isFinite)){ if(state.pano){ state.pano=false; controls.enabled=true; drawPanoGrid(); }
       camera.position.set(c[0],c[1],c[2]); controls.target.set(c[3],c[4],c[5]); camera.lookAt(controls.target);
       const vw=v&&VIEWS[v]; applyMode(q.get('m')==='inside'?'inside':'orbit',vw?vw.minD:undefined,vw?vw.walk:undefined); controls.update(); } }

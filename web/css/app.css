@@ -275,6 +275,13 @@ body.touring .yearnote{display:none}
 .panonote{position:absolute;z-index:2;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px) + var(--tbh) + 44px);
   width:min(520px,calc(100% - 28px));margin:0;background:var(--lbl-bg);color:var(--lbl-fg);font-size:12px;line-height:1.35;padding:5px 12px;border-radius:10px;text-align:center;opacity:.9}
 .panonote[hidden]{display:none}
+[data-gl]{text-decoration:underline dotted;text-underline-offset:2px;cursor:help}
+.glpop{position:fixed;z-index:20;max-width:min(300px,calc(100vw - 24px));background:var(--lbl-bg);color:var(--lbl-fg);font-size:13px;line-height:1.4;padding:8px 11px;border-radius:8px;box-shadow:var(--shadow)}
+.glpop[hidden]{display:none}
+.glpop b{display:block;margin-bottom:2px}
+.dstep{padding:4px 9px;font-size:15px;line-height:1}
+.rail.lbls .rbtn{position:relative}
+.rail.lbls .rbtn::after{content:attr(title);position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);white-space:nowrap;background:var(--lbl-bg);color:var(--lbl-fg);font-size:12.5px;padding:3px 9px;border-radius:6px;pointer-events:none}
 .explist{display:flex;flex-direction:column;gap:8px}
 .explink{display:flex;flex-direction:column;gap:2px;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--chip);color:var(--ink);font:inherit;cursor:pointer}
 .explink:hover,.explink:focus-visible{border-color:var(--brick)}
@@ -308,6 +315,12 @@ body.touring .yearnote{display:none}
 .ld-bar i{display:block;height:100%;width:5%;background:var(--brick);transition:width .3s ease}
 @media (prefers-reduced-motion: reduce){ .ld-spin{animation:none;border-color:var(--brick)} }
 @media (max-width:1100px){ .tb-sum{display:none} }
+@media (max-width:440px){ #presetBtn .pl{display:none} #presetBtn .pl+span{display:inline-block} #presetBtn .pl+span::first-letter{text-transform:uppercase} }
+@media (max-width:410px){ .brand h1{font-size:16.5px} .brandbtns{gap:4px} .brandbtns .chip{padding:3px 7px;font-size:12.5px} .vbtn{padding:5px 9px;font-size:13.5px} }
+/* Handy quer (breit, aber niedrig): Ansicht-Knopf nach rechts, damit er die Kopfzeile nicht verdeckt */
+@media (max-height:520px) and (min-width:761px){ .viewpick{left:auto;right:max(14px,env(safe-area-inset-right,0px));transform:none} }
+/* niedrige Bildschirme (Handy quer): Leiste zweispaltig, damit sie nicht in die Zeitleiste ragt */
+@media (max-height:520px){ .rail{display:grid;grid-template-columns:repeat(2,auto);gap:3px} .rail .rbtn{width:32px;height:32px} .rail .rbtn svg{width:18px;height:18px} }
 @media (max-width:1560px){ .brand .eyebrow{display:none} }
 @media (max-width:760px){
   :root{--tbh:126px}
@@ -328,7 +341,12 @@ body.touring .yearnote{display:none}
   #playTxt{display:none}
   .btn{padding:5px 9px}
   input[type=date]{flex:1;min-width:8.5em}
-  .hint{display:none}
+  .hint{white-space:normal;text-align:center;border-radius:10px;font-size:12px;width:max-content}
+  .card .chead h2{cursor:pointer}
+  .card .chead h2::after{content:' ▾';font-size:.8em;color:var(--muted)}
+  .card.min .chead h2::after{content:' ▴'}
+  .card.min .cbody{display:none}
+  .dstep{order:1}
   /* Rundgang: Zeitleiste und Leiste rechts ausblenden, Karte als schmale Leiste unten, Text auf drei Zeilen gekürzt */
   body.touring .timebar, body.touring .rail, body.touring .night{display:none}
   .yearnote{top:auto;bottom:calc(10px + env(safe-area-inset-bottom,0px) + var(--tbh) + 8px);left:10px;right:10px;width:auto;font-size:12.5px;padding:8px 10px}
@@ -350,7 +368,8 @@ body.touring .yearnote{display:none}
   #nowBtn,.timebar .pp{order:1}
   .tbfold{display:grid;place-items:center;order:1;padding:4px 8px}
   #play,#speed{order:3}
-  #speed{flex:0 0 auto;width:6.2em;min-width:0}
+  #speed{flex:0 0 auto;width:7.6em;min-width:0}
+  #date{min-width:7.2em}
   .tb-track{order:3;flex:1 1 60px;min-width:60px;height:18px}
   .tb-clock{order:3;flex-direction:row;align-items:baseline;gap:5px}
   .tb-clock output{font-size:18px}

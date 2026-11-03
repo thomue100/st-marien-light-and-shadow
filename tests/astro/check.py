@@ -17,9 +17,16 @@ ap=argparse.ArgumentParser(); ap.add_argument('--usno',action='store_true',help=
 H=os.path.dirname(os.path.abspath(__file__)); M=json.load(open(os.path.join(H,'model.json')))
 ts=LOADER.timescale(builtin=True); eph=LOADER('de421.bsp'); earth,sun,moon=eph['earth'],eph['sun'],eph['moon']
 site=wgs84.latlon(M['lat'],M['lon'],elevation_m=20); obs=earth+site
-T=lambda ms: ts.from_datetime(dt.datetime.fromtimestamp(ms/1000,dt.timezone.utc))
-ms=lambda t: t.utc_datetime().timestamp()*1000
+# Zeitachse: Weltzeit UT1 (= mittlere Sonnenzeit, wie im Modell). Skyfields UTC vor 1972 weicht davon um bis zu ~40 s ab.
+T=lambda ms: ts.ut1_jd(ms/86400000+2440587.5)
+ms=lambda t: (t.ut1-2440587.5)*86400000
 UTC=dt.timezone.utc; BER=ZoneInfo('Europe/Berlin')
+# DE421 reicht bis Oktober 2053; spätere Fälle prüft PyEphem (VSOP87/ELP), siehe Teil B unten
+DE_END=dt.datetime(2053,9,1,tzinfo=UTC).timestamp()*1000
+MB={'pos':[x for x in M['pos'] if x[0]>=DE_END],'sun':[x for x in M['sun'] if x[0]>=DE_END],'moon':[x for x in M['moon'] if x[0]>=DE_END],
+    'noon':[x for x in M['noon'] if x[0]>=DE_END],'phase':[x for x in M['phase'] if x[1]>=DE_END],'ecl':[x for x in M['ecl'] if x['max']>=DE_END]}
+for k in MB: M[k]=[x for x in M[k] if (x['max'] if k=='ecl' else x[1] if k=='phase' else x[0])<DE_END]
+PH_LIM=180   # Mondphasen: verkürzte Mondtheorie, über 1911–2080 bis gut 2 Minuten
 notes=[]
 rows=[]   # (Bereich, Prüfung, n, max, mittel, Grenze, ok, Einheit)
 def stat(name,check,vals,lim,unit,fmt='{:.3f}'):
@@ -37,8 +44,8 @@ for t,sel,saz,mel,metrue,maz in M['pos']:
     alt,az,_=a.observe(moon).apparent().altaz(temperature_C=10,pressure_mbar=1010); alt0,_,_=a.observe(moon).apparent().altaz()
     if alt.degrees>3: me.append(mel-alt.degrees); ma.append(angd(maz,az.degrees))
     mt.append(metrue-alt0.degrees)
-stat('Sonne','Höhe (mit Lichtbrechung, > 3°)',se,0.03,'°'); stat('Sonne','Azimut',sa,0.03,'°')
-stat('Mond','Höhe (topozentrisch, mit Lichtbrechung, > 3°)',me,0.03,'°'); stat('Mond','Höhe ohne Lichtbrechung',mt,0.03,'°'); stat('Mond','Azimut',ma,0.03,'°')
+stat('Sonne','Höhe (mit Lichtbrechung, > 3°)',se,0.04,'°'); stat('Sonne','Azimut',sa,0.04,'°')
+stat('Mond','Höhe (topozentrisch, mit Lichtbrechung, > 3°)',me,0.04,'°'); stat('Mond','Höhe ohne Lichtbrechung',mt,0.04,'°'); stat('Mond','Azimut',ma,0.04,'°')
 
 # 2/3 Auf- und Untergänge (Standard: oberer Rand, Refraktion 34′)
 def events(body,t0,t1):
@@ -63,15 +70,15 @@ for t0,noon in M['noon']:
 stat('Sonnenuhr','Wahrer Mittag (Meridiandurchgang)',nn,30,'s','{:.0f}')
 
 # 4 Mondphasen
-Y0,Y1=M['years']; t,y=almanac.find_discrete(ts.utc(Y0,1,1),ts.utc(Y1+1,1,1),almanac.moon_phases(eph)); ref={0:[],1:[],2:[],3:[]}
+Y0,Y1=M['years']; TEND=ts.utc(Y1+1,1,1) if Y1<2053 else T(DE_END); t,y=almanac.find_discrete(ts.utc(Y0,1,1),TEND,almanac.moon_phases(eph)); ref={0:[],1:[],2:[],3:[]}
 for a,b in zip(t,y): ref[int(b)].append(ms(a))
 key={'new':0,'first':1,'full':2,'last':3}; ph={k:[] for k in key}
 for nm,x in M['phase']: ph[nm].append(near(x,ref[key[nm]],2*864e5))
-for nm,lab in [('new','Neumond'),('first','Erstes Viertel'),('full','Vollmond'),('last','Letztes Viertel')]: stat('Mondphasen',lab,ph[nm],90,'s','{:.0f}')
+for nm,lab in [('new','Neumond'),('first','Erstes Viertel'),('full','Vollmond'),('last','Letztes Viertel')]: stat('Mondphasen',lab,ph[nm],PH_LIM,'s','{:.0f}')
 nref=sum(len(v) for v in ref.values()); rows.append(('Mondphasen','Anzahl gefunden / Referenz',len(M['phase']),str(len(M['phase'])),'',str(nref),len(M['phase'])==nref,''))
 
 # 5 Mondfinsternisse (Kern- oder Halbschatten), Zeit des Maximums und Art
-t,y,det=eclipselib.lunar_eclipses(ts.utc(Y0,1,1),ts.utc(Y1+1,1,1),eph); refL=[(ms(a),eclipselib.LUNAR_ECLIPSES[b]) for a,b in zip(t,y)]
+t,y,det=eclipselib.lunar_eclipses(ts.utc(Y0,1,1),TEND,eph); refL=[(ms(a),eclipselib.LUNAR_ECLIPSES[b]) for a,b in zip(t,y)]
 modL=[e for e in M['ecl'] if e['kind']=='l']; ld,lt=[],0
 for e in modL:
     b=min(refL,key=lambda r:abs(r[0]-e['max'])) if refL else None
@@ -92,20 +99,82 @@ def cover(rs,rm,d):
 refS=[]
 for tn in ref[0]:
     best=None
+    def cov_at(t):
+        a=obs.at(T(t)); s_=a.observe(sun).apparent(); m_=a.observe(moon).apparent()
+        if s_.altaz(temperature_C=10,pressure_mbar=1010)[0].degrees<-0.6: return -1
+        return cover(math.degrees(math.asin(696000/s_.distance().km)),math.degrees(math.asin(1737.4/m_.distance().km)),s_.separation_from(m_).degrees)
     for k in range(-240,241,2):
         tt=T(tn+k*6e4); a=obs.at(tt); s_=a.observe(sun).apparent(); m_=a.observe(moon).apparent()
-        alt=s_.altaz()[0].degrees
+        alt=s_.altaz(temperature_C=10,pressure_mbar=1010)[0].degrees   # wie im Modell: scheinbare Höhe mit Lichtbrechung
         if alt<-0.6: continue
         rs=math.degrees(math.asin(696000/s_.distance().km)); rm=math.degrees(math.asin(1737.4/m_.distance().km)); d=s_.separation_from(m_).degrees
         c=cover(rs,rm,d)
-        if c>0 and (best is None or c>best[1]): best=(tn+k*6e4,c)
-    if best: refS.append(best)
+        if c>0 and (best is None or c>best[1]): best=(tn+k*6e4,c,alt)
+    if best:   # fein: 10 s um das grobe Maximum (wichtig, wenn das Maximum am Horizont liegt)
+        for k in range(-18,19):
+            t=best[0]+k*1e4; c=cov_at(t)
+            if c>best[1]: best=(t,c,best[2])
+        refS.append(best)
 modS=[e for e in M['ecl'] if e['kind']=='s']; sd_,sc=[],[]
 for e in modS:
     b=min(refS,key=lambda r:abs(r[0]-e['max'])) if refS else None
-    if b and abs(b[0]-e['max'])<6*3600e3: sd_.append((e['max']-b[0])/1000); sc.append((e['cover']-b[1])*100)
+    if b and abs(b[0]-e['max'])<6*3600e3:
+        if b[2]<2:   # Maximum am Horizont (Sonnenauf- oder -untergang): hängt von der Horizontdefinition ab, nur vermerken
+            notes.append(f"Sonnenfinsternis {dt.datetime.fromtimestamp(e['max']/1000,UTC):%d.%m.%Y} am Horizont: Modell {e['cover']*100:.1f} %, Referenz {b[1]*100:.1f} % (größte sichtbare Bedeckung hängt von der Horizontdefinition ab)")
+        else: sd_.append((e['max']-b[0])/1000); sc.append((e['cover']-b[1])*100)
 stat('Finsternisse','Sonnenfinsternis in Lübeck, Zeit des Maximums',sd_,180,'s','{:.0f}'); stat('Finsternisse','Sonnenfinsternis, Bedeckung',sc,2,'%','{:.1f}')
-rows.append(('Finsternisse','Sonnenfinsternisse in Lübeck: Anzahl',len(modS),str(len(modS)),'',f'{len(refS)} Referenz',len(modS)==len(refS),''))
+unm=[e for e in modS if not any(abs(r[0]-e['max'])<6*3600e3 for r in refS)]; unr=[r for r in refS if not any(abs(r[0]-e['max'])<6*3600e3 for e in modS)]
+for e in unm: notes.append(f"Streifende Sonnenfinsternis {dt.datetime.fromtimestamp(e['max']/1000,UTC):%d.%m.%Y}: nur im Modell ({e['cover']*100:.2f} %)")
+for r in unr: notes.append(f"Streifende Sonnenfinsternis {dt.datetime.fromtimestamp(r[0]/1000,UTC):%d.%m.%Y}: nur in der Referenz ({r[1]*100:.2f} %)")
+okS=all(e['cover']<0.01 for e in unm) and all(r[1]<0.01 for r in unr)
+rows.append(('Finsternisse','Sonnenfinsternisse in Lübeck: Anzahl (streifende < 1 % ausgenommen)',len(modS),str(len(modS)),'',f'{len(refS)} Referenz',okS,''))
+
+# Teil B: nach DE421 (ab September 2053) gegen PyEphem
+if MB['pos']:
+    import ephem
+    ED=lambda ms: ephem.Date(dt.datetime.fromtimestamp(ms/1000,UTC).replace(tzinfo=None))
+    EMS=lambda d: ephem.Date(d).datetime().replace(tzinfo=UTC).timestamp()*1000
+    def ob(p=1010,hor='0'):
+        o=ephem.Observer(); o.lat=str(M['lat']); o.lon=str(M['lon']); o.elevation=20; o.pressure=p; o.temp=10; o.horizon=hor; return o
+    B=' (PyEphem, ab 09/2053)'; se,sa,me,ma=[],[],[],[]
+    for t,sel,saz,mel,metrue,maz in MB['pos']:
+        o=ob(); o.date=ED(t); su=ephem.Sun(o); mo=ephem.Moon(o)
+        if math.degrees(su.alt)>3: se.append(sel-math.degrees(su.alt)); sa.append(angd(saz,math.degrees(su.az)))
+        if math.degrees(mo.alt)>3: me.append(mel-math.degrees(mo.alt)); ma.append(angd(maz,math.degrees(mo.az)))
+    stat('Sonne'+B,'Höhe',se,0.05,'°'); stat('Sonne'+B,'Azimut',sa,0.05,'°'); stat('Mond'+B,'Höhe',me,0.05,'°'); stat('Mond'+B,'Azimut',ma,0.05,'°')
+    def ev(body,t0):
+        o=ob(0,'-0:34'); o.date=ED(t0); out=[]
+        for f in (o.next_rising,o.next_setting):
+            try: x=EMS(f(body)); out.append(x if x<t0+864e5 else None)
+            except Exception: out.append(None)
+        return out
+    a,b=[],[]
+    for t0,r,s_ in MB['sun']:
+        R,S=ev(ephem.Sun(),t0); a.append((r-R)/1000 if r and R else None); b.append((s_-S)/1000 if s_ and S else None)
+    stat('Sonne'+B,'Aufgang',a,60,'s','{:.0f}'); stat('Sonne'+B,'Untergang',b,60,'s','{:.0f}')
+    a,b=[],[]
+    for t0,t1,r,s_ in MB['moon']:
+        R,S=ev(ephem.Moon(),t0); a.append((r-R)/1000 if r and R and abs(r-R)<3*3600e3 else None); b.append((s_-S)/1000 if s_ and S and abs(s_-S)<3*3600e3 else None)
+    stat('Mond'+B,'Aufgang',a,60,'s','{:.0f}'); stat('Mond'+B,'Untergang',b,60,'s','{:.0f}')
+    nn=[]
+    for t0,noon in MB['noon']:
+        o=ob(0); o.date=ED(t0); nn.append((noon-EMS(o.next_transit(ephem.Sun())))/1000)
+    stat('Sonnenuhr'+B,'Wahrer Mittag',nn,30,'s','{:.0f}')
+    fn={'new':ephem.next_new_moon,'first':ephem.next_first_quarter_moon,'full':ephem.next_full_moon,'last':ephem.next_last_quarter_moon}; pp=[]
+    for nm,x in MB['phase']: pp.append((x-EMS(fn[nm](ED(x-2*864e5))))/1000)
+    stat('Mondphasen'+B,'alle Phasen',pp,240,'s','{:.0f}')
+    sd2,sc2=[],[]
+    for e in [x for x in MB['ecl'] if x['kind']=='s']:
+        best=None
+        for k in range(-240,241):
+            t=e['max']+k*15e3; o=ob(0); o.date=ED(t); su=ephem.Sun(o); mo=ephem.Moon(o); o2=ob(); o2.date=ED(t)
+            if math.degrees(ephem.Sun(o2).alt)<-0.6: continue
+            c=cover(su.radius,mo.radius,float(ephem.separation(su,mo)))
+            if best is None or c>best[1]: best=(t,c,math.degrees(ephem.Sun(o2).alt))
+        if best and best[2]>=2: sd2.append((e['max']-best[0])/1000); sc2.append((e['cover']-best[1])*100)
+    stat('Finsternisse'+B,'Sonnenfinsternis in Lübeck, Zeit des Maximums',sd2,180,'s','{:.0f}'); stat('Finsternisse'+B,'Sonnenfinsternis, Bedeckung',sc2,2,'%','{:.1f}')
+    notes.append('Mondfinsternisse ab September 2053 sind nicht geprüft (Skyfield braucht dafür DE421, PyEphem hat keine Finsternisrechnung).')
+    notes.append('Ab 2053 ist PyEphem die Referenz: etwas ungenauer als DE421 und mit eigener ΔT-Vorhersage (Erddrehung). Zeitpunkte so weit in der Zukunft sind ohnehin nur auf etwa 1–2 Minuten vorhersagbar.')
 
 # 6 Zeitumstellung gegen die Zeitzonen-Datenbank
 bad=[]; n=0

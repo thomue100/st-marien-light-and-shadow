@@ -201,8 +201,14 @@ function moonPhaseTime(ms,target,dir){
 // Sonne genauer nach Meeus Kap. 25 (wahre Länge + Aberration, ohne Nutation wie beim Mond), Zeit TT ≈ UT + ΔT.
 // Sonnenfinsternis: topozentrische Örter von Sonne und Mond, Bedeckung als Flächenanteil der Sonnenscheibe.
 // Mondfinsternis: geozentrischer Abstand des Mondes vom Gegenpunkt der Sonne, Kern- und Halbschatten nach Danjon.
-function deltaT(ms){ const y=new Date(ms).getUTCFullYear()+(new Date(ms).getUTCMonth()+0.5)/12, t=y-2000;   // Espenak & Meeus, 2005–2050
-  return y<2005?63.86+0.3345*t-0.060374*t*t:62.92+0.32217*t+0.005589*t*t; }
+function deltaT(ms){ const q=new Date(ms), y=q.getUTCFullYear()+(q.getUTCMonth()+0.5)/12;   // Espenak & Meeus (NASA), Polynome 1900–2150
+  if(y<1920){ const t=y-1900; return -2.79+1.494119*t-0.0598939*t*t+0.0061966*t*t*t-0.000197*t*t*t*t; }
+  if(y<1941){ const t=y-1920; return 21.20+0.84493*t-0.076100*t*t+0.0020936*t*t*t; }
+  if(y<1961){ const t=y-1950; return 29.07+0.407*t-t*t/233+t*t*t/2547; }
+  if(y<1986){ const t=y-1975; return 45.45+1.067*t-t*t/260-t*t*t/718; }
+  if(y<2005){ const t=y-2000; return 63.86+0.3345*t-0.060374*t*t+0.0017275*t*t*t+0.000651814*t**4+0.00002373599*t**5; }
+  if(y<2050){ const t=y-2000; return 62.92+0.32217*t+0.005589*t*t; }
+  const u=(y-1820)/100; return -20+32*u*u-0.5628*(2150-y); }
 function sunPrecise(ms){
   const T=(ms/86400000+2440587.5-2451545.0+deltaT(ms)/86400)/36525;
   const L0=280.46646+36000.76983*T+0.0003032*T*T, M=(357.52911+35999.05029*T-0.0001537*T*T)*rad, e=0.016708634-0.000042037*T;
@@ -294,11 +300,18 @@ function moonRiseSet(t0,t1){ let rise=null,set=null,prev=null; const st=300000;
 /* ---------------- Renderer ---------------- */
 const stage=$('#stage');
 const coarse=matchMedia('(pointer:coarse)').matches;
+const lowEnd=coarse&&((navigator.deviceMemory||8)<=4||(navigator.hardwareConcurrency||8)<=4);   // ältere Handys: weniger Pixel, kleinere Schatten- und Umgebungstexturen
 let renderer;
 try{ renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'}); }
 catch(e){ ldDone(); stage.innerHTML='<div class="err">'+tr('WebGL ist in diesem Browser nicht verfügbar.','WebGL is not available in this browser.')+'</div>'; return; }
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,lowEnd?1.5:2));
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+// Handy im Hintergrund o. Ä.: Browser entzieht den Grafikspeicher. Statt schwarzer Fläche Hinweis und Neuladen mit der aktuellen Ansicht
+renderer.domElement.addEventListener('webglcontextlost',e=>{ e.preventDefault(); if(document.getElementById('glLost')) return;
+  const d=document.createElement('div'); d.id='glLost'; d.className='err';
+  d.innerHTML='<div><p>'+tr('Der Browser hat die 3D-Darstellung unterbrochen (z. B. weil die Seite im Hintergrund war).','The browser interrupted the 3D view (for example because the page was in the background).')+'</p><button class="btn" id="glReload">'+tr('Neu laden','Reload')+'</button></div>';
+  document.getElementById('stage').appendChild(d);
+  document.getElementById('glReload').addEventListener('click',()=>{ try{ history.replaceState(null,'','#'+stateCode()); }catch(x){} location.reload(); }); });
 renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1;
 renderer.localClippingEnabled=true;
@@ -1631,7 +1644,7 @@ function drawYearChart(){
 /* ---------------- Licht & Himmel ---------------- */
 const SC=new V3(7,25,0);
 const sun=new THREE.DirectionalLight(0xffffff,3);
-const smSize=Math.min(coarse?2048:4096,renderer.capabilities.maxTextureSize);
+const smSize=Math.min(lowEnd?1024:coarse?2048:4096,renderer.capabilities.maxTextureSize);
 sun.castShadow=true; sun.shadow.mapSize.set(smSize,smSize);
 Object.assign(sun.shadow.camera,{left:-85,right:85,top:85,bottom:-85,near:1,far:800});
 sun.shadow.bias=-0.0003; sun.shadow.normalBias=0.05; sun.shadow.camera.updateProjectionMatrix();
@@ -1880,7 +1893,8 @@ const VIEWS={
   jahr:{pos:[40,215,215],tgt:[-48,0,-125],mode:'orbit',cut:60,exp:0.85}   // Jahreslauf: Kirche und Schattenspur der Südturmspitze
 };
 function hintFor(){
-  if(state.pano) return tr('Ziehen: Himmel drehen und kippen · Mausrad: Ausschnitt vergrößern oder verkleinern','Drag: turn and tilt the sky · Wheel: zoom in or out');
+  if(state.pano) return coarse?tr('Ziehen: Himmel drehen und kippen','Drag: turn and tilt the sky'):tr('Ziehen: Himmel drehen und kippen · Mausrad: Ausschnitt vergrößern oder verkleinern','Drag: turn and tilt the sky · Wheel: zoom in or out');
+  if(state.mode==='orbit'&&coarse) return tr('Ein Finger: drehen · zwei Finger: verschieben und zoomen','One finger: rotate · two fingers: pan and zoom');
   if(state.mode==='orbit') return tr('Ziehen: drehen · Rechtsklick oder zwei Finger: verschieben · Mausrad: zoomen · WASD: gehen','Drag: rotate · Right-click or two fingers: pan · Wheel: zoom · WASD: move');
   if(state.walk) return tr('Ziehen: umsehen · W/A/S/D, Pfeiltasten oder Mausrad: in der Laterne umhergehen','Drag: look around · W/A/S/D, arrow keys or wheel: walk around the lantern');
   if(coarse) return tr('Ziehen: umsehen · Steuerkreis unten links: gehen','Drag: look around · Pad at bottom left: walk');
@@ -1898,7 +1912,7 @@ function applyMode(mode,minD,walk){
 // (Azimut waagerecht, Höhe senkrecht, beide linear). So bleiben die Bahnen von Sonne und Mond auch über 180° und mehr
 // als natürliche Bögen sichtbar. Standpunkt: 140 m hoch, 170 m von der Kirche entfernt auf der den Bahnen abgewandten Seite,
 // damit die Kirche unten im Bild liegt und nichts den Himmel verdeckt.
-const cubeRT=new THREE.WebGLCubeRenderTarget(coarse?768:1280,{type:THREE.HalfFloatType,generateMipmaps:false,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter});
+const cubeRT=new THREE.WebGLCubeRenderTarget(lowEnd?512:coarse?768:1280,{type:THREE.HalfFloatType,generateMipmaps:false,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter});
 const cubeCam=new THREE.CubeCamera(0.5,6000,cubeRT);
 const panoMat=new THREE.ShaderMaterial({depthTest:false,depthWrite:false,toneMapped:false,
   uniforms:{uCube:{value:cubeRT.texture},uAz:{value:180},uElB:{value:-30},uKx:{value:6},uKy:{value:6},uYB:{value:0},uW:{value:1000},uAxis:{value:98.5}},
@@ -2178,7 +2192,9 @@ function goFullMoon(){ const nf=moonPhaseTime(localToUtc(state.y,state.m,state.d
 // Finsternisse: nächste von Lübeck aus sichtbare ab dem eingestellten Tag (Mondfinsternisse mit Kernschatten)
 const eclCache={key:null,s:null,l:null};
 function nextEclipses(){ const t=Date.UTC(state.y,state.m,state.d), key=state.y+'-'+state.m+'-'+state.d; if(eclCache.key===key) return eclCache;
-  eclCache.key=key; eclCache.s=eclipseScan(t,1,'s')[0]||null; eclCache.l=eclipseScan(t,60,'l').find(e=>e.visible&&e.type!=='penumbral'&&e.max>=t)||null; return eclCache; }
+  eclCache.key=key; eclCache.s=eclipseScan(t,6,'s').find(e=>e.cover>=0.005)||null;   // streifende Finsternisse unter 0,5 % Bedeckung nicht nennen eclCache.l=eclipseScan(t,60,'l').find(e=>e.visible&&e.type!=='penumbral'&&e.max>=t)||null;
+  for(const k of ['s','l']) if(eclCache[k]&&eclCache[k].max>DATE_MAX+864e5) eclCache[k]=null;   // nur innerhalb des wählbaren Zeitraums
+  return eclCache; }
 function eclWhen(ms){ const off=berlinOffsetMin(ms), l=new Date(ms+off*60000), hm=pad2(l.getUTCHours())+':'+pad2(l.getUTCMinutes());
   return LANG==='en'?WD_EN[l.getUTCDay()]+' '+l.getUTCDate()+' '+MON_EN[l.getUTCMonth()]+' '+l.getUTCFullYear()+', '+hm+' '+tzN(off):WD[l.getUTCDay()]+' '+l.getUTCDate()+'.'+(l.getUTCMonth()+1)+'.'+l.getUTCFullYear()+', '+hm+' '+tzN(off); }
 function eclText(e){ if(!e) return '–';
@@ -2196,14 +2212,19 @@ $('#goLunEcl').addEventListener('click',()=>goEclipse(nextEclipses().l));
 document.querySelector('.rbtn[data-card="moon"]').addEventListener('click',()=>setTimeout(updateEclText,0));
 function goNewMoon(){ const nn=moonPhaseTime(localToUtc(state.y,state.m,state.d,state.minutes)+3600000,0,1); if(nn!==null) gotoInstant(nn,22*60); }
 function setMinutes(m){ state.minutes=m; updateSun(); if(state.pano) panoMarks(); if(yr.on){ yr.mez=yrMez(); yrBuild(); } }
-function setDate(y,m,d){ state.y=y; state.m=m; state.d=d; $('#date').value=y+'-'+pad2(m+1)+'-'+pad2(d); computeDay(); updateSun(true); }
+// Wählbarer Zeitraum = Jahre der Kalenderscheibe der Astronomischen Uhr
+const DATE_MIN=Date.UTC(1911,0,1), DATE_MAX=Date.UTC(2080,11,31);
+function clampYMD(y,m,d){ let t=Date.UTC(+y||2026,+m||0,+d||1); if(!isFinite(t)) t=Date.UTC(2026,0,1); t=Math.min(DATE_MAX,Math.max(DATE_MIN,t)); const q=new Date(t); return [q.getUTCFullYear(),q.getUTCMonth(),q.getUTCDate()]; }
+function setDate(y,m,d){ [y,m,d]=clampYMD(y,m,d); state.y=y; state.m=m; state.d=d; $('#date').value=y+'-'+pad2(m+1)+'-'+pad2(d); computeDay(); updateSun(true); }
 function setCut(v){ state.cut=v; $('#cut').value=v; cutPlane.constant=v>=60?500:v; $('#cutOut').textContent=v>=60?tr('aus','off'):dc(v.toFixed(1))+' m'; dirty=true; }
 function setExp(v){ state.exp=v; $('#exp').value=v; renderer.toneMappingExposure=v*(1+0.15*(1-smooth(-7,-1.5,cur.el))*(state.moon?1:0)); $('#expOut').textContent=dc(v.toFixed(2)); dirty=true; }
 function setAmb(v){ state.amb=v; $('#amb').value=v; TINT.uAmbIn.value=v; $('#ambOut').textContent=Math.round(v*100)+' %'; dirty=true; }
 function setAxis(v){ state.axis=v; $('#axis').value=v; $('#axisOut').textContent=fmtDeg(v); drawCompassStatic(); buildSunPath(); sdOrient(); updateSun(true); }
 
-$('#date').addEventListener('change',e=>{ const p=e.target.value.split('-').map(Number); if(p.length===3&&p[0]){ setDate(p[0],p[1]-1,p[2]); if(yr.on){ if(p[0]!==yr.year) yrBuild(); else yrMark(); } } });
+$('#date').addEventListener('change',e=>{ const p=e.target.value.split('-').map(Number); if(p.length!==3||!p[0]){ e.target.value=state.y+'-'+pad2(state.m+1)+'-'+pad2(state.d); return; } { const c=clampYMD(p[0],p[1]-1,p[2]); p[0]=c[0]; p[1]=c[1]+1; p[2]=c[2]; } if(p.length===3&&p[0]){ setDate(p[0],p[1]-1,p[2]); if(yr.on){ if(p[0]!==yr.year) yrBuild(); else yrMark(); } } });
 $('#time').addEventListener('input',e=>setMinutes(+e.target.value));
+function stepDay(k){ const t=new Date(Date.UTC(state.y,state.m,state.d)+k*864e5); setDate(t.getUTCFullYear(),t.getUTCMonth(),t.getUTCDate()); if(yr.on) yrMark(); }
+$('#dayPrev').addEventListener('click',()=>stepDay(-1)); $('#dayNext').addEventListener('click',()=>stepDay(1));
 $('#nowBtn').addEventListener('click',()=>{ const n=berlinNow(); state.minutes=n.minutes; setDate(n.y,n.m,n.d); });
 const presetsEl=$('#presets');
 function buildPresets(){ presetsEl.innerHTML='';
@@ -2270,7 +2291,7 @@ $('#sdWedge').addEventListener('input',e=>{ state.sdWedge=+e.target.value; sdOri
 $('#axisReset').addEventListener('click',()=>setAxis(AXIS_MEASURED));
 $('#tintTog').addEventListener('change',e=>{ state.tint=e.target.checked; TINT.uTintOn.value=e.target.checked?1:0; dirty=true; });
 // Karten der Symbolleiste: immer nur eine offen
-function openCard(k){ document.querySelectorAll('.card').forEach(c=>{ c.hidden=c.id!=='card-'+k; });
+function openCard(k){ document.querySelectorAll('.card').forEach(c=>{ c.hidden=c.id!=='card-'+k; c.classList.remove('min'); }); const gp=document.getElementById('glPop'); if(gp) gp.hidden=true;
   document.querySelectorAll('.rbtn').forEach(b=>b.setAttribute('aria-expanded',String(b.dataset.card===k))); if(typeof mtSync==='function') mtSync(); }
 document.querySelectorAll('.rbtn').forEach(b=>b.addEventListener('click',()=>openCard(b.getAttribute('aria-expanded')==='true'?null:b.dataset.card)));
 document.querySelectorAll('.card .cx').forEach(b=>b.addEventListener('click',()=>openCard(null)));
@@ -2283,6 +2304,31 @@ menu($('#viewBtn'),$('#views')); menu($('#presetBtn'),$('#presets'));
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!e.defaultPrevented&&document.querySelector('.card:not([hidden])')&&$('#views').hidden&&$('#presets').hidden) openCard(null); });
 // Bedienhinweis nach dem ersten Ziehen oder nach 9 s ausblenden
 { const hide=()=>$('#hint').classList.add('gone'); renderer.domElement.addEventListener('pointerdown',hide,{once:true}); setTimeout(hide,9000); }
+// Nach dem Rundgang bzw. beim ersten freien Erkunden: Bedienhinweis zeigen und die Symbole der Leiste kurz beschriften (einmal je Gerät)
+let hintTimer=null;
+function showHint(ms){ const h=$('#hint'); h.textContent=hintFor(); h.classList.remove('gone'); clearTimeout(hintTimer); hintTimer=setTimeout(()=>h.classList.add('gone'),ms||8000);
+  renderer.domElement.addEventListener('pointerdown',()=>h.classList.add('gone'),{once:true}); }
+function introExplore(){ showHint(9000); if(lsGet('stm-raillbl')==='1') return; lsSet('stm-raillbl','1');
+  const r=document.querySelector('.rail'); r.classList.add('lbls'); setTimeout(()=>r.classList.remove('lbls'),7000); }
+// Glossar: Begriffe mit gepunkteter Unterstreichung antippen
+const GL={alt:['Höhe','Altitude','Winkel über dem Horizont: 0° liegt am Horizont, 90° genau über Ihnen. Je höher die Sonne, desto kürzer die Schatten.','Angle above the horizon: 0° is on the horizon, 90° straight overhead. The higher the sun, the shorter the shadows.'],
+  az:['Azimut','Azimuth','Himmelsrichtung, im Uhrzeigersinn von Norden gezählt: 90° ist Osten, 180° Süden, 270° Westen.','Compass direction, counted clockwise from north: 90° is east, 180° south, 270° west.'],
+  age:['Mondalter','Moon age','Tage seit dem letzten Neumond. Nach gut 7 Tagen ist Halbmond, nach etwa 15 Tagen Vollmond, nach 29,5 Tagen wieder Neumond.','Days since the last new moon. After about 7 days it is half moon, after about 15 days full moon, after 29.5 days new moon again.'],
+  woz:['Wahre Ortszeit','Apparent solar time','Zeit nach dem Sonnenstand am eigenen Ort: 12 Uhr ist, wenn die Sonne genau im Süden steht. Diese Zeit zeigt die Sonnenuhr.','Time by the sun at your own place: 12 o’clock is when the sun stands due south. This is the time a sundial shows.'],
+  tz:['MEZ und MESZ','CET and CEST','Mitteleuropäische Zeit, die gesetzliche Uhrzeit. Sie richtet sich nach dem Sonnenstand auf 15° Ost (Görlitz). Im Sommer gilt die Sommerzeit MESZ, eine Stunde später.','Central European Time, the legal clock time. It follows the sun at 15° east (Görlitz). In summer, daylight saving time (CEST) is one hour ahead.'],
+  dl:['Tagesbuchstabe','Day letter','Im Kirchenkalender tragen die Tage des Jahres reihum die Buchstaben A bis G, beginnend mit A am 1. Januar. Die Kalenderscheibe der Uhr zeigt ihn für jeden Tag.','In the church calendar the days of the year carry the letters A to G in turn, starting with A on 1 January. The clock’s calendar disk shows it for every day.'],
+  sl:['Sonntagsbuchstabe','Sunday letter','Der Tagesbuchstabe, der in einem Jahr auf die Sonntage fällt. Mit ihm findet man zu jedem Datum den Wochentag; Schaltjahre haben zwei.','The day letter that falls on the Sundays of a year. With it you can find the weekday of any date; leap years have two.'],
+  gz:['Goldene Zahl','Golden number','Stellung des Jahres im 19-jährigen Mondzyklus (1 bis 19). Nach 19 Jahren fallen die Mondphasen wieder auf dieselben Kalendertage; daraus berechnet man den Ostertermin.','Position of the year in the 19-year lunar cycle (1 to 19). After 19 years the moon phases fall on the same calendar days again; Easter is computed from it.']};
+document.addEventListener('click',e=>{ const t=e.target.closest('[data-gl]'), p=$('#glPop');
+  if(!t){ if(!p.hidden&&!p.contains(e.target)) p.hidden=true; return; }
+  const g=GL[t.dataset.gl]; if(!g) return; if(!p.hidden&&p.dataset.k===t.dataset.gl){ p.hidden=true; return; }
+  p.dataset.k=t.dataset.gl; p.innerHTML='<b>'+(LANG==='en'?g[1]:g[0])+'</b>'+(LANG==='en'?g[3]:g[2]); p.hidden=false;
+  const r=t.getBoundingClientRect(), w=p.offsetWidth, h=p.offsetHeight; let x=Math.min(innerWidth-w-12,Math.max(12,r.left)), y=r.bottom+6; if(y+h>innerHeight-8) y=r.top-h-6;
+  p.style.left=x+'px'; p.style.top=Math.max(8,y)+'px'; });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') $('#glPop').hidden=true; });
+document.querySelectorAll('[data-gl]').forEach(el=>{ el.tabIndex=0; el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); el.click(); } }); });
+// Karten auf dem Smartphone über die Überschrift ein- und ausklappen, damit die Szene sichtbar wird
+document.querySelectorAll('.card .chead h2').forEach(h=>h.addEventListener('click',()=>{ if(matchMedia('(max-width: 760px)').matches) h.closest('.card').classList.toggle('min'); }));
 
 
 /* ---------------- Einfache und erweiterte Ansicht ---------------- */
@@ -2419,7 +2465,7 @@ function tourFit(){ const c=$('#tour'), t=$('#tourText'), b=$('#tourMore'); if(!
 $('#tourMore').addEventListener('click',()=>{ const c=$('#tour'), o=c.classList.toggle('open'); $('#tourMore').textContent=o?tr('weniger','less'):tr('mehr','more'); });
 addEventListener('resize',()=>{ if(tour.i!==null) tourFit(); });
 function tourGo(i){ tour.i=i; showTour(); if(i>=0) tourApply(TOUR[i]); $('#tourNext').focus({preventScroll:true}); }
-function tourEnd(){ if(state.playing&&tour.i!==null&&tour.i>=0) setPlaying(false); if(tour.i!==null&&tour.i>=0){ state.speed=30; $('#speed').value='30'; } tour.i=null; $('#tour').hidden=true; document.body.classList.remove('touring'); lsSet('stm-welcomed','1'); }
+function tourEnd(){ if(state.playing&&tour.i!==null&&tour.i>=0) setPlaying(false); if(tour.i!==null&&tour.i>=0){ state.speed=30; $('#speed').value='30'; } tour.i=null; $('#tour').hidden=true; document.body.classList.remove('touring'); lsSet('stm-welcomed','1'); if(!quiz||quiz.i===null) setTimeout(introExplore,400); }
 $('#tourNext').addEventListener('click',()=>{ if(tour.i===TOUR.length-1) tourEnd(); else { lsSet('stm-welcomed','1'); tourGo(tour.i+1); } });
 $('#tourPrev').addEventListener('click',()=>{ if(tour.i>0) tourGo(tour.i-1); });
 $('#tourEnd').addEventListener('click',tourEnd);
@@ -2480,7 +2526,7 @@ function mtVisible(O,t){ rc.set(O,_mtD); const far=rc.far; rc.far=t+25; const hi
   return true; }
 async function mtSearch(){ if(MZT.busy) return; MZT.busy=true; document.querySelectorAll('#exp-mt button,#exp-mt input').forEach(x=>x.disabled=true); busyShow(tr('Termine werden gesucht …','Searching dates …'));
   await new Promise(r=>setTimeout(r,30));
-  const O=mtObs(), now=Date.now(), t0=Math.floor(now/60000)*60000, t1=t0+183*86400000, st=4*60000, fine=15000, out=[];
+  const O=mtObs(), t0=Math.max(localToUtc(state.y,state.m,state.d,0),DATE_MIN), t1=Math.min(t0+183*86400000,DATE_MAX+864e5), st=4*60000, fine=15000, out=[];
   const slack=14+MZT.dist*0.025;
   let tick=performance.now();
   for(let t=t0;t<t1;t+=st){
@@ -2496,8 +2542,8 @@ async function mtSearch(){ if(MZT.busy) return; MZT.busy=true; document.querySel
   MZT.res={list:out,O:O.toArray(),side:MZT.side,dist:MZT.dist,from:t0}; busyHide(); MZT.busy=false; document.querySelectorAll('#exp-mt button,#exp-mt input').forEach(x=>x.disabled=false); mtRender(); }
 function mtSunTxt(el){ return el>-0.83?tr('Tag','daylight'):el>-6?tr('bürgerliche Dämmerung','civil twilight'):el>-12?tr('nautische Dämmerung (blaue Stunde)','nautical twilight (blue hour)'):tr('Nacht','night'); }
 function mtRender(){ const ul=$('#mtRes'); ul.innerHTML=''; const R=MZT.res; if(!R) return;
-  $('#mtSum').textContent=R.list.length?tr(R.list.length+' Termine in den nächsten sechs Monaten, zum Ansehen antippen:',R.list.length+' dates in the next six months, tap to view:')
-    :tr('In den nächsten sechs Monaten steht der Mond von hier aus nicht sichtbar zwischen den Türmen. Probieren Sie eine andere Entfernung.','From here the moon does not stand visibly between the towers in the next six months. Try another distance.');
+  $('#mtSum').textContent=R.list.length?tr(R.list.length+' Termine in den sechs Monaten ab '+fmtDateL(R.from)+', zum Ansehen antippen:',R.list.length+' dates in the six months from '+fmtDateL(R.from)+', tap to view:')
+    :tr('In diesen sechs Monaten steht der Mond von hier aus nicht sichtbar zwischen den Türmen. Probieren Sie eine andere Entfernung.','From here the moon does not stand visibly between the towers in these six months. Try another distance.');
   R.list.forEach((e,i)=>{ const li=document.createElement('li'), b=document.createElement('button'), off=berlinOffsetMin(e.best), l=new Date(e.best+off*60000), la=new Date(e.a+off*60000), lb=new Date(e.b+off*60000);
     const day=LANG==='en'?WD_EN[l.getUTCDay()]+' '+l.getUTCDate()+' '+MON_EN[l.getUTCMonth()]+' '+l.getUTCFullYear():WD[l.getUTCDay()]+' '+l.getUTCDate()+'.'+(l.getUTCMonth()+1)+'.'+l.getUTCFullYear();
     const hm=d=>pad2(d.getUTCHours())+':'+pad2(d.getUTCMinutes());
@@ -2540,7 +2586,7 @@ function expTick(){ if(!expReady) return; try{
     document.querySelectorAll('#ksSeg [data-m]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.m===state.m&&state.d===21))); }
   if(expPanel('su')) suText();
   if(expPanel('au')) auTable();
-  if(expPanel('lk')) lkDraw();
+  if(expPanel('lk')){ if(LK.cur&&LK.cur.y!==state.y&&!LK.busy) lkRun(); else lkDraw(); }
 }catch(e){ console.warn(e); } }
 const TOWER_H=124.95;
 // 1 Kirche als Sonnenuhr
@@ -2587,7 +2633,7 @@ async function lkRun(){ if(LK.busy) return; const c=LK.list[LK.sel]; if(!c) retu
         LD.copy(_lkL); let ok=0; for(const o of w.occ){ rc.set(o,_lkL); if(!envBlocked(o)&&rc.intersectObjects(occluders,false).length===0) ok++; } g[r*LK_COLS+k]=ok/w.occ.length; }
       if(performance.now()-tick>150){ LD.copy(_lkSave); busyText(tr('Lichtkalender wird berechnet … ','Computing the light calendar … ')+Math.round((r+1)/LK_ROWS*100)+' %'); await new Promise(res=>setTimeout(res,0)); tick=performance.now(); } }
     LD.copy(_lkSave); LK.cache[key]=g; busyHide(); LK.busy=false; }
-  LK.cur={g:LK.cache[key],w}; lkDraw(); lkSum(); }
+  LK.cur={g:LK.cache[key],w,y:state.y}; lkDraw(); lkSum(); }
 function lkSum(){ const g=LK.cur.g; let days=0, any=new Set(), first=null, last=null, hrs=0;
   for(let r=0;r<LK_ROWS;r++){ let lit=false; for(let k=0;k<LK_COLS;k++){ const v=g[r*LK_COLS+k]; if(v>0.3){ lit=true; hrs+=0.25; } } if(lit) any.add(r); }
   $('#lkSum').textContent=any.size?tr('Direktes Sonnenlicht an '+any.size+' von 24 Stichtagen, zusammen etwa '+Math.round(hrs)+' Stunden.','Direct sunlight on '+any.size+' of 24 sample days, about '+Math.round(hrs)+' hours in all.')
@@ -2729,11 +2775,11 @@ function updateShare(){ if($('#card-share').hidden) return; $('#shareUrl').value
 function applyCode(str){
   const q=new URLSearchParams(String(str||'').replace(/^[^#]*#/,'').replace(/^#/,'')); if(!q.get('d')) return false;
   if(q.get('l')&&q.get('l')!==LANG){ LANG=q.get('l')==='en'?'en':'de'; refreshLang(); }
-  const [y,mo,d]=q.get('d').split('-').map(Number); if(!y) return false;
+  const [y,mo,d]=q.get('d').split('-').map(Number); if(!Number.isFinite(y)||!Number.isFinite(mo)||!Number.isFinite(d)||mo<1||mo>12||d<1||d>31) return false;
   if(tour.i!==null) tourEnd();
-  state.minutes=Math.max(0,Math.min(1439,+q.get('t')||720)); setDate(y,mo-1,d);
+  { const t=q.get('t')===null||q.get('t')===''?NaN:+q.get('t'); state.minutes=Number.isFinite(t)?Math.max(0,Math.min(1439,t)):720; } setDate(y,mo-1,Math.min(d,new Date(Date.UTC(y,mo,0)).getUTCDate()));
   const v=q.get('v'); if(v&&VIEWS[v]) goView(v,true);
-  if(v==='himmel'&&q.get('p')){ const a=q.get('p').split(',').map(Number); if(a.length===4){ Object.assign(PANO,{az:a[0],elB:a[1],kx:a[2],ky:a[3]}); panoUniforms(); } }
+  if(v==='himmel'&&q.get('p')){ const a=q.get('p').split(',').map(Number); if(a.length===4&&a.every(Number.isFinite)){ Object.assign(PANO,{az:a[0],elB:a[1],kx:a[2],ky:a[3]}); panoUniforms(); } }
   else if(q.get('c')){ const c=q.get('c').split(',').map(Number); if(c.length===6&&c.every(isFinite)){ if(state.pano){ state.pano=false; controls.enabled=true; drawPanoGrid(); }
       camera.position.set(c[0],c[1],c[2]); controls.target.set(c[3],c[4],c[5]); camera.lookAt(controls.target);
       const vw=v&&VIEWS[v]; applyMode(q.get('m')==='inside'?'inside':'orbit',vw?vw.minD:undefined,vw?vw.walk:undefined); controls.update(); } }
