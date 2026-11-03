@@ -133,7 +133,7 @@
     <div class="cbody">
         <div class="btnrow"><button class="chip" id="ckGo" data-en="Look at it">Ansehen</button><button class="chip" id="ckDial" data-en="Dial">Zifferblatt</button><button class="chip" id="ckCal" data-en="Calendar disk">Kalenderscheibe</button></div>
         <div class="ckrow">
-          <canvas id="ckMini" width="256" height="256" role="img" aria-label="Zifferblatt der Uhr zur eingestellten Zeit" data-en-aria="Clock dial at the chosen time"></canvas>
+          <button class="ckmini" id="ckZoomBtn" type="button" aria-label="Zifferblatt vergrößern"><canvas id="ckMini" width="256" height="256" aria-hidden="true"></canvas></button>
           <dl class="readout">
             <div><dt data-gl="dl" data-en="Day letter">Tagesbuchstabe</dt><dd id="ckLetter">–</dd></div>
             <div><dt data-gl="sl" data-en="Sunday letter">Sonntagsbuchst.</dt><dd id="ckSun">–</dd></div>
@@ -378,6 +378,7 @@
     <div class="tchoice" id="tourChoice" hidden><button class="btn" data-act="a"></button><button class="chip" data-act="b"></button><button class="chip" data-act="c"></button><button class="chip" data-act="d"></button></div>
   </aside>
 
+  <div id="ckZoom" class="ckzoom" hidden role="dialog" aria-modal="true"><button class="cx" id="ckZoomX" aria-label="Schließen" data-en-aria="Close">×</button><canvas id="ckBig" width="1024" height="1024"></canvas><p id="ckZoomTxt"></p></div>
   <aside class="tourcard quizcard" id="quiz" hidden aria-live="polite" aria-label="Quiz" data-en-aria="Quiz">
     <p class="tstep" id="qzStep"></p>
     <h3 id="qzTitle"></h3>
