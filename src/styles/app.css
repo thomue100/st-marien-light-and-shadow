@@ -39,10 +39,9 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 
 .brand{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));left:max(14px,env(safe-area-inset-left,0px));
   background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:8px 14px 7px;border-radius:6px;box-shadow:var(--shadow);
-  display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;max-width:calc(100% - 28px)}
+  display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;box-sizing:border-box;max-width:calc(100% - 28px - 58px)}   /* rechts bleibt Platz für die Symbolleiste */
 h1{font-family:var(--f-display);font-weight:700;font-size:21px;line-height:1.1;margin:0;letter-spacing:.01em;white-space:nowrap}
 h1 .h1b{color:var(--brick)}
-.eyebrow{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);margin:0;white-space:nowrap}
 
 button,select,input{font:inherit;color:inherit}
 button{cursor:pointer}
@@ -59,13 +58,14 @@ input[type=range]{width:100%;accent-color:var(--brick);margin:0}
 .btn svg{width:11px;height:11px;fill:currentColor}
 
 /* Ansichtswahl oben in der Mitte */
-.viewpick{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:3}
-.vbtn{display:flex;align-items:center;gap:6px;background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);
-  border-radius:999px;padding:6px 14px;box-shadow:var(--shadow);font-size:14px;white-space:nowrap}
-.vbtn .vlab{color:var(--muted)}
-.vbtn #viewTxt{font-weight:500}
-.vbtn svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.6}
-.vmenu{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--panel);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+.viewpick{position:static;flex:1 1 0;min-width:84px;max-width:max-content}   /* in der Titelleiste; das Menü richtet sich nach der Leiste (.brand). Wird es eng, kürzt sie den Namen (…) statt umzubrechen */
+.brand{z-index:3}
+.brand:has(.vmenu:not([hidden])){z-index:7}   /* aufgeklapptes Menü über Rundgang- und Infokarten */
+.vbtn{display:inline-flex;align-items:center;gap:5px;max-width:100%;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12.5px;white-space:nowrap}
+.vbtn .vlab{color:var(--muted);flex-shrink:0}
+.vbtn #viewTxt{font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.vbtn svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.6;flex-shrink:0}
+.vmenu{position:absolute;top:calc(100% + 6px);left:0;box-sizing:border-box;max-width:calc(100vw - 28px);background:var(--panel);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   border-radius:8px;box-shadow:var(--shadow);padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:2px 6px;min-width:330px}
 .vmenu[hidden]{display:none}
 .vgroup{grid-column:1/-1;margin:6px 6px 2px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -309,25 +309,22 @@ body.touring .yearnote{display:none}
 .ld-bar i{display:block;height:100%;width:5%;background:var(--brick);transition:width .3s ease}
 @media (prefers-reduced-motion: reduce){ .ld-spin{animation:none;border-color:var(--brick)} }
 @media (max-width:1100px){ .tb-sum{display:none} }
+@media (max-width:900px){ .vbtn .vlab{display:none} }   /* eng: lieber „Ansicht“ weglassen als den Namen kürzen */
 @media (max-width:440px){ #presetBtn .pl{display:none} #presetBtn .pl+span{display:inline-block} #presetBtn .pl+span::first-letter{text-transform:uppercase} }
-@media (max-width:410px){ .brand h1{font-size:16.5px} .brandbtns{gap:4px} .brandbtns .chip{padding:3px 7px;font-size:12.5px} .vbtn{padding:5px 9px;font-size:13.5px} }
+@media (max-width:410px){ .brand h1{font-size:16.5px} .brandbtns{gap:4px} .brandbtns .chip{padding:3px 7px;font-size:12.5px} .vbtn{padding:3px 7px} .viewpick{min-width:68px} }
 /* Handy quer (breit, aber niedrig): Ansicht-Knopf nach rechts, damit er die Kopfzeile nicht verdeckt */
-@media (max-height:520px) and (min-width:761px){ .viewpick{left:auto;right:max(14px,env(safe-area-inset-right,0px));transform:none} }
 /* niedrige Bildschirme (Handy quer): Leiste zweispaltig, damit sie nicht in die Zeitleiste ragt */
 @media (max-height:520px){ .rail{display:grid;grid-template-columns:repeat(2,auto);gap:3px} .rail .rbtn{width:32px;height:32px} .rail .rbtn svg{width:18px;height:18px} }
-@media (max-width:1560px){ .brand .eyebrow{display:none} }
 @media (max-width:760px){
   :root{--tbh:126px}
-  .brand{padding:6px 10px;max-width:calc(100% - 140px);gap:4px 8px}
+  .brand{padding:6px 10px;max-width:calc(100% - 28px - 56px);gap:4px 8px}
   .brandbtns{margin-left:0}
   h1{font-size:18px}
   h1 .h1b{display:block;font-size:14px;line-height:1.1;letter-spacing:.03em}   /* schmal: Untertitel in eigener Zeile */
-  .eyebrow{display:none}
-  .viewpick{left:auto;right:max(14px,env(safe-area-inset-right,0px));transform:none}
-  .vbtn{padding:6px 11px}
   .vbtn .vlab{display:none}
-  .vmenu{left:auto;right:0;transform:none;min-width:0;width:min(330px,calc(100vw - 28px))}
-  .rail{top:calc(62px + env(safe-area-inset-top,0px))}
+  .viewpick{order:1}   /* schmal: Ansicht neben „St. Marien“, die Knöpfe darunter */
+  .brandbtns{order:2}
+  .vmenu{min-width:0;width:min(330px,calc(100vw - 28px))}
   .rbtn{width:38px;height:38px}
   .card{top:auto;left:max(14px,env(safe-area-inset-left,0px));right:max(14px,env(safe-area-inset-right,0px));width:auto;
     bottom:calc(14px + env(safe-area-inset-bottom,0px) + var(--tbh) + 8px);max-height:min(56%,calc(100% - 150px - var(--tbh)))}
@@ -379,7 +376,6 @@ body.touring .yearnote{display:none}
   :root{--tbh:84px}
   .rbtn{width:32px;height:32px}
   .rbtn svg{width:18px;height:18px}
-  .rail{top:calc(54px + env(safe-area-inset-top,0px))}
   .brand{padding:5px 10px}
   h1{font-size:17px}
   .tourcard{top:calc(52px + env(safe-area-inset-top,0px));width:min(340px,42%);padding:9px 12px;gap:3px;max-height:calc(100% - 64px - var(--tbh));overflow:auto}
