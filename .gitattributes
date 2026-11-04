@@ -1,0 +1,7 @@
+# Einheitliche Zeilenenden (LF) auf allen Rechnern, auch unter Windows
+* text=auto eol=lf
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.webp binary
+*.woff2 binary

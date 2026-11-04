@@ -3,11 +3,11 @@ St. Marien zu Lübeck – Licht und Schatten, Webfassung
 
 Inhalt
   index.html     Startseite der Anwendung
-  css/, js/      Gestaltung und Programm
-  vendor/        3D-Bibliothek three.js (r128), lokal
-  fonts/         Schriften, lokal (keine Verbindung zu Google)
-  data/          Umgebung, Uhrendaten, Liste der Glasmalereien
-  img/           Glasmalereien und Bilder der Astronomischen Uhr
+  assets/        Programm (mit der 3D-Bibliothek three.js r128), Gestaltung,
+                 Schriften (lokal, keine Verbindung zu Google), Umgebungs- und
+                 Uhrendaten, Glasmalereien und Bilder der Astronomischen Uhr.
+                 Die Dateinamen enthalten eine Prüfsumme und ändern sich mit
+                 jeder neuen Fassung; immer den ganzen Ordner ersetzen.
 
 Veröffentlichen
   1. Den ganzen Ordner unverändert auf den Webserver laden, z. B. nach
@@ -26,5 +26,5 @@ Wichtig
     Rundgang-gesehen und Tagesdiagramm auf/zu (localStorage).
   - Bildrechte der Fenster- und Uhrfotos vor der Veröffentlichung klären.
   - Die Datei .htaccess (für Apache-Server) schaltet Komprimierung und
-    Zwischenspeichern ein; data/umgebung.json wird dadurch statt 1,1 MB
-    nur etwa 0,5 MB übertragen. Auf anderen Servern kann sie entfallen.
+    Zwischenspeichern ein; die Umgebungsdaten (assets/umgebung-….js)
+    werden dadurch statt 1,1 MB nur etwa 0,5 MB übertragen. Auf anderen Servern kann sie entfallen.
