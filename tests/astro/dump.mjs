@@ -1,7 +1,8 @@
-// Rechnet mit dem Code des Lichtmodells alle Prüffälle und schreibt model.json (Zeiten in ms UTC)
-const fs=require('fs'), path=require('path'); const {build}=require('./extract.js');
-fs.writeFileSync(path.join(__dirname,'astro.gen.js'),build());
-const A=require('./astro.gen.js');
+// Rechnet mit den Astronomie-Modulen des Lichtmodells (src/astro) alle Prüffälle und schreibt model.json (Zeiten in ms UTC).
+// Geprüft wird also genau der Code, der auch im Browser läuft.
+import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
+import * as A from '../../src/astro/index.js';
+const __dirname=path.dirname(fileURLToPath(import.meta.url));
 const Y0=+(process.env.Y0||2026), Y1=+(process.env.Y1||2030), out={years:[Y0,Y1],lat:A.LAT,lon:A.LON,pos:[],sun:[],moon:[],phase:[],noon:[],ecl:[],dst:[]};
 // 1 Örter: alle 5 Tage zu wechselnden Stunden
 for(let t=Date.UTC(Y0,0,1,3),k=0;t<Date.UTC(Y1+1,0,1);t+=5*864e5+3.7*3600e3,k++){ const s=A.sunPos(t), m=A.moonPos(t); out.pos.push([t,s.el,s.az,m.el,m.elTrue,m.az]); }

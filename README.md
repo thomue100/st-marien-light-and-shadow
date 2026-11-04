@@ -15,6 +15,7 @@ Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, d
 |---|---|
 | `index.html` | Seitengerüst: alle Bedienelemente (Markup) |
 | `src/app.js` | das Programm (noch in einem Stück; wird in den nächsten Umbauschritten in Module aufgeteilt) |
+| `src/astro/` | Astronomie ohne 3D und ohne Seite: `time.js` (Ortszeit, Sommerzeit), `sun.js`, `moon.js`, `eclipses.js`, `common.js` (Ort Lübeck, Umrechnungen) |
 | `src/three-global.js` | three.js r128 aus npm, bereitgestellt als globales `THREE` |
 | `src/data.js` | lädt Glasmalereien, Uhrbilder, Uhrendaten und Umgebung |
 | `src/styles/` | `app.css` (Gestaltung), `fonts.css` (Schriften) |
@@ -22,7 +23,7 @@ Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, d
 | `src/assets/` | `glas/` Glasmalereien (Dateiname = Fenstertyp), `uhr/` Bilder der Astronomischen Uhr, `fonts/` Schriften mit Lizenz |
 | `public/` | wird unverändert in die Webfassung kopiert (`.htaccess`, `LIESMICH.txt`) |
 | `web/` | **Webfassung** zum Hochladen auf den Webserver (erzeugt mit `npm run build:web`, siehe `web/LIESMICH.txt`) |
-| `tests/` | Prüfungen, siehe `tests/README.md` |
+| `tests/` | Prüfungen: `unit/` Unit-Tests (Vitest), `astro/` Vergleich mit Skyfield, Browser-Tests – siehe `tests/README.md` |
 | `vite.config.mjs` | Bauanleitung für Web-, Offline- und Testfassung |
 
 ## Entwickeln
@@ -34,6 +35,7 @@ npm install            # einmalig: Vite und three.js
 npm run dev            # Entwicklungsserver unter http://localhost:5173 – lädt bei jeder gespeicherten Änderung neu
 npm run build          # web/ und dist/St-Marien-Licht-und-Schatten-offline.html
 npm run preview        # gebaute Webfassung lokal unter http://localhost:8000 ansehen
+npm test               # Unit-Tests (Astronomie, Zeitumstellung) – dauert etwa 2 Sekunden
 ```
 
 In WebStorm stehen dieselben Befehle oben rechts in der Liste der Startkonfigurationen (Ordner `.run/`).

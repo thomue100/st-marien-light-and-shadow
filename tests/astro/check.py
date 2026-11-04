@@ -4,7 +4,7 @@
 Referenz: Skyfield mit der JPL-Ephemeride DE421 (Sonne, Mond, Auf-/Untergänge, Phasen, Meridiandurchgänge, Mondfinsternisse,
 örtliche Sonnenfinsternisse) und Pythons Zeitzonen-Datenbank (Europe/Berlin) für die Sommerzeit.
 Optional (--usno, braucht Internet): Auf-/Untergänge und Phasen beim U.S. Naval Observatory.
-Aufruf: node dump.js && python3 check.py   → report.md, report.html; Rückgabewert 1, wenn eine Grenze überschritten ist.
+Aufruf: node dump.mjs && python check.py   → report.md, report.html; Rückgabewert 1, wenn eine Grenze überschritten ist.
 """
 import json, math, sys, os, datetime as dt, argparse
 from zoneinfo import ZoneInfo

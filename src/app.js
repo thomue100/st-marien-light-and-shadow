@@ -1,6 +1,7 @@
 // St. Marien – Licht und Schatten: das Programm (bis zur weiteren Aufteilung in Module noch in einem Stück)
 import './three-global.js';   // three.js r128 als globales THREE, wie es der Code erwartet
 import { DATA } from './data.js';   // Glasmalereien, Uhrbilder, Umgebung
+import { LAT, berlinNow, berlinOffsetMin, dstInfo, eclToEqu, eclipseScan, horiz, localToUtc, lstDeg, lunarEclipseAt, moonEcl, moonPhaseTime, moonPos, moonRiseSet, moonTransitNear, nrm360, rad, refract, solarEclipseAt, sunDay, sunEcl, sunPos, sunPrecise, trueNoon } from './astro/index.js';
 (async function(){
 'use strict';
 // Ladeanzeige: der Aufbau läuft in Schritten, zwischen denen der Browser die Anzeige aktualisieren kann
@@ -34,8 +35,7 @@ if(!window.THREE || !THREE.OrbitControls){
 await step(tr('Texturen und Glasmalereien','Textures and stained glass'),12);
 const $=s=>document.querySelector(s);
 const V3=THREE.Vector3;
-const rad=Math.PI/180, SQ3=Math.sqrt(3);
-const LAT=53.8677, LON=10.6850;
+const SQ3=Math.sqrt(3);
 // Maße der Kirche, abgeglichen mit dem amtlichen LoD2-Gebäudemodell (LVermGeo SH, 2025) und dem Oberflächenmodell bDOM20 (2023).
 // Modellkoordinaten: x entlang der Kirchenachse (Ost = +x), z quer (Süd = +z), y Höhe über Fußboden (13,0 m NHN).
 const X0=-36.8, XC=28.8, XT=1.6, XW=-50.3;           // Turm-Ostflucht, Beginn Chorpolygon, Beginn Chorjoche, Westwand (Mitte)
@@ -87,35 +87,6 @@ const MASK_GLSL=(function(){
   s+='  if(p.y<18.3'+MT_EDGES.map(e=>' && dot(vec2('+F(e[0])+','+F(e[1])+'),p.xz-vec2('+F(e[2])+','+F(e[3])+'))>-0.05').join('')+') return 1.0;\n';
   return s+'  return 0.0;\n}\n';
 })();
-
-/* ---------------- Zeit & Sonne ---------------- */
-function lastSundayUtc(y,m){ const d=new Date(Date.UTC(y,m+1,0)); d.setUTCDate(d.getUTCDate()-d.getUTCDay()); return Date.UTC(y,m,d.getUTCDate(),1); }
-// Sommerzeit in Deutschland (MESZ), Umstellung jeweils 01:00 UTC: seit 1996 letzter Sonntag im März bis letzter Sonntag im Oktober,
-// 1981–1995 bis zum letzten Sonntag im September, 1980 vom 6. April bis 28. September, davor (ab 1950) keine Sommerzeit
-function dstRange(y){ if(y<1980) return null; if(y===1980) return [Date.UTC(1980,3,6,1),Date.UTC(1980,8,28,1)];
-  return [lastSundayUtc(y,2),lastSundayUtc(y,y<1996?8:9)]; }
-function berlinOffsetMin(u){ const r=dstRange(new Date(u).getUTCFullYear()); return r&&u>=r[0]&&u<r[1]?120:60; }
-function localToUtc(y,m,d,min){ const base=Date.UTC(y,m,d)+min*60000; let u=base-3600000; if(berlinOffsetMin(u)===120){ const u2=base-7200000; if(berlinOffsetMin(u2)===120) u=u2; else u=dstRange(new Date(u).getUTCFullYear())[0]; } return u; }   // 02:00–02:59 am Umstellungstag im März gibt es nicht: alle diese Minuten zeigen den Umstellungsmoment (03:00 MESZ), so läuft die Zeit nie rückwärts
-// Zeitumstellung: Tag der Umstellung erkennen; 02:00–02:59 gibt es im März nicht und im Oktober zweimal (das Modell zeigt dann den zweiten Durchlauf, MEZ)
-function dstInfo(y,m,d,min){ const u=localToUtc(y,m,d,min), off=berlinOffsetMin(u), loc=(u-Date.UTC(y,m,d))/60000+off;   // tatsächliche Ortszeit in Minuten ab Mitternacht
-  const dr=dstRange(y), day0=t=>{ const q=new Date(t); return Date.UTC(q.getUTCFullYear(),q.getUTCMonth(),q.getUTCDate()); }, spring=!!dr&&Date.UTC(y,m,d)===day0(dr[0]), fall=!!dr&&Date.UTC(y,m,d)===day0(dr[1]);
-  return {utc:u,off,loc,gap:spring&&min>=120&&min<180,fold:fall&&min>=120&&min<180}; }
-function berlinNow(){ const u=Date.now(); const l=new Date(u+berlinOffsetMin(u)*60000); return {y:l.getUTCFullYear(),m:l.getUTCMonth(),d:l.getUTCDate(),minutes:l.getUTCHours()*60+l.getUTCMinutes()}; }
-function sunPos(ms){
-  const n=ms/86400000+2440587.5-2451545.0;
-  const g=(357.529+0.98560028*n)*rad;
-  const q=280.459+0.98564736*n;
-  const lam=(q+1.915*Math.sin(g)+0.020*Math.sin(2*g))*rad;
-  const eps=(23.439-0.00000036*n)*rad;
-  const ra=Math.atan2(Math.cos(eps)*Math.sin(lam),Math.cos(lam));
-  const dec=Math.asin(Math.sin(eps)*Math.sin(lam));
-  const gmst=((18.697374558+24.06570982441908*n)%24+24)%24;
-  const H=(gmst*15+LON)*rad-ra, phi=LAT*rad;
-  const el=Math.asin(Math.sin(phi)*Math.sin(dec)+Math.cos(phi)*Math.cos(dec)*Math.cos(H));
-  const az=Math.atan2(-Math.cos(dec)*Math.sin(H),Math.sin(dec)*Math.cos(phi)-Math.cos(dec)*Math.cos(H)*Math.sin(phi));
-  let e=el/rad; if(e>-1.5){ e+=1.02/Math.tan((e+10.3/(e+5.11))*rad)/60; }
-  return {el:e,az:((az/rad)%360+360)%360,H:((H/rad)%360+540)%360-180};
-}
 const state={y:2026,m:9,d:26,minutes:720,playing:false,speed:30,axis:98.5,env:true,trees:true,lodChurch:false,sdWedge:8.5,cut:60,beams:true,tint:true,amb:0.3,exp:1.0,labels:true,moon:true,sunPath:true,moonPath:true,mode:'orbit'};
 const cur={el:0,az:0};
 const L=new V3(0,1,0);
@@ -128,174 +99,8 @@ function sunVec(el,az,out){
 }
 const clamp01=x=>Math.min(1,Math.max(0,x));
 const smooth=(a,b,x)=>{const t=clamp01((x-a)/(b-a)); return t*t*(3-2*t);};
-
-/* ---------------- Mond: Bahn, Phase, Auf- und Untergang ---------------- */
-// Verkürzte Mondtheorie nach Meeus, Astronomical Algorithms, Kap. 47 (die größten Glieder; Fehler etwa 0,01°),
-// topozentrisch (Parallaxe bis ~1°) für Lübeck, Lichtbrechung wie bei der Sonne. Phase nach Kap. 48.
-const MOON_L=[[0,0,1,0,6288774,-20905355],[2,0,-1,0,1274027,-3699111],[2,0,0,0,658314,-2955968],[0,0,2,0,213618,-569925],
-  [0,1,0,0,-185116,48888],[0,0,0,2,-114332,-3149],[2,0,-2,0,58793,246158],[2,-1,-1,0,57066,-152138],[2,0,1,0,53322,-170733],
-  [2,-1,0,0,45758,-204586],[0,1,-1,0,-40923,-129620],[1,0,0,0,-34720,108743],[0,1,1,0,-30383,104755],[2,0,0,-2,15327,10321],
-  [0,0,1,2,-12528,0],[0,0,1,-2,10980,79661],[4,0,-1,0,10675,-34782],[0,0,3,0,10034,-23210],[4,0,-2,0,8548,-21636],
-  [2,1,-1,0,-7888,24208],[2,1,0,0,-6766,30824],[1,0,-1,0,-5163,-8379],[1,1,0,0,4987,-16675],[2,-1,1,0,4036,-12831],
-  [2,0,2,0,3994,-10445],[4,0,0,0,3861,-11650],[2,0,-3,0,3665,14403],[0,1,-2,0,-2689,-7003],[2,0,-1,2,-2602,0],
-  [2,-1,-2,0,2390,10056],[1,0,1,0,-2348,6322],[2,-2,0,0,2236,-9884],[0,1,2,0,-2120,5751],[0,2,0,0,-2069,0],
-  [2,-2,-1,0,2048,-4950],[2,0,1,-2,-1773,4130],[2,0,0,2,-1595,0],[4,-1,-1,0,1215,-3958],[0,0,2,2,-1110,0],
-  [3,0,-1,0,-892,3258],[2,1,1,0,-810,2616],[4,-1,-2,0,759,-1897],[0,2,-1,0,-713,-2117],[2,2,-1,0,-700,2354]];
-const MOON_B=[[0,0,0,1,5128122],[0,0,1,1,280602],[0,0,1,-1,277693],[2,0,0,-1,173237],[2,0,-1,1,55413],[2,0,-1,-1,46271],
-  [2,0,0,1,32573],[0,0,2,1,17198],[2,0,1,-1,9266],[0,0,2,-1,8822],[2,-1,0,-1,8216],[2,0,-2,-1,4324],[2,0,1,1,4200],
-  [2,1,0,-1,-3359],[2,-1,-1,1,2463],[2,-1,0,1,2211],[2,-1,-1,-1,2065],[0,1,-1,-1,-1870],[4,0,-1,-1,1828],[0,1,0,1,-1794],
-  [0,0,0,3,-1749],[0,1,-1,1,-1565],[1,0,0,1,-1491],[0,1,1,1,-1475],[0,1,1,-1,-1410],[0,1,0,-1,-1344],[1,0,0,-1,-1335],[0,0,3,1,1107]];
-const AU_KM=149597870.7, EARTH_R=6378.14;
-function nrm360(x){ return ((x%360)+360)%360; }
-// geozentrisch, ekliptikal: λ, β (Grad), Abstand (km)
-function moonEcl(ms){
-  const T=(ms/86400000+2440587.5-2451545.0+69/86400)/36525;   // TT ≈ UT + 69 s
-  const Lp=218.3164477+481267.88123421*T, D=297.8501921+445267.1114034*T, M=357.5291092+35999.0502909*T,
-        Mp=134.9633964+477198.8675055*T, F=93.2720950+483202.0175233*T, E=1-0.002516*T;
-  const A1=119.75+131.849*T, A2=53.09+479264.290*T, A3=313.45+481266.484*T;
-  let sl=0, sr=0, sb=0;
-  for(const [d,m,mp,f,cl,cr] of MOON_L){ const a=(d*D+m*M+mp*Mp+f*F)*rad, e=m===0?1:(Math.abs(m)===1?E:E*E); sl+=cl*e*Math.sin(a); sr+=cr*e*Math.cos(a); }
-  for(const [d,m,mp,f,cb] of MOON_B){ const a=(d*D+m*M+mp*Mp+f*F)*rad, e=m===0?1:(Math.abs(m)===1?E:E*E); sb+=cb*e*Math.sin(a); }
-  sl+=3958*Math.sin(A1*rad)+1962*Math.sin((Lp-F)*rad)+318*Math.sin(A2*rad);
-  sb+=-2235*Math.sin(Lp*rad)+382*Math.sin(A3*rad)+175*Math.sin((A1-F)*rad)+175*Math.sin((A1+F)*rad)+127*Math.sin((Lp-Mp)*rad)-115*Math.sin((Lp+Mp)*rad);
-  return {lam:nrm360(Lp+sl/1e6), beta:sb/1e6, dist:385000.56+sr/1000, T};
-}
-// Sonne geozentrisch (wie sunPos): λ, Rektaszension, Abstand in km
-function sunEcl(ms){
-  const n=ms/86400000+2440587.5-2451545.0, g=(357.529+0.98560028*n)*rad, q=280.459+0.98564736*n;
-  const lam=nrm360(q+1.915*Math.sin(g)+0.020*Math.sin(2*g)), R=(1.00014-0.01671*Math.cos(g)-0.00014*Math.cos(2*g))*AU_KM;
-  const eps=(23.439-0.00000036*n)*rad, ra=Math.atan2(Math.cos(eps)*Math.sin(lam*rad),Math.cos(lam*rad))/rad;
-  return {lam,R,ra:nrm360(ra)};
-}
-function eclToEqu(lam,beta,T){ const eps=(23.4392911-0.0130042*T)*rad, l=lam*rad, b=beta*rad;
-  const ra=Math.atan2(Math.sin(l)*Math.cos(eps)-Math.tan(b)*Math.sin(eps),Math.cos(l));
-  const dec=Math.asin(Math.sin(b)*Math.cos(eps)+Math.cos(b)*Math.sin(eps)*Math.sin(l));
-  return {ra:nrm360(ra/rad), dec:dec/rad}; }
-function lstDeg(ms){ const n=ms/86400000+2440587.5-2451545.0; return nrm360((18.697374558+24.06570982441908*n)*15+LON); }
-function horiz(Hdeg,dec){ const H=Hdeg*rad, d=dec*rad, phi=LAT*rad;
-  const el=Math.asin(Math.sin(phi)*Math.sin(d)+Math.cos(phi)*Math.cos(d)*Math.cos(H));
-  const az=Math.atan2(-Math.cos(d)*Math.sin(H),Math.sin(d)*Math.cos(phi)-Math.cos(d)*Math.cos(H)*Math.sin(phi));
-  return {el:el/rad, az:nrm360(az/rad)}; }
-function refract(e){ return e>-1.5? e+1.02/Math.tan((e+10.3/(e+5.11))*rad)/60 : e; }
-const OBS_U=Math.atan(0.99664719*Math.tan(LAT*rad)), OBS_RS=0.99664719*Math.sin(OBS_U)+20/6378140*Math.sin(LAT*rad), OBS_RC=Math.cos(OBS_U)+20/6378140*Math.cos(LAT*rad);
-function moonPos(ms){
-  const m=moonEcl(ms), q=eclToEqu(m.lam,m.beta,m.T), H=nrm360(lstDeg(ms)-q.ra+180)-180;
-  const sp=EARTH_R/m.dist, d=q.dec*rad, Hr=H*rad;   // topozentrische Korrektur (Meeus Kap. 40)
-  const dA=Math.atan2(-OBS_RC*sp*Math.sin(Hr),Math.cos(d)-OBS_RC*sp*Math.cos(Hr));
-  const dec2=Math.atan2((Math.sin(d)-OBS_RS*sp)*Math.cos(dA),Math.cos(d)-OBS_RC*sp*Math.cos(Hr))/rad;
-  const H2=H-dA/rad, hz=horiz(H2,dec2);
-  const s=sunEcl(ms), elong=nrm360(m.lam-s.lam);
-  const psi=Math.acos(Math.cos(m.beta*rad)*Math.cos((m.lam-s.lam)*rad)), i=Math.atan2(s.R*Math.sin(psi),m.dist-s.R*Math.cos(psi));
-  return {el:refract(hz.el), elTrue:hz.el, az:hz.az, H:nrm360(H2+180)-180, ra:q.ra, dec:dec2, dist:m.dist, lam:m.lam, beta:m.beta,
-          elong, k:(1+Math.cos(i))/2, waxing:elong<180, raSun:s.ra, semi:Math.asin(1737.4/m.dist)/rad}; }
-function moonElong(ms){ return nrm360(moonEcl(ms).lam-sunEcl(ms).lam); }
-// nächster (dir=+1) bzw. letzter (dir=−1) Zeitpunkt, an dem die Elongation den Zielwert (0 Neumond, 180 Vollmond) erreicht
-function moonPhaseTime(ms,target,dir){
-  const f=t=>{ const e=nrm360(moonElong(t)-target); return e>180?e-360:e; };   // −180…180, steigt mit der Zeit
-  const step=6*3600000*dir; let a=ms, fa=f(a);
-  for(let i=0;i<140;i++){ const b=a+step, fb=f(b);
-    const cross=dir>0?(fa<0&&fb>=0&&fb-fa<90):(fa>=0&&fb<0&&fa-fb<90);
-    if(cross){ let lo=dir>0?a:b, hi=dir>0?b:a; for(let k=0;k<30;k++){ const mid=(lo+hi)/2; if(f(mid)<0) lo=mid; else hi=mid; } return (lo+hi)/2; }
-    a=b; fa=fb; }
-  return null; }
-/* ---------------- Finsternisse ---------------- */
-// Sonne genauer nach Meeus Kap. 25 (wahre Länge + Aberration, ohne Nutation wie beim Mond), Zeit TT ≈ UT + ΔT.
-// Sonnenfinsternis: topozentrische Örter von Sonne und Mond, Bedeckung als Flächenanteil der Sonnenscheibe.
-// Mondfinsternis: geozentrischer Abstand des Mondes vom Gegenpunkt der Sonne, Kern- und Halbschatten nach Danjon.
-function deltaT(ms){ const q=new Date(ms), y=q.getUTCFullYear()+(q.getUTCMonth()+0.5)/12;   // Espenak & Meeus (NASA), Polynome 1900–2150
-  if(y<1920){ const t=y-1900; return -2.79+1.494119*t-0.0598939*t*t+0.0061966*t*t*t-0.000197*t*t*t*t; }
-  if(y<1941){ const t=y-1920; return 21.20+0.84493*t-0.076100*t*t+0.0020936*t*t*t; }
-  if(y<1961){ const t=y-1950; return 29.07+0.407*t-t*t/233+t*t*t/2547; }
-  if(y<1986){ const t=y-1975; return 45.45+1.067*t-t*t/260-t*t*t/718; }
-  if(y<2005){ const t=y-2000; return 63.86+0.3345*t-0.060374*t*t+0.0017275*t*t*t+0.000651814*t**4+0.00002373599*t**5; }
-  if(y<2050){ const t=y-2000; return 62.92+0.32217*t+0.005589*t*t; }
-  const u=(y-1820)/100; return -20+32*u*u-0.5628*(2150-y); }
-function sunPrecise(ms){
-  const T=(ms/86400000+2440587.5-2451545.0+deltaT(ms)/86400)/36525;
-  const L0=280.46646+36000.76983*T+0.0003032*T*T, M=(357.52911+35999.05029*T-0.0001537*T*T)*rad, e=0.016708634-0.000042037*T;
-  const C=(1.914602-0.004817*T-0.000014*T*T)*Math.sin(M)+(0.019993-0.000101*T)*Math.sin(2*M)+0.000289*Math.sin(3*M);
-  const nu=M+C*rad, R=1.000001018*(1-e*e)/(1+e*Math.cos(nu));
-  return {lam:nrm360(L0+C-0.00569), R:R*AU_KM, T}; }
-const _eV=(ra,dec)=>{ const a=ra*rad, d=dec*rad; return [Math.cos(d)*Math.cos(a),Math.cos(d)*Math.sin(a),Math.sin(d)]; };
-const _eDot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
-// topozentrischer Ort aus geozentrischem Ort (Rektaszension, Deklination, Abstand km): Vektor minus Beobachterort
-function topoVec(ra,dec,dist,ms){ const th=lstDeg(ms)*rad, g=_eV(ra,dec).map(c=>c*dist), o=[EARTH_R*OBS_RC*Math.cos(th),EARTH_R*OBS_RC*Math.sin(th),EARTH_R*OBS_RS];
-  const v=[g[0]-o[0],g[1]-o[1],g[2]-o[2]], d=Math.hypot(v[0],v[1],v[2]), u=v.map(c=>c/d);
-  const raT=nrm360(Math.atan2(u[1],u[0])/rad), decT=Math.asin(u[2])/rad; return {u,d,ra:raT,dec:decT,H:nrm360(lstDeg(ms)-raT+180)-180}; }
-// Flächenanteil eines Kreises (Radius r1), den ein Kreis (Radius r2) im Mittelpunktsabstand d bedeckt
-function circleCover(r1,r2,d){ if(d>=r1+r2) return 0; if(d<=Math.abs(r2-r1)) return r2>=r1?1:(r2*r2)/(r1*r1);
-  const a=r1*r1*Math.acos((d*d+r1*r1-r2*r2)/(2*d*r1))+r2*r2*Math.acos((d*d+r2*r2-r1*r1)/(2*d*r2))-0.5*Math.sqrt((-d+r1+r2)*(d+r1-r2)*(d-r1+r2)*(d+r1+r2));
-  return a/(Math.PI*r1*r1); }
-function solarEclipseAt(ms){
-  const m=moonEcl(ms), s=sunPrecise(ms);
-  if(Math.abs(nrm360(m.lam-s.lam+180)-180)>4) return null;
-  const qm=eclToEqu(m.lam,m.beta,m.T), qs=eclToEqu(s.lam,0,s.T);
-  const tm=topoVec(qm.ra,qm.dec,m.dist,ms), ts=topoVec(qs.ra,qs.dec,s.R,ms);
-  const sep=Math.acos(Math.min(1,_eDot(tm.u,ts.u)))/rad, hm=horiz(tm.H,tm.dec), hs=horiz(ts.H,ts.dec);
-  const rm=Math.asin(1737.4/tm.d)/rad, rs=959.63/3600/(s.R/AU_KM);
-  const cover=circleCover(rs,rm,sep), mag=Math.max(0,(rs+rm-sep)/(2*rs));
-  return {sep,rs,rm,cover,mag,sunEl:hs.el,sunAz:hs.az,moonEl:hm.el,moonAz:hm.az}; }
-function lunarEclipseAt(ms){
-  const m=moonEcl(ms), s=sunPrecise(ms);
-  if(Math.abs(nrm360(m.lam-s.lam)-180)>4) return null;
-  const sep=Math.acos(Math.max(-1,Math.min(1,Math.cos(m.beta*rad)*Math.cos((m.lam-s.lam-180)*rad))))/rad;
-  const pm=Math.asin(EARTH_R/m.dist)/rad, ps=8.794/3600/(s.R/AU_KM), ss=959.63/3600/(s.R/AU_KM), sm=Math.asin(1737.4/m.dist)/rad;
-  const ru=1.01*pm+ps-ss, rp=1.01*pm+ps+ss;
-  const umag=(ru+sm-sep)/(2*sm), pmag=(rp+sm-sep)/(2*sm);
-  return {sep,sm,ru,rp,umag,pmag,uCover:circleCover(sm,ru,sep),pCover:circleCover(sm,rp,sep)}; }
-// Suche: Finsternisse, die von Lübeck aus zu sehen sind (Sonne bzw. Mond über dem Horizont), ab ms vorwärts
-function eclipseScan(ms,count,kinds){ kinds=kinds||'sl'; const out=[]; let t=ms-2*86400000;
-  for(let n=0;n<3000&&out.length<count;n++){
-    const tn=moonPhaseTime(t,0,1), tf=moonPhaseTime(t,180,1); if(tn===null&&tf===null) break;
-    const cands=[]; if(tn!==null) cands.push([tn,'s']); if(tf!==null) cands.push([tf,'l']); cands.sort((a,b)=>a[0]-b[0]);
-    const [tc,k]=cands[0]; t=tc+86400000;
-    if(!kinds.includes(k)) continue;
-    const e=k==='s'?solarEclipseInfo(tc):lunarEclipseInfo(tc); if(e&&e.max>=ms-4*3600000) out.push(e); }
-  return out; }
-function edgeSearch(f,a,b){ for(let i=0;i<40;i++){ const mid=(a+b)/2; if(f(mid)===f(a)) a=mid; else b=mid; } return (a+b)/2; }
-function solarEclipseInfo(tn){
-  const m0=moonEcl(tn); if(Math.abs(m0.beta)>1.65) return null;
-  const step=60000, A=tn-4*3600000, B=tn+4*3600000; let best=null, t1=null, t2=null, prevOn=false, prevT=A;
-  for(let t=A;t<=B;t+=step){ const e=solarEclipseAt(t); const on=!!(e&&e.cover>0);
-    if(on&&!prevOn&&t>A) t1=edgeSearch(x=>{ const q=solarEclipseAt(x); return !!(q&&q.cover>0); },prevT,t);
-    if(!on&&prevOn) t2=edgeSearch(x=>{ const q=solarEclipseAt(x); return !!(q&&q.cover>0); },prevT,t);
-    if(on&&e.sunEl>-0.6&&(!best||e.cover>best.cover)) best={t,cover:e.cover,mag:e.mag,el:e.sunEl};
-    prevOn=on; prevT=t; }
-  if(!best||t1===null) return null;
-  // Maximum fein bestimmen
-  let a=best.t-step, b=best.t+step; for(let i=0;i<40;i++){ const c1=a+(b-a)/3, c2=b-(b-a)/3, e1=solarEclipseAt(c1), e2=solarEclipseAt(c2);
-    const v1=e1&&e1.sunEl>-0.6?e1.cover:-1, v2=e2&&e2.sunEl>-0.6?e2.cover:-1; if(v1<v2) a=c1; else b=c2; }
-  const tm=(a+b)/2, em=solarEclipseAt(tm);
-  return {kind:'s', type:em.mag>=1?'total':'partial', start:t1, max:tm, end:t2, mag:em.mag, cover:em.cover, el:em.sunEl,
-    startEl:solarEclipseAt(t1).sunEl, endEl:t2?solarEclipseAt(t2).sunEl:null}; }
-function lunarEclipseInfo(tf){
-  const m0=moonEcl(tf); if(Math.abs(m0.beta)>1.65) return null;
-  const step=60000, A=tf-5*3600000, B=tf+5*3600000; let best=null; const ev={};
-  const on=(x,key)=>{ const q=lunarEclipseAt(x); return !!(q&&q[key]>0); };
-  let prev={p:false,u:false,t:false}, prevT=A;
-  for(let t=A;t<=B;t+=step){ const e=lunarEclipseAt(t); const cur={p:!!(e&&e.pmag>0),u:!!(e&&e.umag>0),t:!!(e&&e.umag>=1)};
-    for(const [k,key,s1,s2] of [['p','pmag','P1','P4'],['u','umag','U1','U4'],['t','umag','U2','U3']]){
-      const tst=k==='t'?(x=>{ const q=lunarEclipseAt(x); return !!(q&&q.umag>=1); }):(x=>on(x,key));
-      if(cur[k]&&!prev[k]&&t>A) ev[s1]=edgeSearch(tst,prevT,t); if(!cur[k]&&prev[k]) ev[s2]=edgeSearch(tst,prevT,t); }
-    if(e&&(!best||e.pmag>best.pmag)) best={t,pmag:e.pmag,umag:e.umag};
-    prev=cur; prevT=t; }
-  if(!best||best.pmag<=0) return null;
-  let a=best.t-step, b=best.t+step; for(let i=0;i<40;i++){ const c1=a+(b-a)/3, c2=b-(b-a)/3; if(lunarEclipseAt(c1).pmag<lunarEclipseAt(c2).pmag) a=c1; else b=c2; }
-  const tm=(a+b)/2, em=lunarEclipseAt(tm), type=em.umag>=1?'total':em.umag>0?'partial':'penumbral';
-  // sichtbar, wenn der Mond während der Finsternis (Halbschatten bzw. Kernschatten) irgendwann über dem Horizont steht
-  const t0=type==='penumbral'?ev.P1:ev.U1, t3=type==='penumbral'?ev.P4:ev.U4; let vis=false, visMax=null;
-  for(let t=t0||tm;t<=(t3||tm);t+=120000){ const mp=moonPos(t); if(mp.el>0){ vis=true; break; } }
-  return {kind:'l', type, start:ev.P1, ustart:ev.U1, tstart:ev.U2, max:tm, tend:ev.U3, uend:ev.U4, end:ev.P4, mag:em.umag, pmag:em.pmag, el:moonPos(tm).el, visible:vis}; }
 function moonPhaseName(e){ const N=LANG==='en'?['new moon','waxing crescent','first quarter','waxing gibbous','full moon','waning gibbous','last quarter','waning crescent']:['Neumond','zunehmende Sichel','Erstes Viertel','zunehmender Mond','Vollmond','abnehmender Mond','Letztes Viertel','abnehmende Sichel'];
   return N[e<8||e>=352?0:e<82?1:e<98?2:e<172?3:e<188?4:e<262?5:e<278?6:7]; }
-// Auf- und Untergang (Oberrand am mathematischen Horizont, mit Lichtbrechung) zwischen t0 und t1, Abtastung 5 min
-function moonRiseSet(t0,t1){ let rise=null,set=null,prev=null; const st=300000;
-  const f=t=>{ const m=moonPos(t); return m.el+m.semi; };
-  for(let t=t0;t<=t1;t+=st){ const v=f(t);
-    if(prev!==null){ if(prev<0&&v>=0&&rise===null){ let a=t-st,b=t; for(let k=0;k<12;k++){ const c=(a+b)/2; if(f(c)<0) a=c; else b=c; } rise=(a+b)/2; }
-      if(prev>=0&&v<0&&set===null){ let a=t-st,b=t; for(let k=0;k<12;k++){ const c=(a+b)/2; if(f(c)>=0) a=c; else b=c; } set=(a+b)/2; } }
-    prev=v; }
-  return {rise,set}; }
 
 
 /* ---------------- Renderer ---------------- */
@@ -2083,14 +1888,6 @@ const fmtDeg=v=>dc(v.toFixed(1))+'°';
 const DIRS_DE=['N','NNO','NO','ONO','O','OSO','SO','SSO','S','SSW','SW','WSW','W','WNW','NW','NNW'], DIRS_EN=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
 const dirName=az=>(LANG==='en'?DIRS_EN:DIRS_DE)[Math.round(az/22.5)%16];
 let day={curve:[],rise:null,set:null,maxEl:0,maxT:0,mcurve:[],mrise:null,mset:null,nm0:null,nm1:null,nextFull:null,nextNew:null};
-// Sonnenlauf eines Tages: Höhe alle 5 min, Auf- und Untergang (oberer Rand, mit Refraktion: scheinbare Höhe −0,27°), Höchststand. Minuten ab Mitternacht Ortszeit
-function sunDay(y,m,d){ const c=[]; let maxEl=-90,maxT=0;
-  for(let mi=0;mi<=1440;mi+=5){ const s=sunPos(localToUtc(y,m,d,mi)); c.push(s); if(s.el>maxEl){maxEl=s.el;maxT=mi;} }
-  let rise=null,set=null; const TH=-0.27;
-  for(let i=1;i<c.length;i++){ const a=c[i-1].el, b=c[i].el;
-    if(a<TH&&b>=TH&&rise===null) rise=(i-1)*5+5*(TH-a)/(b-a);
-    if(a>=TH&&b<TH) set=(i-1)*5+5*(TH-a)/(b-a); }
-  return {c,rise,set,maxEl,maxT}; }
 function computeDay(){
   const {c,rise,set,maxEl,maxT}=sunDay(state.y,state.m,state.d);
   const t0=localToUtc(state.y,state.m,state.d,0), t1=localToUtc(state.y,state.m,state.d,1440), mc=[];
@@ -2187,7 +1984,6 @@ function updateMoonReadouts(){
   const cm=$('#cMoon'); if(cm){ cm.setAttribute('cx',CX(state.minutes)); cm.setAttribute('cy',CY(Math.max(-18,m.el))); cm.style.opacity=state.moon?1:0; }
 }
 function gotoInstant(ms,minutes){ const off=berlinOffsetMin(ms), l=new Date(ms+off*60000); state.minutes=minutes!==undefined?minutes:l.getUTCHours()*60+l.getUTCMinutes(); setDate(l.getUTCFullYear(),l.getUTCMonth(),l.getUTCDate()); }
-function moonTransitNear(ms){ let best=ms, be=-99; for(let t=ms-14*3600000;t<=ms+14*3600000;t+=600000){ if(sunPos(t).el>-8) continue; const e=moonPos(t).el; if(e>be){ be=e; best=t; } } return best; }
 // Vollmond am Nachmittag: die Nacht danach zählt noch
 function goFullMoon(){ const nf=moonPhaseTime(localToUtc(state.y,state.m,state.d,state.minutes)-12*3600000,180,1); if(nf!==null) gotoInstant(moonTransitNear(nf)); }
 // Finsternisse: nächste von Lübeck aus sichtbare ab dem eingestellten Tag (Mondfinsternisse mit Kernschatten)
@@ -2617,8 +2413,7 @@ const TOWER_H=124.95;
 function ksSet(m){ const keep=state.view==='luft'; state.minutes=state.minutes>=8*60&&state.minutes<=16*60&&keep?state.minutes:13*60; setDate(state.y,m,21); if(!keep) goView('luft'); expTick(); }
 document.querySelectorAll('#ksSeg [data-m]').forEach(b=>b.addEventListener('click',()=>{ if(state.playing) setPlaying(false); ksSet(+b.dataset.m); }));
 $('#ksPlay').addEventListener('click',()=>{ if(state.playing){ setPlaying(false); return; } if(day.rise!==null) setMinutes(Math.max(0,Math.floor(day.rise)-20)); state.speed=60; $('#speed').value='60'; setPlaying(true); });
-// 2 Sonnenuhr und Armbanduhr: Augenblick, in dem die Sonnenuhr 12 Uhr zeigt (wahrer Mittag), in Uhrzeit
-function trueNoon(y,m,d){ let mm=720; for(let k=0;k<3;k++){ const p=sunPos(localToUtc(y,m,d,mm)), w=((12+p.H/15)%24+24)%24; mm+=(12-w)*60; } return mm; }
+// 2 Sonnenuhr und Armbanduhr (wahrer Mittag: trueNoon in src/astro/sun.js)
 let suYear=null;
 function suScan(y){ if(suYear&&suYear.y===y) return suYear; const r={y,min:null,win:null,sum:null};
   for(let t=Date.UTC(y,0,1);t<Date.UTC(y+1,0,1);t+=864e5){ const dd=new Date(t), m=dd.getUTCMonth(), d=dd.getUTCDate(), n=trueNoon(y,m,d), off=berlinOffsetMin(localToUtc(y,m,d,n)), diff=n-720, e={m,d,n,diff};

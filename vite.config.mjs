@@ -2,7 +2,8 @@
 //   npm run dev            lokaler Entwicklungsserver mit automatischem Neuladen
 //   npm run build:web      Webfassung nach web/  (relativ, läuft in jedem Unterordner, z. B. /licht-und-schatten/)
 //   npm run build:offline  eine einzige Datei nach dist/, startet per Doppelklick ohne Server
-//   npm run build:test     wie offline, aber mit Testhaken, als tests/test.html
+//   npm run build:test     wie offline, aber mit Testhaken, als tests/test.html (Modus „uitest“)
+//   npm test               Unit-Tests (Vitest, tests/unit)
 import { defineConfig } from 'vite';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 import { existsSync, renameSync, rmSync } from 'node:fs';
@@ -36,8 +37,8 @@ function fontDisplayBlock() {
 }
 
 export default defineConfig(({ mode }) => {
-  const single = mode === 'offline' || mode === 'test';
-  const outDir = mode === 'offline' ? 'dist' : mode === 'test' ? 'tests/.build' : 'web';
+  const single = mode === 'offline' || mode === 'uitest';
+  const outDir = mode === 'offline' ? 'dist' : mode === 'uitest' ? 'tests/.build' : 'web';
   return {
     base: './',
     publicDir: single ? false : 'public',
@@ -49,12 +50,15 @@ export default defineConfig(({ mode }) => {
       cssMinify: false,   // CSS unverändert ausliefern: der Minifier ließ z. B. backdrop-filter weg und behielt nur -webkit-backdrop-filter (Unschärfe fehlte in Chrome)
       ...(single ? { assetsInlineLimit: Infinity, cssCodeSplit: false } : {}),
     },
+    test: {
+      include: ['tests/unit/**/*.test.js'],
+    },
     plugins: [
-      mode === 'test' && testHooks(),
+      mode === 'uitest' && testHooks(),
       single && fontDisplayBlock(),
       single && viteSingleFile(),
       mode === 'offline' && renameOutput('dist', 'dist/' + OFFLINE_NAME),
-      mode === 'test' && renameOutput('tests/.build', 'tests/test.html'),
+      mode === 'uitest' && renameOutput('tests/.build', 'tests/test.html'),
     ].filter(Boolean),
   };
 });

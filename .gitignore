@@ -3,7 +3,6 @@ dist/
 *.zip
 .DS_Store
 tests/astro/model.json
-tests/astro/astro.gen.js
 tests/astro/long/
 tests/astro/report.md
 tests/astro/report.html
