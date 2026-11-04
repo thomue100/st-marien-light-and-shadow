@@ -1,13 +1,13 @@
-// Holt die Astronomie-Funktionen unverändert aus src/marienkirche.html und macht daraus ein Node-Modul.
+// Holt die Astronomie-Funktionen unverändert aus src/app.js und macht daraus ein Node-Modul.
 // So prüfen die Tests genau den Code, der im Browser läuft – ohne 3D-Teil und ohne Browser.
 const fs=require('fs'), path=require('path'), acorn=require('acorn'), walk=require('acorn-walk');
-const SRC=path.join(__dirname,'../../src/marienkirche.html');
+const SRC=path.join(__dirname,'../../src/app.js');
 const NEED=['trueNoon','sunPos','moonPos','sunDay','moonRiseSet','moonPhaseTime','eclipseScan','localToUtc','berlinOffsetMin','lastSundayUtc','dstRange','LAT','LON'];
 function build(){
-  const html=fs.readFileSync(SRC,'utf8');
-  const m=html.match(/<script>\n(\(async function\(\)\{[\s\S]*?\}\)\(\);)\n<\/script>/); if(!m) throw new Error('Hauptskript nicht gefunden');
-  const code=m[1], ast=acorn.parse(code,{ecmaVersion:2022,allowAwaitOutsideFunction:true});
-  const body=ast.body[0].expression.callee.body.body;   // Rumpf der async-IIFE
+  const code=fs.readFileSync(SRC,'utf8'), ast=acorn.parse(code,{ecmaVersion:2022,sourceType:'module'});
+  const iife=ast.body.find(st=>st.type==='ExpressionStatement'&&st.expression.type==='CallExpression'&&st.expression.callee.async);
+  if(!iife) throw new Error('Hauptfunktion in src/app.js nicht gefunden');
+  const body=iife.expression.callee.body.body;   // Rumpf der async-IIFE
   const decl=new Map();   // Name -> {node, deps}
   for(const st of body){
     const names=[]; if(st.type==='FunctionDeclaration') names.push(st.id.name);
@@ -28,7 +28,7 @@ function build(){
   if(process.env.DEBUG) console.log([...keep].join(' '));
   const nodes=[...new Set([...keep].map(n=>decl.get(n).node))].sort((a,b)=>a.start-b.start);
   const out=nodes.map(n=>code.slice(n.start,n.end)).join('\n');
-  return '// automatisch erzeugt aus src/marienkirche.html – nicht von Hand ändern\n'+out+'\nmodule.exports={'+NEED.join(',')+'};\n';
+  return '// automatisch erzeugt aus src/app.js – nicht von Hand ändern\n'+out+'\nmodule.exports={'+NEED.join(',')+'};\n';
 }
 if(require.main===module){ const s=build(); fs.writeFileSync(path.join(__dirname,'astro.gen.js'),s); console.log('astro.gen.js',s.length,'Zeichen'); }
 module.exports={build};

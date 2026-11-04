@@ -8,3 +8,5 @@ tests/astro/long/
 tests/astro/report.md
 tests/astro/report.html
 tests/astro/run_*/
+tests/test.html
+tests/.build/

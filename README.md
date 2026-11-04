@@ -13,20 +13,40 @@ Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, d
 
 | Pfad | Inhalt |
 |---|---|
-| `src/marienkirche.html` | Arbeitsdatei: das ganze Programm in einer Datei; Daten (Umgebung, Uhrbilder, Glasmalereien) als eingebettete JSON-Blöcke |
-| `web/` | **Webfassung** zum Hochladen auf den Webserver (aus `src/` erzeugt, siehe `web/LIESMICH.txt`) |
-| `tools/build_web.py` | erzeugt `web/` – Code, Stil, Schriften, three.js, Daten und Bilder als eigene Dateien, keine externen Verbindungen |
-| `tools/build_offline.py` | erzeugt `dist/St-Marien-Licht-und-Schatten-offline.html` – eine einzige Datei, startet per Doppelklick ohne Server |
+| `index.html` | Seitengerüst: alle Bedienelemente (Markup) |
+| `src/app.js` | das Programm (noch in einem Stück; wird in den nächsten Umbauschritten in Module aufgeteilt) |
+| `src/three-global.js` | three.js r128 aus npm, bereitgestellt als globales `THREE` |
+| `src/data.js` | lädt Glasmalereien, Uhrbilder, Uhrendaten und Umgebung |
+| `src/styles/` | `app.css` (Gestaltung), `fonts.css` (Schriften) |
+| `src/data/` | `uhr.json` (Kalender- und Finsternisdaten der Astronomischen Uhr), `umgebung.json` (LoD2-Gebäude, Gelände, Bäume) |
+| `src/assets/` | `glas/` Glasmalereien (Dateiname = Fenstertyp), `uhr/` Bilder der Astronomischen Uhr, `fonts/` Schriften mit Lizenz |
+| `public/` | wird unverändert in die Webfassung kopiert (`.htaccess`, `LIESMICH.txt`) |
+| `web/` | **Webfassung** zum Hochladen auf den Webserver (erzeugt mit `npm run build:web`, siehe `web/LIESMICH.txt`) |
+| `tests/` | Prüfungen, siehe `tests/README.md` |
+| `vite.config.mjs` | Bauanleitung für Web-, Offline- und Testfassung |
 
-## Bauen
+## Entwickeln
+
+Voraussetzung: Node.js 20.19 oder neuer (22 LTS empfohlen).
 
 ```bash
-npm install          # three.js r128 und die Schriften (nur zum Bauen nötig)
-npm run build        # web/ und dist/St-Marien-Licht-und-Schatten-offline.html
-npm run serve        # Webfassung lokal unter http://localhost:8000
+npm install            # einmalig: Vite und three.js
+npm run dev            # Entwicklungsserver unter http://localhost:5173 – lädt bei jeder gespeicherten Änderung neu
+npm run build          # web/ und dist/St-Marien-Licht-und-Schatten-offline.html
+npm run preview        # gebaute Webfassung lokal unter http://localhost:8000 ansehen
 ```
 
-`src/marienkirche.html` lädt three.js und die Schriften beim direkten Öffnen von CDNs; die beiden gebauten Fassungen kommen ohne fremde Server aus.
+In WebStorm stehen dieselben Befehle oben rechts in der Liste der Startkonfigurationen (Ordner `.run/`).
+
+- **Webfassung** (`web/`): Programm, Gestaltung, Schriften, Daten und Bilder als eigene Dateien, keine Verbindungen zu fremden Servern. Die Pfade sind relativ, die Fassung läuft daher in jedem Unterordner.
+- **Offline-Fassung** (`dist/…-offline.html`): alles in einer einzigen Datei, startet per Doppelklick ohne Server.
+- `web/` wird mit eingecheckt, weil der Webserver (Vercel) diesen Ordner direkt ausliefert. Nach einer Änderung also `npm run build:web` ausführen und `web/` mit committen.
+
+## Zweige
+
+- `main` – **Produktion**: was hier liegt, ist öffentlich.
+- `entwicklung` – Testfassung; Vercel baut dafür eine Vorschau.
+- Änderungen entstehen auf eigenen Zweigen und kommen per Pull Request nach `entwicklung`. Nach `main` nur nach Freigabe.
 
 ## Einbetten in die Website der Kirche
 
