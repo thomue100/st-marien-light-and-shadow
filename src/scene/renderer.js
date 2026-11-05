@@ -4,7 +4,7 @@ import { V3 } from '../three-global.js';
 import { ldDone, step } from '../core/loader.js';
 import { $ } from '../core/util.js';
 import { tr } from '../core/i18n.js';
-import { stateCode } from '../app.js';
+import { stateCode } from '../ui/share.js';
 
 if(!window.THREE || !THREE.OrbitControls){
   ldDone(); document.getElementById('stage').innerHTML='<div class="err">'+tr('Die 3D-Bibliothek konnte nicht geladen werden. Bitte Seite neu laden.','The 3D library could not be loaded. Please reload the page.')+'</div>';

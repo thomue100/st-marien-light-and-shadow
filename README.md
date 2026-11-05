@@ -14,11 +14,12 @@ Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, d
 | Pfad | Inhalt |
 |---|---|
 | `index.html` | Seitengerüst: alle Bedienelemente (Markup) |
-| `src/app.js` | Bedienoberfläche und Start (Karten, Rundgang, Quiz, Experimente, Zeitraffer, Teilen, Render-Schleife) – wird im nächsten Schritt aufgeteilt |
+| `src/app.js` | Render-Schleife und Start (lädt über die Aufbau-Reihenfolge alle anderen Module) |
 | `src/core/` | `loader.js` (Ladeanzeige), `util.js` (Helfer), `i18n.js` (Sprache, Zahlen- und Zeitformat), `prefs.js` (einfache/erweiterte Bedienung) |
 | `src/state.js` | gemeinsamer Zustand: Datum, Uhrzeit, Ansicht, Schalter; Sonnenstand und Lichtrichtung |
 | `src/scene/` | `renderer.js` (Renderer, Szene, „neu zeichnen“), `textures.js`, `shaders.js`, `materials.js`, `camera.js` (Ansichten, Steuerung), `labels.js` (Beschriftungen) |
 | `src/model/` | `measures.js` (Maße der Kirche), `geometry.js` (Bauteile, Fensterliste), `church.js`, `clock.js` (Astronomische Uhr), `environment.js` (Umgebung), `sundial.js` (Sonnenuhr) |
+| `src/ui/` | Bedienoberfläche: `readouts.js` (Tagesdiagramm, Kompass, Anzeigen), `controls.js` (Datum, Uhrzeit, besondere Tage, Regler), `year.js` (Jahr im Zeitraffer), `panels.js` (Schalter, Karten, Menüs, Glossar, Sprachwechsel), `clockcard.js` (Karte Astronomische Uhr), `tour.js` (Rundgang), `moontowers.js` (Mond zwischen den Türmen), `experiments.js`, `quiz.js`, `share.js` (Teilen, Bild speichern) |
 | `src/light/` | `sky.js` (Sonne, Mond, Himmel, Bahnen), `windows.js` (Licht durch die Fenster), `sun.js` (Licht anwenden, Finsternisse) |
 | `src/astro/` | Astronomie ohne 3D und ohne Seite: `time.js` (Ortszeit, Sommerzeit), `sun.js`, `moon.js`, `eclipses.js`, `common.js` (Ort Lübeck, Umrechnungen) |
 | `src/three-global.js` | three.js r128 aus npm, bereitgestellt als globales `THREE` |
@@ -35,12 +36,12 @@ Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, d
 
 Die Module bauen das Modell beim Laden der Seite in einer festen Reihenfolge auf – derselben wie früher in der einen großen Datei:
 
-`core/loader → core/util → core/i18n → core/prefs → model/measures → state → scene/renderer → scene/textures → scene/shaders → scene/materials → model/geometry → model/church → model/clock → model/environment → model/sundial → light/sky → light/windows → light/sun → scene/camera → scene/labels → app`
+`core/loader → core/util → core/i18n → core/prefs → model/measures → state → scene/renderer → scene/textures → scene/shaders → scene/materials → model/geometry → model/church → model/clock → model/environment → model/sundial → light/sky → light/windows → light/sun → scene/camera → scene/labels → ui/readouts → ui/controls → ui/year → ui/panels → ui/clockcard → ui/tour → ui/moontowers → ui/experiments → ui/quiz → ui/share → app`
 
-Dafür importiert jedes Modul **als Erstes seinen Vorgänger** (Kommentar „Aufbau-Reihenfolge“), `app.js` als Erstes `scene/labels.js`. Darüber hinaus dürfen sich Module gegenseitig importieren, auch „vorwärts“ (z. B. ruft `light/sun.js` die Kamera auf). Zwei Regeln:
+Dafür importiert jedes Modul **als Erstes seinen Vorgänger** (Kommentar „Aufbau-Reihenfolge“), `app.js` als Erstes `ui/share.js`. Ein neues Modul fügt man an der passenden Stelle in diese Kette ein (Vorgänger als ersten Import, Nachfolger importiert das neue Modul als Erstes). Darüber hinaus dürfen sich Module gegenseitig importieren, auch „vorwärts“ (z. B. ruft `light/sun.js` die Kamera auf). Zwei Regeln:
 
 - **Beim Laden** nur benutzen, was weiter vorn in der Reihenfolge steht. Funktionen aus späteren Modulen erst aufrufen, wenn alles aufgebaut ist (in Ereignissen oder ab dem Start in `app.js`).
-- **Variablen eines anderen Moduls nicht neu zuweisen** (`LANG = …` geht dort nicht). Dafür gibt es Setter im Modul selbst, z. B. `setLang()`, `setExpert()`, `requestRender()` (statt früher `dirty = true`), `setMoonMag()`.
+- **Variablen eines anderen Moduls nicht neu zuweisen** (`LANG = …` geht dort nicht). Dafür gibt es Setter im Modul selbst, z. B. `setLang()`, `setExpert()`, `requestRender()` (statt früher `dirty = true`), `setMoonMag()`, `setExpReady()`.
 
 ## Entwickeln
 

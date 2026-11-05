@@ -11,7 +11,8 @@ import { CLK } from '../model/clock.js';
 import { SD, sdX, sdZ } from '../model/sundial.js';
 import { curMoonPass, hourOf, setMoonMag } from '../light/sky.js';
 import { updateLabelsVisibility } from './labels.js';
-import { setCut, setExp, yr } from '../app.js';
+import { setCut, setExp } from '../ui/controls.js';
+import { yr } from '../ui/year.js';
 
 /* ---------------- Kamera & Steuerung ---------------- */
 
