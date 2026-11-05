@@ -14,7 +14,12 @@ Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, d
 | Pfad | Inhalt |
 |---|---|
 | `index.html` | Seitengerüst: alle Bedienelemente (Markup) |
-| `src/app.js` | das Programm (noch in einem Stück; wird in den nächsten Umbauschritten in Module aufgeteilt) |
+| `src/app.js` | Bedienoberfläche und Start (Karten, Rundgang, Quiz, Experimente, Zeitraffer, Teilen, Render-Schleife) – wird im nächsten Schritt aufgeteilt |
+| `src/core/` | `loader.js` (Ladeanzeige), `util.js` (Helfer), `i18n.js` (Sprache, Zahlen- und Zeitformat), `prefs.js` (einfache/erweiterte Bedienung) |
+| `src/state.js` | gemeinsamer Zustand: Datum, Uhrzeit, Ansicht, Schalter; Sonnenstand und Lichtrichtung |
+| `src/scene/` | `renderer.js` (Renderer, Szene, „neu zeichnen“), `textures.js`, `shaders.js`, `materials.js`, `camera.js` (Ansichten, Steuerung), `labels.js` (Beschriftungen) |
+| `src/model/` | `measures.js` (Maße der Kirche), `geometry.js` (Bauteile, Fensterliste), `church.js`, `clock.js` (Astronomische Uhr), `environment.js` (Umgebung), `sundial.js` (Sonnenuhr) |
+| `src/light/` | `sky.js` (Sonne, Mond, Himmel, Bahnen), `windows.js` (Licht durch die Fenster), `sun.js` (Licht anwenden, Finsternisse) |
 | `src/astro/` | Astronomie ohne 3D und ohne Seite: `time.js` (Ortszeit, Sommerzeit), `sun.js`, `moon.js`, `eclipses.js`, `common.js` (Ort Lübeck, Umrechnungen) |
 | `src/three-global.js` | three.js r128 aus npm, bereitgestellt als globales `THREE` |
 | `src/data.js` | lädt Glasmalereien, Uhrbilder, Uhrendaten und Umgebung |
@@ -25,6 +30,17 @@ Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, d
 | `web/` | **Webfassung** zum Hochladen auf den Webserver (erzeugt mit `npm run build:web`, siehe `web/LIESMICH.txt`) |
 | `tests/` | Prüfungen: `unit/` Unit-Tests (Vitest), `astro/` Vergleich mit Skyfield, Browser-Tests – siehe `tests/README.md` |
 | `vite.config.mjs` | Bauanleitung für Web-, Offline- und Testfassung |
+
+### Aufbau-Reihenfolge der Module
+
+Die Module bauen das Modell beim Laden der Seite in einer festen Reihenfolge auf – derselben wie früher in der einen großen Datei:
+
+`core/loader → core/util → core/i18n → core/prefs → model/measures → state → scene/renderer → scene/textures → scene/shaders → scene/materials → model/geometry → model/church → model/clock → model/environment → model/sundial → light/sky → light/windows → light/sun → scene/camera → scene/labels → app`
+
+Dafür importiert jedes Modul **als Erstes seinen Vorgänger** (Kommentar „Aufbau-Reihenfolge“), `app.js` als Erstes `scene/labels.js`. Darüber hinaus dürfen sich Module gegenseitig importieren, auch „vorwärts“ (z. B. ruft `light/sun.js` die Kamera auf). Zwei Regeln:
+
+- **Beim Laden** nur benutzen, was weiter vorn in der Reihenfolge steht. Funktionen aus späteren Modulen erst aufrufen, wenn alles aufgebaut ist (in Ereignissen oder ab dem Start in `app.js`).
+- **Variablen eines anderen Moduls nicht neu zuweisen** (`LANG = …` geht dort nicht). Dafür gibt es Setter im Modul selbst, z. B. `setLang()`, `setExpert()`, `requestRender()` (statt früher `dirty = true`), `setMoonMag()`.
 
 ## Entwickeln
 
@@ -42,6 +58,7 @@ In WebStorm stehen dieselben Befehle oben rechts in der Liste der Startkonfigura
 
 - **Webfassung** (`web/`): Programm, Gestaltung, Schriften, Daten und Bilder als eigene Dateien, keine Verbindungen zu fremden Servern. Die Pfade sind relativ, die Fassung läuft daher in jedem Unterordner.
 - **Offline-Fassung** (`dist/…-offline.html`): alles in einer einzigen Datei, startet per Doppelklick ohne Server.
+- **Browser:** Chrome, Edge und Firefox ab Version 89, Safari ab 15 (alle seit 2021) – die Module laden mit `await` auf oberster Ebene.
 - `web/` wird mit eingecheckt, weil der Webserver (Vercel) diesen Ordner direkt ausliefert. Nach einer Änderung also `npm run build:web` ausführen und `web/` mit committen.
 
 ## Zweige

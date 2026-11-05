@@ -45,7 +45,7 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir,
       emptyOutDir: true,
-      target: 'es2020',
+      target: 'es2022',   // Top-Level-await in den Modulen (Chrome/Firefox 89, Safari 15 – alle seit 2021)
       chunkSizeWarningLimit: 2000,   // Umgebungsdaten (1,1 MB) sind bewusst ein eigener großer Block
       cssMinify: false,   // CSS unverändert ausliefern: der Minifier ließ z. B. backdrop-filter weg und behielt nur -webkit-backdrop-filter (Unschärfe fehlte in Chrome)
       ...(single ? { assetsInlineLimit: Infinity, cssCodeSplit: false } : {}),

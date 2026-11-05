@@ -4,3 +4,5 @@ import * as THREE_NS from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 window.THREE = Object.assign({}, THREE_NS, { OrbitControls });
+
+export const V3 = window.THREE.Vector3;   // Kurzform, im ganzen Modell benutzt

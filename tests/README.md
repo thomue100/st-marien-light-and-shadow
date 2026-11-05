@@ -12,7 +12,7 @@ Vor den Browser-Tests einmal `npm run build:test` ausführen.
 
 | Datei | Prüft |
 |---|---|
-| `hooks.mjs` | Testhaken (macht interne Werte als `window.__…` erreichbar); `npm run build:test` baut damit `tests/test.html` (eine Datei, wie die Offline-Fassung) |
+| `hooks.mjs` | Testhaken: macht interne Namen aller Module als `window.__…` erreichbar (Liste `HOOKS`); `npm run build:test` baut damit `tests/test.html` (eine Datei, wie die Offline-Fassung). Fehlt ein Name, bricht der Testbau ab. |
 | `acc.cjs` + `acc.py` | Sonnen- und Mondstand, Auf-/Untergänge und Mondphasen gegen PyEphem (`pip install ephem`) |
 | `dst.cjs` | Zeitumstellung März/Oktober: angezeigte Ortszeit, UTC-Zeitpunkt, Hinweis |
 | `qz2.cjs` | Quiz komplett durchspielen (richtige/falsche Antworten, Tipp, Überspringen, Fenster antippen) |
