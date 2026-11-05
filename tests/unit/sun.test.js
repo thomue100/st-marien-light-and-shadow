@@ -5,7 +5,7 @@ import { describe, it, expect } from 'vitest';
 import { sunPos, sunDay, trueNoon, localToUtc } from '../../src/astro/index.js';
 
 const at = iso => Date.parse(iso);
-const minutesToUtc = (y, m, d, min) => localToUtc(y, m, d, min);   // Minuten ab Mitternacht Ortszeit → UTC (ms)
+const minutesToUtc = (y, m, d, min) => localToUtc(y, m, d, min); // Minuten ab Mitternacht Ortszeit → UTC (ms)
 const near = (a, b, tol) => expect(Math.abs(a - b), `${a} statt ${b}`).toBeLessThanOrEqual(tol);
 
 describe('Sonnenstand', () => {
@@ -29,7 +29,7 @@ describe('Sonnenlauf eines Tages', () => {
   it('Höchststand am 21. Juni liegt um den wahren Mittag, über 59°', () => {
     const d = sunDay(2026, 5, 21);
     expect(d.maxEl).toBeGreaterThan(59);
-    near(d.maxT, trueNoon(2026, 5, 21), 5);   // Abtastung alle 5 min
+    near(d.maxT, trueNoon(2026, 5, 21), 5); // Abtastung alle 5 min
   });
 });
 

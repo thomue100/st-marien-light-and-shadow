@@ -25,6 +25,10 @@ export default [
   },
   {
     files: ['tests/**/*.cjs'],
-    languageOptions: { ecmaVersion: 'latest', sourceType: 'commonjs', globals: { ...globals.node, ...globals.browser } },
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'commonjs',
+      globals: { ...globals.node, ...globals.browser },
+    },
   },
 ];

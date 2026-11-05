@@ -6,7 +6,7 @@ import { dstRange, berlinOffsetMin, localToUtc, dstInfo, lastSundayUtc } from '.
 // Abstand Berlin–UTC in Minuten laut Zeitzonen-Datenbank
 const fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Berlin', timeZoneName: 'shortOffset' });
 const tzdbOffsetMin = u => {
-  const name = fmt.formatToParts(new Date(u)).find(p => p.type === 'timeZoneName').value;   // "GMT+1" / "GMT+2"
+  const name = fmt.formatToParts(new Date(u)).find(p => p.type === 'timeZoneName').value; // "GMT+1" / "GMT+2"
   return Number(name.replace('GMT', '')) * 60;
 };
 
@@ -52,8 +52,8 @@ describe('Ortszeit → UTC', () => {
     const i = dstInfo(2026, 2, 29, 150);
     expect(i.gap).toBe(true);
     expect(i.fold).toBe(false);
-    expect(dstInfo(2026, 2, 29, 119).off).toBe(60);    // 01:59 MEZ
-    expect(dstInfo(2026, 2, 29, 180).off).toBe(120);   // 03:00 MESZ
+    expect(dstInfo(2026, 2, 29, 119).off).toBe(60); // 01:59 MEZ
+    expect(dstInfo(2026, 2, 29, 180).off).toBe(120); // 03:00 MESZ
     expect(localToUtc(2026, 2, 29, 180)).toBe(Date.UTC(2026, 2, 29, 1));
   });
   it('Umstellung im Oktober: 02:00–02:59 gibt es zweimal, das Modell nimmt den zweiten Durchlauf (MEZ)', () => {
