@@ -53,9 +53,17 @@ npm run dev            # Entwicklungsserver unter http://localhost:5173 – läd
 npm run build          # web/ und dist/St-Marien-Licht-und-Schatten-offline.html
 npm run preview        # gebaute Webfassung lokal unter http://localhost:8000 ansehen
 npm test               # Unit-Tests (Astronomie, Zeitumstellung) – dauert etwa 2 Sekunden
+npm run lint           # ESLint: findet Fehler wie vertippte oder fehlende Namen
+npm run format         # Prettier: formatiert den Code einheitlich (npm run format:check prüft nur)
 ```
 
 In WebStorm stehen dieselben Befehle oben rechts in der Liste der Startkonfigurationen (Ordner `.run/`).
+
+WebStorm erkennt ESLint und Prettier an ihren Konfigurationsdateien (`eslint.config.mjs`, `.prettierrc.json`):
+
+- **ESLint:** Settings → Languages & Frameworks → JavaScript → Code Quality Tools → ESLint → „Automatic ESLint configuration“. Fehler werden dann direkt im Editor rot unterstrichen.
+- **Prettier:** Settings → Languages & Frameworks → JavaScript → Prettier → „Automatic Prettier configuration“ und „Run on save“. Dann formatiert WebStorm jede Datei beim Speichern.
+- Reine Formatierungs-Commits stehen in `.git-blame-ignore-revs`; GitHub blendet sie bei „Blame“ aus. Für die Kommandozeile einmalig `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
 
 - **Webfassung** (`web/`): Programm, Gestaltung, Schriften, Daten und Bilder als eigene Dateien, keine Verbindungen zu fremden Servern. Die Pfade sind relativ, die Fassung läuft daher in jedem Unterordner.
 - **Offline-Fassung** (`dist/…-offline.html`): alles in einer einzigen Datei, startet per Doppelklick ohne Server.

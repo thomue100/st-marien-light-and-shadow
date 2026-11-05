@@ -44,7 +44,7 @@ function topLevelNames(code) {
 
 /** Vite-Plugin für den Testbau. */
 export function testHooks() {
-  const found = new Map();   // Name -> Modul
+  const found = new Map(); // Name -> Modul
   return {
     name: 'st-marien-testhaken',
     enforce: 'pre',
@@ -57,7 +57,8 @@ export function testHooks() {
         found.set(n, file);
       }
       let add = '';
-      if (mine.length) add += `\n;Object.defineProperties(globalThis.__T??={},{${mine.map(n => `${n}:{get:()=>${n},configurable:true}`).join(',')}});\n`;
+      if (mine.length)
+        add += `\n;Object.defineProperties(globalThis.__T??={},{${mine.map(n => `${n}:{get:()=>${n},configurable:true}`).join(',')}});\n`;
       if (file.endsWith('/src/app.js')) add += '\n// Testhaken (nur Testfassung)\n' + HOOKS;
       return add ? { code: code + add, map: null } : null;
     },

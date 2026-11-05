@@ -11,7 +11,7 @@ describe('Mondstand', () => {
     const m = moonPos(at('2026-02-01T23:00:00Z'));
     near(m.el, 53.819, 0.04);
     near(m.az, 165.51, 0.04);
-    expect(m.k).toBeGreaterThan(0.99);   // fast voll beleuchtet
+    expect(m.k).toBeGreaterThan(0.99); // fast voll beleuchtet
   });
   it('12. August 2026 ist Neumond: kaum beleuchtet', () => {
     expect(moonPos(at('2026-08-12T21:00:00Z')).k).toBeLessThan(0.01);

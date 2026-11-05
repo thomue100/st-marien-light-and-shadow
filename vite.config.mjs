@@ -18,7 +18,7 @@ function renameOutput(dir, target) {
     name: 'st-marien-dateiname',
     apply: 'build',
     closeBundle(error) {
-      if (error || !existsSync(resolve(dir, 'index.html'))) return;   // Bau fehlgeschlagen: die eigentliche Meldung kommt von Vite
+      if (error || !existsSync(resolve(dir, 'index.html'))) return; // Bau fehlgeschlagen: die eigentliche Meldung kommt von Vite
       renameSync(resolve(dir, 'index.html'), resolve(target));
       if (resolve(target, '..') !== resolve(dir)) rmSync(resolve(dir), { recursive: true, force: true });
     },
@@ -31,7 +31,7 @@ function fontDisplayBlock() {
     name: 'st-marien-schriften-offline',
     transform(code, id) {
       if (!id.replace(/\\/g, '/').endsWith('/src/styles/fonts.css')) return null;
-      return { code: code.replaceAll('font-display:swap', 'font-display:block'), map: null };
+      return { code: code.replace(/font-display:\s*swap/g, 'font-display: block'), map: null };
     },
   };
 }
@@ -45,9 +45,9 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir,
       emptyOutDir: true,
-      target: 'es2022',   // Top-Level-await in den Modulen (Chrome/Firefox 89, Safari 15 – alle seit 2021)
-      chunkSizeWarningLimit: 2000,   // Umgebungsdaten (1,1 MB) sind bewusst ein eigener großer Block
-      cssMinify: false,   // CSS unverändert ausliefern: der Minifier ließ z. B. backdrop-filter weg und behielt nur -webkit-backdrop-filter (Unschärfe fehlte in Chrome)
+      target: 'es2022', // Top-Level-await in den Modulen (Chrome/Firefox 89, Safari 15 – alle seit 2021)
+      chunkSizeWarningLimit: 2000, // Umgebungsdaten (1,1 MB) sind bewusst ein eigener großer Block
+      cssMinify: false, // CSS unverändert ausliefern: der Minifier ließ z. B. backdrop-filter weg und behielt nur -webkit-backdrop-filter (Unschärfe fehlte in Chrome)
       ...(single ? { assetsInlineLimit: Infinity, cssCodeSplit: false } : {}),
     },
     test: {

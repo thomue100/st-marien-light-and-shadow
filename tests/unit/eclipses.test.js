@@ -9,7 +9,13 @@ const list = eclipseScan(Date.UTC(2026, 0, 1), 5, 'sl');
 
 describe('Finsternisse ab 2026', () => {
   it('Reihenfolge und Art', () => {
-    expect(list.map(e => e.kind + ':' + e.type)).toEqual(['l:total', 's:partial', 'l:partial', 'l:penumbral', 'l:penumbral']);
+    expect(list.map(e => e.kind + ':' + e.type)).toEqual([
+      'l:total',
+      's:partial',
+      'l:partial',
+      'l:penumbral',
+      'l:penumbral',
+    ]);
   });
   it('totale Mondfinsternis 3. März 2026, 11:33:41 UTC – in Lübeck nicht zu sehen (Mond unter dem Horizont)', () => {
     near(list[0].max, at('2026-03-03T11:33:41Z'), 120000);
@@ -36,9 +42,9 @@ describe('Finsternisse ab 2026', () => {
 
 describe('Überdeckung zweier Kreise', () => {
   it('Grenzfälle', () => {
-    expect(circleCover(1, 1, 2)).toBe(0);          // berühren sich nur
-    expect(circleCover(1, 1.1, 0)).toBe(1);        // ganz bedeckt
-    expect(circleCover(1, 0.5, 0)).toBeCloseTo(0.25, 12);   // ringförmig: Flächenverhältnis
-    expect(circleCover(1, 1, 1)).toBeCloseTo(0.391, 3);     // halb versetzt
+    expect(circleCover(1, 1, 2)).toBe(0); // berühren sich nur
+    expect(circleCover(1, 1.1, 0)).toBe(1); // ganz bedeckt
+    expect(circleCover(1, 0.5, 0)).toBeCloseTo(0.25, 12); // ringförmig: Flächenverhältnis
+    expect(circleCover(1, 1, 1)).toBeCloseTo(0.391, 3); // halb versetzt
   });
 });
