@@ -1,0 +1,5 @@
+# Reine Formatierungs-Commits: werden bei „git blame“ (und auf GitHub) übersprungen,
+# damit man sieht, wer eine Zeile inhaltlich zuletzt geändert hat.
+# Einrichten für die Kommandozeile: git config blame.ignoreRevsFile .git-blame-ignore-revs
+# Alles mit Prettier formatiert
+2f6acf5392a5a81bbe3bae691435e8f9e9bc9a43

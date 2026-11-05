@@ -31,7 +31,7 @@ function fontDisplayBlock() {
     name: 'st-marien-schriften-offline',
     transform(code, id) {
       if (!id.replace(/\\/g, '/').endsWith('/src/styles/fonts.css')) return null;
-      return { code: code.replaceAll('font-display:swap', 'font-display:block'), map: null };
+      return { code: code.replace(/font-display:\s*swap/g, 'font-display: block'), map: null };
     },
   };
 }
