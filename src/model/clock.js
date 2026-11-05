@@ -8,7 +8,7 @@ import { maxAniso, requestRender } from '../scene/renderer.js';
 import { enhance } from '../scene/shaders.js';
 import { darkMat } from '../scene/materials.js';
 import { addMesh, box, building } from './geometry.js';
-import { updateClockCard } from '../app.js';
+import { updateClockCard } from '../ui/clockcard.js';
 
 /* ---------------- Astronomische Uhr (Paul Behrens, 1955–1976) an der Ostwand der Totentanzkapelle ---------------- */
 // Gehäuse: entzerrtes Frontalfoto (13,45 m hoch, Zifferblatt und Kalenderscheibe je 3 m Durchmesser).

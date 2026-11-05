@@ -10,7 +10,7 @@ import { clockUpdate } from '../model/clock.js';
 import { sdUpdate } from '../model/sundial.js';
 import { buildSunPath, hemi, LM, moonMat, moonMesh, moonPass, SC, setMoonPass, skyAt, skyMat, starMat, stars, sun, SUN_MAG, updateStars } from './sky.js';
 import { drawPanoGrid } from '../scene/camera.js';
-import { updateReadouts } from '../app.js';
+import { updateReadouts } from '../ui/readouts.js';
 
 /* ---------------- Sonne anwenden ---------------- */
 

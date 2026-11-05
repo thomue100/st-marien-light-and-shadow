@@ -14,7 +14,7 @@ import { occluders, polyGeo } from './geometry.js';
 import { SD_FACE, SD_PIER } from './church.js';
 import { rc } from '../light/windows.js';
 import { lightStr, moonCur, useMoon } from '../light/sun.js';
-import { day } from '../app.js';
+import { day } from '../ui/readouts.js';
 
 await step(tr('Sonnenuhr wird aufgebaut','Building the sundial'),74);
 /* ---------------- Sonnenuhr am südlichen Strebepfeiler ---------------- */
