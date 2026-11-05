@@ -4,7 +4,19 @@ import js from '@eslint/js';
 import globals from 'globals';
 
 export default [
-  { ignores: ['web/', 'dist/', 'node_modules/', 'tests/test.html', 'tests/.build/', 'tests/astro/'] },
+  {
+    ignores: [
+      'web/',
+      'dist/',
+      'node_modules/',
+      'tests/test.html',
+      'tests/.build/',
+      'tests/astro/',
+      'tests/.results/',
+      'tests/.report/',
+      'test-results/',
+    ],
+  },
   js.configs.recommended,
   {
     // Programm im Browser
@@ -22,6 +34,11 @@ export default [
     // Bau- und Testwerkzeuge in Node
     files: ['*.mjs', 'tests/**/*.mjs', 'tests/**/*.js'],
     languageOptions: { ecmaVersion: 'latest', sourceType: 'module', globals: { ...globals.node } },
+  },
+  {
+    // Browser-Tests: laufen in Node, die Funktionen in page.evaluate im Browser
+    files: ['tests/e2e/**/*.js'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser, THREE: 'readonly' } },
   },
   {
     files: ['tests/**/*.cjs'],

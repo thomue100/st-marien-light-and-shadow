@@ -9,3 +9,7 @@ tests/astro/report.html
 tests/astro/run_*/
 tests/test.html
 tests/.build/
+tests/.results/
+tests/.report/
+test-results/
+playwright-report/

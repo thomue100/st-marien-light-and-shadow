@@ -29,7 +29,7 @@ Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, d
 | `src/assets/` | `glas/` Glasmalereien (Dateiname = Fenstertyp), `uhr/` Bilder der Astronomischen Uhr, `fonts/` Schriften mit Lizenz |
 | `public/` | wird unverändert in die Webfassung kopiert (`.htaccess`, `LIESMICH.txt`) |
 | `web/` | **Webfassung** zum Hochladen auf den Webserver (erzeugt mit `npm run build:web`, siehe `web/LIESMICH.txt`) |
-| `tests/` | Prüfungen: `unit/` Unit-Tests (Vitest), `astro/` Vergleich mit Skyfield, Browser-Tests – siehe `tests/README.md` |
+| `tests/` | Prüfungen: `unit/` Unit-Tests (Vitest), `e2e/` Browser-Tests (Playwright), `astro/` Vergleich mit Skyfield – siehe `tests/README.md` |
 | `vite.config.mjs` | Bauanleitung für Web-, Offline- und Testfassung |
 
 ### Aufbau-Reihenfolge der Module
@@ -53,6 +53,7 @@ npm run dev            # Entwicklungsserver unter http://localhost:5173 – läd
 npm run build          # web/ und dist/St-Marien-Licht-und-Schatten-offline.html
 npm run preview        # gebaute Webfassung lokal unter http://localhost:8000 ansehen
 npm test               # Unit-Tests (Astronomie, Zeitumstellung) – dauert etwa 2 Sekunden
+npm run test:e2e       # Browser-Tests (Playwright): baut alles und spielt die Bedienung durch, einige Minuten
 npm run lint           # ESLint: findet Fehler wie vertippte oder fehlende Namen
 npm run format         # Prettier: formatiert den Code einheitlich (npm run format:check prüft nur)
 ```
