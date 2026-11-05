@@ -76,7 +76,7 @@ export function qzRender(){ const el=$('#quiz'), i=quiz.i, N=quiz.list.length; e
   const q=quiz.list[i], [ti,tx]=q.q();
   $('#qzStep').textContent=tr('Quiz · Aufgabe ','Quiz · Task ')+(i+1)+tr(' von ',' of ')+N+' · '+quiz.score+tr(' gelöst',' solved');
   $('#qzTitle').textContent=ti; $('#qzText').textContent=tx;
-  const solved=quiz.state==='ok', shown=quiz.state!=='ask';
+  const shown=quiz.state!=='ask';
   $('#qzHint').hidden=$('#qzSkip').hidden=shown; $('#qzEnd').hidden=false; $('#qzHint').textContent=tr('Tipp','Hint'); $('#qzSkip').textContent=tr('Überspringen','Skip');
   $('#qzNext').hidden=!shown; $('#qzNext').textContent=i===N-1?tr('Ergebnis','Result'):tr('Weiter','Next');
   if(q.kind==='mc'){ const o=q.opts();   // Reihenfolge einmal pro Aufgabe mischen, beim Sprachwechsel beibehalten

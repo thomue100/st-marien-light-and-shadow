@@ -72,6 +72,6 @@ export function lunarEclipseInfo(tf){
   let a=best.t-step, b=best.t+step; for(let i=0;i<40;i++){ const c1=a+(b-a)/3, c2=b-(b-a)/3; if(lunarEclipseAt(c1).pmag<lunarEclipseAt(c2).pmag) a=c1; else b=c2; }
   const tm=(a+b)/2, em=lunarEclipseAt(tm), type=em.umag>=1?'total':em.umag>0?'partial':'penumbral';
   // sichtbar, wenn der Mond während der Finsternis (Halbschatten bzw. Kernschatten) irgendwann über dem Horizont steht
-  const t0=type==='penumbral'?ev.P1:ev.U1, t3=type==='penumbral'?ev.P4:ev.U4; let vis=false, visMax=null;
+  const t0=type==='penumbral'?ev.P1:ev.U1, t3=type==='penumbral'?ev.P4:ev.U4; let vis=false;
   for(let t=t0||tm;t<=(t3||tm);t+=120000){ const mp=moonPos(t); if(mp.el>0){ vis=true; break; } }
   return {kind:'l', type, start:ev.P1, ustart:ev.U1, tstart:ev.U2, max:tm, tend:ev.U3, uend:ev.U4, end:ev.P4, mag:em.umag, pmag:em.pmag, el:moonPos(tm).el, visible:vis}; }

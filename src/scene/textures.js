@@ -16,7 +16,7 @@ export const brickTex=canvasTex(512,256,(g,w,h)=>{
   const r=rng(11); g.fillStyle='#968a80'; g.fillRect(0,0,w,h);
   const bw=64, bh=h/12;
   for(let row=0;row<12;row++){ const off=(row%2)*bw/2;
-    for(let i=-1;i<9;i++){ const x=i*bw+off, y=row*bh, k=r(); let c;
+    for(let i=-1;i<9;i++){ const x=i*bw+off, y=row*bh, _k=r(); let c;   // r() muss aufgerufen werden: hält die Zufallsfolge der Steine gleich
       c=brickCol(r);
       g.fillStyle='rgb('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+')'; g.fillRect(x+2,y+2,bw-3,bh-3); } }
 },[1/2.4,1/1.2]);
@@ -134,9 +134,6 @@ export const atlasMip=texFromCanvas(atlasCanvas,true);
 export const atlasLin=new THREE.CanvasTexture(atlasCanvas); atlasLin.generateMipmaps=false; atlasLin.minFilter=THREE.LinearFilter;
 // mittlere Farbe je Spalte: über eine kleine verkleinerte Kopie gelesen (das Auslesen des großen Atlas dauerte mehrere Sekunden)
 const ccCanvas=document.createElement('canvas'); ccCanvas.width=NT*8; ccCanvas.height=32;
-function colColor(k){ const cg=ccCanvas.getContext('2d'); cg.clearRect(k*8,0,8,32); cg.drawImage(atlasCanvas,k*COL*AS,0,COL*AS,ATL*AS,k*8,0,8,32);
-  const d=cg.getImageData(k*8,0,8,32).data; let r=0,g=0,b=0,n=0;
-  for(let i=0;i<d.length;i+=4){ r+=d[i]; g+=d[i+1]; b+=d[i+2]; n++; } const c=new THREE.Color(r/n/255,g/n/255,b/n/255); const m=Math.max(c.r,c.g,c.b,1e-3); return c.multiplyScalar(1/m); }
 // gemalte Spalten: feste Mittelwerte (spart das langsame Auslesen des großen Atlas); Fotospalten: aus dem Foto selbst
 export const typeColor=[[1,.97,.92],[1,.98,.95],[1,.93,.92],[1,.92,.92],[.8,.8,1],[1,1,.96],[1,.98,.95],[1,1,1]].map(c=>new THREE.Color(c[0],c[1],c[2]));
 function imgColor(img){ const cg=ccCanvas.getContext('2d'); cg.clearRect(0,0,8,32); cg.drawImage(img,0,0,8,32); const d=cg.getImageData(0,0,8,32).data; let r=0,g=0,b=0,n=0;

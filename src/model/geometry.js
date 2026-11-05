@@ -1,10 +1,9 @@
 // Geometrie-Helfer (Wände mit Öffnungen, Spitzbögen, Verschattung) und die Liste aller Fenster.
 import { doorMat, outerBack, outerFront, wallMat } from '../scene/materials.js';   // Aufbau-Reihenfolge: nach scene/materials
-import { rad } from '../astro/index.js';
 import { V3 } from '../three-global.js';
 import { step } from '../core/loader.js';
 import { tr } from '../core/i18n.js';
-import { SQ3, XC } from './measures.js';
+import { SQ3 } from './measures.js';
 import { cutPlane, scene } from '../scene/renderer.js';
 import { atlasMip, diamondTex, NT, typeColor } from '../scene/textures.js';
 import { insideJS, MAXW, TINT } from '../scene/shaders.js';
@@ -31,7 +30,6 @@ export function mergeGeos(gs){ let pc=0,ic=0; for(const g of gs){ pc+=g.attribut
     const gi=g.index.array; for(let i=0;i<gi.length;i++) idx[io+i]=gi[i]+po; po+=g.attributes.position.count; io+=gi.length; }
   const m=new THREE.BufferGeometry(); m.setAttribute('position',new THREE.BufferAttribute(pos,3)); m.setAttribute('normal',new THREE.BufferAttribute(nor,3)); m.setAttribute('uv',new THREE.BufferAttribute(uv,2)); m.setIndex(new THREE.BufferAttribute(idx,1)); return m; }
 export const P=(x,y,z)=>new V3(x,y,z);
-function ringPt(R,aDeg,cx,cz,k){ return [ (cx===undefined?XC:cx)+R*Math.cos(aDeg*rad)*(k||1), (cz||0)+R*Math.sin(aDeg*rad) ]; }
 
 /* Spitzbogen (gleichseitig): Punkte von links unten über den Scheitel nach rechts unten */
 export function lancet(c,hw,bottom,spring,n){ n=n||10; const pts=[[c-hw,bottom],[c-hw,spring]], r=2*hw;

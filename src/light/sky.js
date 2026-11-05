@@ -126,7 +126,6 @@ function hourSprite(h,moon){ const key=(moon?'m':'s')+h; if(!spriteCache[key]){ 
   const t=new THREE.CanvasTexture(c); spriteCache[key]=new THREE.SpriteMaterial({map:t,fog:false,depthWrite:false,transparent:true}); } return spriteCache[key]; }
 const lineMat=new THREE.LineBasicMaterial({color:0xffd27a,fog:false,transparent:true,opacity:0.85});
 const moonLineMat=new THREE.LineDashedMaterial({color:0xcfd8e8,fog:false,transparent:true,opacity:0.8,dashSize:14,gapSize:10});
-const tmpV=new V3();
 // Lauf des Mondes, der zur eingestellten Zeit am Himmel steht (Aufgang bis Untergang); steht er unter dem Horizont, der nächste Lauf.
 // So entsteht keine Lücke bei Mitternacht (der Mond geht jeden Tag rund 50 min später auf). from = ab wann dieser Lauf gilt.
 export let moonPass=null;

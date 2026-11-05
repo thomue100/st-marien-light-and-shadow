@@ -29,7 +29,6 @@ export function computeDay(){
        nm0,nm1,nextFull:moonPhaseTime(t0,180,1),nextNew:moonPhaseTime(t0,0,1)};
   drawChart(); drawCompassStatic(); buildSunPath(); drawYearChart(); if(state.pano) drawPanoGrid();
 }
-const svgNS='http://www.w3.org/2000/svg';
 export const chart=$('#chart');
 export let CHW=600; const CHH=48;
 const CX=t=>4+t/1440*(CHW-8), CY=el=>3+(66-el)/(66+18)*(CHH-14);

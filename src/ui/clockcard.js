@@ -31,7 +31,7 @@ export function updateClockCard(){
   const y=st.y, idx=st.doy-1+((!ckLeap(y)&&st.mo>=2)?1:0), dd=CK&&CK.day?CK.day[idx]:null, ci=CK&&CK.cal?CK.cal[y-CK.y0]:null;
   $('#ckDate').textContent=ckFmtDay(st.d,st.mo)+' '+y;
   $('#ckLetter').textContent=dd?dd[0]:'–';
-  $('#ckSaint').textContent=dd?dd[1].charAt(0)+dd[1].slice(1).toLowerCase().replace(/([ .\-])(\S)/g,(m,a,b)=>a+b.toUpperCase()):'–';
+  $('#ckSaint').textContent=dd?dd[1].charAt(0)+dd[1].slice(1).toLowerCase().replace(/([ .-])(\S)/g,(m,a,b)=>a+b.toUpperCase()):'–';
   $('#ckSun').textContent=ci?ci[0].replace(',',' / '):'–';
   $('#ckGold').textContent=String(ci?ci[1]:y%19+1);
   const ea=ckEaster(y); $('#ckEaster').textContent=ckFmtDay(ea[0],ea[1]);

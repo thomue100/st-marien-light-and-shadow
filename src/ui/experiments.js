@@ -52,7 +52,7 @@ function suScan(y){ if(suYear&&suYear.y===y) return suYear; const r={y,min:null,
     if(off===60&&(!r.win||diff>r.win.diff)) r.win=e;
     if(off===120&&(!r.sum||diff>r.sum.diff)) r.sum=e; }
   return suYear=r; }
-function suGo(k){ if(state.playing) setPlaying(false); let y=state.y, m=state.m, d=state.d;
+function suGo(k){ if(state.playing) setPlaying(false); let y=state.y, m, d;
   if(k==='today'){ const n=berlinNow(); y=n.y; m=n.m; d=n.d; } else { const r=suScan(state.y)[k]; m=r.m; d=r.d; }
   state.minutes=Math.round(trueNoon(y,m,d)); setDate(y,m,d); if(state.view!=='sonnenuhr') goView('sonnenuhr'); expTick(); }
 document.querySelectorAll('#suBtns [data-k]').forEach(b=>b.addEventListener('click',()=>suGo(b.dataset.k)));
@@ -84,7 +84,7 @@ async function lkRun(){ if(LK.busy) return; const c=LK.list[LK.sel]; if(!c) retu
       if(performance.now()-tick>150){ LD.copy(_lkSave); busyText(tr('Lichtkalender wird berechnet … ','Computing the light calendar … ')+Math.round((r+1)/LK_ROWS*100)+' %'); await new Promise(res=>setTimeout(res,0)); tick=performance.now(); } }
     LD.copy(_lkSave); LK.cache[key]=g; busyHide(); LK.busy=false; }
   LK.cur={g:LK.cache[key],w,y:state.y}; lkDraw(); lkSum(); }
-function lkSum(){ const g=LK.cur.g; let days=0, any=new Set(), first=null, last=null, hrs=0;
+function lkSum(){ const g=LK.cur.g; let any=new Set(), hrs=0;
   for(let r=0;r<LK_ROWS;r++){ let lit=false; for(let k=0;k<LK_COLS;k++){ const v=g[r*LK_COLS+k]; if(v>0.3){ lit=true; hrs+=0.25; } } if(lit) any.add(r); }
   $('#lkSum').textContent=any.size?tr('Direktes Sonnenlicht an '+any.size+' von 24 Stichtagen, zusammen etwa '+Math.round(hrs)+' Stunden.','Direct sunlight on '+any.size+' of 24 sample days, about '+Math.round(hrs)+' hours in all.')
     :tr('An keinem der 24 Stichtage fällt direktes Sonnenlicht durch dieses Fenster.','On none of the 24 sample days does direct sunlight fall through this window.'); }
@@ -96,7 +96,7 @@ function lkDraw(){ const cv=$('#lkCv'); if(!cv||!LK.cur) return; const g=cv.getC
   const MON=LANG==='en'?['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']:['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
   for(let m=0;m<12;m++) g.fillText(MON[m],L-4,2+(2*m+1)*ch);
   g.textAlign='center'; g.textBaseline='top'; for(let h=6;h<=21;h+=3){ const x=L+(h*60-LK_T0)/15*cw; g.fillText(String(h),x,H-B+3); g.fillRect(x-0.5,H-B-2,1,3); }
-  const rr=state.m*2+(state.d>=8?1:0)+(state.d>=23?1:0), row=Math.min(23,state.m*2+(state.d>=15?1:0)), x=L+(state.minutes-LK_T0)/15*cw;   // aktueller Zeitpunkt
+  const row=Math.min(23,state.m*2+(state.d>=15?1:0)), x=L+(state.minutes-LK_T0)/15*cw;   // aktueller Zeitpunkt
   if(x>=L&&x<=W-4){ g.strokeStyle=dk?'#fff':'#9b3a26'; g.lineWidth=2; g.strokeRect(x-cw,2+row*ch,2*cw,ch); } }
 $('#lkCv').addEventListener('click',e=>{ if(!LK.cur) return; const cv=$('#lkCv'), b=cv.getBoundingClientRect(), x=(e.clientX-b.left)*cv.width/b.width, y=(e.clientY-b.top)*cv.height/b.height;
   const L=34, B=18, cw=(cv.width-L-4)/LK_COLS, ch=(cv.height-B-4)/LK_ROWS, k=Math.floor((x-L)/cw), r=Math.floor((y-2)/ch); if(k<0||k>=LK_COLS||r<0||r>=LK_ROWS) return;

@@ -31,7 +31,7 @@ export function updateEclText(){ if($('#card-moon').hidden) return; const n=next
 export function goEclipse(e){ if(!e) return; if(e.kind==='l'&&!state.moon){ state.moon=true; $('#moonTog').checked=true; }
   if(state.playing) setPlaying(false);
   gotoInstant(e.max);
-  const p=e.kind==='s'?sunPos(e.max):moonPos(e.max), dir=sunVec(Math.max(p.el,0.8),p.az,new V3()), hz=new V3(dir.x,0,dir.z).normalize();
+  const p=e.kind==='s'?sunPos(e.max):moonPos(e.max), dir=sunVec(Math.max(p.el,0.8),p.az,new V3());
   VIEWS.finsternis={pos:[11.9,135,0],dir:[dir.x,dir.y,dir.z],mode:'inside',cut:60,exp:e.kind==='s'?1.0:1.25,fov:e.kind==='s'?10:7};   // Blick von oberhalb der Turmspitzen zur Sonne bzw. zum Mond
   goView('finsternis'); }
 $('#goSolEcl').addEventListener('click',()=>goEclipse(nextEclipses().s));

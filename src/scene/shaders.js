@@ -1,6 +1,5 @@
 // Shader-Erweiterung: Innenraum-Maske und farbiges Licht durch die Fenster.
 import { atlasLin, NT } from './textures.js';   // Aufbau-Reihenfolge: nach scene/textures
-import { rad } from '../astro/index.js';
 import { V3 } from '../three-global.js';
 import { ARC_SP, CH_EDGES, F, inAmb, MASK_GLSL, MT_EDGES, NB, PX, ROOMS, XC } from '../model/measures.js';
 import { cutPlane } from './renderer.js';
@@ -66,7 +65,6 @@ ${MASK_GLSL}vec3 winTint(vec3 P){
   return vec3(1.0);
 }
 `;
-function jsPolyD(qx,qz,step,lo,hi){ const a=Math.atan2(qz,qx+1e-5)/rad; const mid=Math.min(hi,Math.max(lo,lo+step*Math.floor((a-lo)/step+0.5))); return Math.hypot(qx,qz)*Math.cos((a-mid)*rad); }
 export function insideJS(x,y,z){
   for(const r of ROOMS) if(x>r[0]&&x<r[1]&&z>r[2]&&z<r[3]&&y<r[4]) return true;
   if(x>=XC){ if(y<38.6&&CH_EDGES.every(e=>e[0]*(x-e[2])+e[1]*(z-e[3])<0)) return true; if(y<20.6&&inAmb(x,z)) return true; }

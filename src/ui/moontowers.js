@@ -84,7 +84,7 @@ function mtSunTxt(el){ return el>-0.83?tr('Tag','daylight'):el>-6?tr('bürgerlic
 export function mtRender(){ const ul=$('#mtRes'); ul.innerHTML=''; const R=MZT.res; if(!R) return;
   $('#mtSum').textContent=R.list.length?tr(R.list.length+' Termine in den sechs Monaten ab '+fmtDateL(R.from)+', zum Ansehen antippen:',R.list.length+' dates in the six months from '+fmtDateL(R.from)+', tap to view:')
     :tr('In diesen sechs Monaten steht der Mond von hier aus nicht sichtbar zwischen den Türmen. Probieren Sie eine andere Entfernung.','From here the moon does not stand visibly between the towers in these six months. Try another distance.');
-  R.list.forEach((e,i)=>{ const li=document.createElement('li'), b=document.createElement('button'), off=berlinOffsetMin(e.best), l=new Date(e.best+off*60000), la=new Date(e.a+off*60000), lb=new Date(e.b+off*60000);
+  R.list.forEach(e=>{ const li=document.createElement('li'), b=document.createElement('button'), off=berlinOffsetMin(e.best), l=new Date(e.best+off*60000), la=new Date(e.a+off*60000), lb=new Date(e.b+off*60000);
     const day=LANG==='en'?WD_EN[l.getUTCDay()]+' '+l.getUTCDate()+' '+MON_EN[l.getUTCMonth()]+' '+l.getUTCFullYear():WD[l.getUTCDay()]+' '+l.getUTCDate()+'.'+(l.getUTCMonth()+1)+'.'+l.getUTCFullYear();
     const hm=d=>pad2(d.getUTCHours())+':'+pad2(d.getUTCMinutes());
     b.innerHTML='<b>'+day+', '+hm(l)+' '+tzN(off)+'</b><br><span class="mtq">'+tr('im Spalt ','in the gap ')+hm(la)+'–'+hm(lb)+' · '+(e.rising?tr('aufgehend','rising'):tr('sinkend','setting'))+' · '+tr('Höhe ','altitude ')+fmtDeg(e.bel)+'<br>'

@@ -118,7 +118,7 @@ const AMB_BN=(function(){ const [,P1,P2,P3]=AMB_N, e1=[P2[0]-P1[0],P2[1]-P1[1]],
   return {1:nrm2(P1[0]-CHOIR[0][0],P1[1]-CHOIR[0][1]),2:nrm2(n1[0]+n2[0],n1[1]+n2[1]),3:nrm2(P3[0]-CHOIR[1][0],P3[1]-CHOIR[1][1])}; })();
 function AMB_ROOF(s){ const m=-s, q=(p,y)=>P(p[0],y,m*p[1]);
   const ao=offPoly(AMB,0.7,[0,-1],[0,1],false).slice(0,5); ao[0]=[XC,-(ZAN+0.8)];
-  const [,P1,P2,P3]=AMB_N, mid=[(P2[0]+P3[0])/2,(P2[1]+P3[1])/2], e=nrm2(P3[0]-P2[0],P3[1]-P2[1]), d=[-e[1],e[0]];   // d: nach innen
+  const [,,P2,P3]=AMB_N, mid=[(P2[0]+P3[0])/2,(P2[1]+P3[1])/2], e=nrm2(P3[0]-P2[0],P3[1]-P2[1]), d=[-e[1],e[0]];   // d: nach innen
   const co=choirOff(0.7), A=co[0], B=co[1], bx=B[0]-A[0], bz=B[1]-A[1], den=d[0]*bz-d[1]*bx;
   const t=((A[0]-mid[0])*bz-(A[1]-mid[1])*bx)/den, Rin=[mid[0]+d[0]*t,mid[1]+d[1]*t], Rout=[mid[0]+d[0]*4.9,mid[1]+d[1]*4.9];
   const mo=offPoly(MT,0.7,null,null,true), Wn=[MT[0][0],mo[0][1]], e0=[co[1][0]-0.3,-0.1];
@@ -161,7 +161,7 @@ for(let i=0;i<NB;i++){
   if(i>=2&&i<6) bayVault(i===2?CHAPELS[0].x1+0.5:PX[i]+0.8,PX[i+1]-(i===5?0.5:0.8),ZSI+0.6,ZAS-0.6,13.2,18.6,{rib:0.11,east:true});   // Kapellen zwischen den Strebepfeilern
 }
 // Chorpolygon: Fächergewölbe mit Rippen zu den Polygonecken
-{ const CI=choirOff(-0.7), NR=12, NS=8, pos=[], uv=[], idx=[]; let cols=0;
+{ const CI=choirOff(-0.7), NR=12, NS=8, pos=[], uv=[], idx=[]; let cols;
   const bnd=[]; for(let k=0;k<3;k++) for(let s=0;s<(k===2?NS+1:NS);s++){ const a=CI[k], b=CI[k+1], t=s/NS; bnd.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]); }
   cols=bnd.length;
   for(let j=0;j<=NR;j++){ const r=j/NR; for(const p of bnd){ const x=XC+(p[0]-XC)*r, z=p[1]*r, y=VSP_N+(VCR_N-VSP_N)*vf(r); pos.push(x,y,z); uv.push(x/3,z/3); } }
@@ -230,7 +230,7 @@ CHAPELS[3].west=[D(1.85,1.6,12.0)]; CHAPELS[3].outer=[D(3.5,1.25,3.4),W(3.5,1.25
 CHAPELS[4].west=[D(5.5,2.2,9.5)]; CHAPELS[4].outer=[W(3.2,1.4,4,11.0),W(9.4,1.4,4,11.0)]; CHAPELS[4].east=[W(5.5,1.2,4,11)];
 CHAPELS.forEach(chapel);
 // Fassadendetails nach Fotos (2026): Granitsockel, Gesimse, Bogenfriese, Steinportal der Briefkapelle, Vierpassfries und Portalbogen an der Südervorhalle
-{ const outerZ=c=>c.s*(c.zo+0.5), P3=(c,u,y,o)=>new V3(c.x0+u,y,outerZ(c)+c.s*(o||0));
+{ const outerZ=c=>c.s*(c.zo+0.5);
   const granite=new THREE.MeshStandardMaterial({color:lin(0x6d6e69),roughness:0.9}); granite.clippingPlanes=[cutPlane];
   const sg=[], lg=[];
   const along=(c,u0,u1,y0,y1,d,arr)=>{ const g=boxGeo(u1-u0,y1-y0,d); g.translate(c.x0+(u0+u1)/2,(y0+y1)/2,outerZ(c)+c.s*d/2); arr.push(g); };
@@ -317,8 +317,6 @@ const diaperTex=canvasTex(512,512,(g,w,h)=>{ const r=rng(41); brickCanvas(g,w,h,
 towerMatW.map=diaperTex; towerMatW.needsUpdate=true;   // Mittelbau ebenfalls mit Rautenmuster
 const towerMat=enhance(new THREE.MeshStandardMaterial({map:diaperTex,roughness:0.92,side:THREE.DoubleSide}),{mask:true});
 function gableCanvas(kind){ return (g,w,h)=>{ const r=rng(kind==='trio'?31:32); brickCanvas(g,w,h,r,40,13);
-  const ring=(cx,cy,rr)=>{ g.fillStyle='rgba(118,50,34,.9)'; g.beginPath(); g.arc(cx,cy,rr,0,7); g.fill(); g.strokeStyle='#cfa98c'; g.lineWidth=6; g.stroke();
-    g.strokeStyle='rgba(58,22,16,.9)'; g.lineWidth=3; for(let k=0;k<3;k++){ const a=k*2*Math.PI/3-Math.PI/2; g.beginPath(); g.arc(cx+Math.cos(a)*rr*0.36,cy+Math.sin(a)*rr*0.36,rr*0.4,0,7); g.stroke(); } };
   if(kind==='trio'){   // Süd-/Nordgiebel (Foto vom Petriturm): drei große Dreipässe und ein kleiner Kreis, im Backstein mit dunkel profiliertem Rand
     const cp=document.createElement('canvas'); cp.width=w; cp.height=h; cp.getContext('2d').drawImage(g.canvas,0,0);
     const tre=(cx,cy,R)=>{ const L=[]; for(let k=0;k<3;k++){ const a=-Math.PI/2+k*2*Math.PI/3; L.push([cx+Math.cos(a)*R*0.62,cy+Math.sin(a)*R*0.62]); } return L; };

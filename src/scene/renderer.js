@@ -18,7 +18,7 @@ export const coarse=matchMedia('(pointer:coarse)').matches;
 export const lowEnd=coarse&&((navigator.deviceMemory||8)<=4||(navigator.hardwareConcurrency||8)<=4);   // ältere Handys: weniger Pixel, kleinere Schatten- und Umgebungstexturen
 export let renderer;
 try{ renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'}); }
-catch(e){ ldDone(); stage.innerHTML='<div class="err">'+tr('WebGL ist in diesem Browser nicht verfügbar.','WebGL is not available in this browser.')+'</div>'; throw new Error('St. Marien: WebGL nicht verfügbar'); }
+catch(e){ ldDone(); stage.innerHTML='<div class="err">'+tr('WebGL ist in diesem Browser nicht verfügbar.','WebGL is not available in this browser.')+'</div>'; throw new Error('St. Marien: WebGL nicht verfügbar',{cause:e}); }
 renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,lowEnd?1.5:2));
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 // Handy im Hintergrund o. Ä.: Browser entzieht den Grafikspeicher. Statt schwarzer Fläche Hinweis und Neuladen mit der aktuellen Ansicht
