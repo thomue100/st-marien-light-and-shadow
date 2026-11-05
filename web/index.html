@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Interaktives 3D-Modell von St. Marien zu Lübeck: Sonne, Mond, Sonnenuhr und Astronomische Uhr zu jeder Stunde des Jahres.">
 <title>St. Marien – Licht und Schatten</title>
-  <script type="module" crossorigin src="./assets/index-fegUg4Vy.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-D4feOlep.css">
+  <script type="module" crossorigin src="./assets/index-CrbQJyIC.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DRuyd-_r.css">
 </head>
 <body>
 <div id="app">
@@ -17,36 +17,34 @@
   <p class="panonote" id="panoNote" hidden data-en="The sky view is a schematic projection: compass direction across, altitude upwards. Distances and shapes therefore look different from the sky seen with the eye.">Die Himmelsansicht ist eine schematische Projektion: Himmelsrichtung nach rechts, Höhe nach oben. Abstände und Formen wirken deshalb anders als beim Blick mit dem Auge zum Himmel.</p>
   <header class="brand">
     <h1><span class="h1a" data-en="St. Mary's">St. Marien</span> <span class="h1b" data-en="Light and Shadow">Licht und Schatten</span></h1>
-    <p class="eyebrow" data-en="53.868° N · 10.685° E · axis 98.5°">53,868° N · 10,685° O · Achse 98,5°</p>
     <span class="brandbtns"><button class="chip" id="tourBtn"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg> <span data-en="Guided tour">Rundgang</span></button><button class="chip" id="quizBtn"><span aria-hidden="true">?</span> <span data-en="Quiz">Quiz</span></button><button class="chip homebtn" id="homeBtn" aria-label="Zurück zum Start" data-en-aria="Back to start" title="Zurück zum Start" data-en-title="Back to start"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M1.5 6L6 2l4.5 4M3 5v5h2.2V7.5h1.6V10H9V5"/></svg></button><button class="chip" id="langBtn" aria-label="English" data-en-aria="Deutsch" lang="en">EN</button></span>
-  </header>
-
-  <div class="viewpick">
-    <button class="vbtn" id="viewBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="views"><span class="vlab" data-en="View">Ansicht</span> <span id="viewTxt">Aufgeschnitten</span> <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5"/></svg></button>
-    <div class="vmenu" id="views" role="menu" hidden>
-      <p class="vgroup" data-en="Outside">Außen</p>
-        <button data-view="aussen" role="menuitem" data-en="Outside">Außen</button>
-        <button data-view="westseite" role="menuitem" data-en="West front">Westseite</button>
-        <button data-view="sued" role="menuitem" data-en="South side">Südseite</button>
-        <button data-view="nord" role="menuitem" data-en="North side">Nordseite</button>
-        <button data-view="chorost" role="menuitem" data-en="Choir from the east">Chor von Osten</button>
-        <button data-view="tuermeost" role="menuitem" data-en="Towers from the east">Türme von Osten</button>
-        <button data-view="luft" role="menuitem" data-en="Aerial view">Luftbild</button>
-        <button data-view="puppe" role="menuitem" data-en="Cut-away">Aufgeschnitten</button>
-        <p class="vgroup" data-en="Viewpoints">Aussichtspunkt</p>
-        <button data-view="dachreiter" role="menuitem" data-en="On the ridge turret">Auf dem Dachreiter</button>
-        <button data-view="himmel" role="menuitem" data-en="Sky: paths of sun and moon">Himmel: Sonnen- und Mondbahn</button>
-      <p class="vgroup" data-en="Inside">Innen</p>
-        <button data-view="schiff" role="menuitem" data-en="Nave">Mittelschiff</button>
-        <button data-view="chor" role="menuitem" data-en="Choir, looking east">Chor, Blick Ost</button>
-        <button data-view="westen" role="menuitem" data-en="West window">Westfenster</button>
-        <button data-view="brief" role="menuitem" data-en="Briefkapelle (Letter Chapel)">Briefkapelle</button>
-        <button data-view="totentanz" role="menuitem" data-en="Dance of Death">Totentanz</button>
-        <button data-view="uhr" role="menuitem" data-en="Astronomical clock">Astronomische Uhr</button>
-        <button data-view="gedenk" role="menuitem" data-en="Memorial Chapel">Gedenkkapelle</button>
-        <button data-view="gewoelbe" role="menuitem" data-en="Vaults">Gewölbe</button>
+    <div class="viewpick">
+      <button class="vbtn" id="viewBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="views"><span class="vlab" data-en="View">Ansicht</span> <span id="viewTxt">Aufgeschnitten</span> <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5"/></svg></button>
+      <div class="vmenu" id="views" role="menu" hidden>
+        <p class="vgroup" data-en="Outside">Außen</p>
+          <button data-view="aussen" role="menuitem" data-en="Outside">Außen</button>
+          <button data-view="westseite" role="menuitem" data-en="West front">Westseite</button>
+          <button data-view="sued" role="menuitem" data-en="South side">Südseite</button>
+          <button data-view="nord" role="menuitem" data-en="North side">Nordseite</button>
+          <button data-view="chorost" role="menuitem" data-en="Choir from the east">Chor von Osten</button>
+          <button data-view="tuermeost" role="menuitem" data-en="Towers from the east">Türme von Osten</button>
+          <button data-view="luft" role="menuitem" data-en="Aerial view">Luftbild</button>
+          <button data-view="puppe" role="menuitem" data-en="Cut-away">Aufgeschnitten</button>
+          <p class="vgroup" data-en="Viewpoints">Aussichtspunkt</p>
+          <button data-view="dachreiter" role="menuitem" data-en="On the ridge turret">Auf dem Dachreiter</button>
+          <button data-view="himmel" role="menuitem" data-en="Sky: paths of sun and moon">Himmel: Sonnen- und Mondbahn</button>
+        <p class="vgroup" data-en="Inside">Innen</p>
+          <button data-view="schiff" role="menuitem" data-en="Nave">Mittelschiff</button>
+          <button data-view="chor" role="menuitem" data-en="Choir, looking east">Chor, Blick Ost</button>
+          <button data-view="westen" role="menuitem" data-en="West window">Westfenster</button>
+          <button data-view="brief" role="menuitem" data-en="Briefkapelle (Letter Chapel)">Briefkapelle</button>
+          <button data-view="totentanz" role="menuitem" data-en="Dance of Death">Totentanz</button>
+          <button data-view="uhr" role="menuitem" data-en="Astronomical clock">Astronomische Uhr</button>
+          <button data-view="gedenk" role="menuitem" data-en="Memorial Chapel">Gedenkkapelle</button>
+          <button data-view="gewoelbe" role="menuitem" data-en="Vaults">Gewölbe</button>
+      </div>
     </div>
-  </div>
+  </header>
 
   <nav class="rail" aria-label="Bereiche" data-en-aria="Panels">
     <button class="rbtn" data-card="sun" title="Sonnenstand" aria-label="Sonnenstand" data-en-title="Sun" data-en-aria="Sun" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg></button>
@@ -264,6 +262,7 @@
     <div class="cbody">
         <div class="wrap l-de">
           <p>Dieses Modell zeigt, wie Sonne und Mond zu jeder Stunde des Jahres auf St. Marien und durch ihre Fenster scheinen, und was die Sonnenuhr am Südpfeiler dabei anzeigt. Die Kirche ist nach amtlichen Vermessungsdaten, historischen Grundrissen und vielen Fotos nachgebaut; Sonnen- und Mondstand sind astronomisch berechnet und mit unabhängigen Quellen geprüft.</p>
+          <p>Lage: 53,868° N, 10,685° O. Die Chorachse weist nach 98,5° – fast genau nach Osten, um 8,5° nach Süden gedreht.</p>
           <p>Es ist ein vereinfachtes Modell und noch in Arbeit. Details der Ausstattung fehlen, und manches ist nach Fotos geschätzt.</p>
           <p>Farbige Fenster nach Fotos (Nutzung freigegeben): Totentanzfenster (A. Mahlau), Tympanon über dem Nordportal (M. Lüpertz), Briefkapelle (J. Schreiter), Wappenfenster der Marientidenkapelle und der Gedenkkapelle im Südturm. Totentanz-, Tympanon-, Briefkapellen- und Wappenfenster sowie die Astronomische Uhr nach eigenen Fotos des Projekts (2026), perspektivisch entzerrt. Das Westfenster (Auferstehungsfenster, H. G. von Stockhausen) ist vorerst nur vereinfacht als helle, neutrale Verglasung dargestellt.</p>
           <p>Astronomische Uhr: Gehäuse nach einem entzerrten Foto, Zifferblatt, Kalenderscheibe und Rechnung nach der Simulation „astro-uhr-app“.</p>
@@ -325,6 +324,7 @@
         </div>
         <div class="wrap l-en">
           <p>This model shows how sun and moon shine on St. Mary's and through its windows at any hour of the year, and what the sundial on the south buttress shows. The church is rebuilt from official survey data, historic floor plans and many photographs; the positions of sun and moon are computed astronomically and checked against independent sources.</p>
+          <p>Location: 53.868° N, 10.685° E. The choir axis points to 98.5° – almost due east, turned 8.5° towards the south.</p>
           <p>It is a simplified model and a work in progress. Details of the furnishings are missing, and some things are estimated from photos.</p>
           <p>Stained glass after photos (used with permission): Dance of Death windows (A. Mahlau), tympanum above the north portal (M. Lüpertz), Briefkapelle (J. Schreiter), coat-of-arms windows of the Marientiden Chapel and of the Memorial Chapel in the south tower. The clear windows of the choir chapels carry small coat-of-arms panes (donated in 1953), shown here in simplified form. Dance of Death, tympanum, Briefkapelle and coat-of-arms windows and the astronomical clock after the project’s own photographs (2026), corrected for perspective. The west window (Resurrection window, H. G. von Stockhausen) is for now shown only in simplified form as plain, neutral glazing.</p>
           <p>Astronomical clock: case from a rectified photo; dial, calendar disk and arithmetic after the “astro-uhr-app” simulation.</p>
