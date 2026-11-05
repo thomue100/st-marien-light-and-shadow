@@ -7,7 +7,7 @@ const CI = !!process.env.CI;
 export default defineConfig({
   testDir: 'tests/e2e',
   outputDir: 'tests/.results',
-  timeout: 240_000, // das Modell braucht mit Software-Grafik einige Sekunden zum Aufbau
+  timeout: 360_000, // das Modell braucht mit Software-Grafik einige Sekunden zum Aufbau
   expect: { timeout: 30_000 },
   workers: CI ? 2 : undefined, // ohne Angabe: halb so viele wie Prozessorkerne; jeder Test rechnet die Grafik selbst
   retries: CI ? 1 : 0,

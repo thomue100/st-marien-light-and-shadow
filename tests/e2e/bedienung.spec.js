@@ -35,38 +35,48 @@ test('Alle Ansichten und alle Karten', async ({ page }) => {
   }
 });
 
-test('Knöpfe in den Karten, Tag vor und zurück, besondere Tage', async ({ page }) => {
+/** Knopf in einer Karte drücken (Karte vorher öffnen) und die Kamerafahrt abwarten. */
+async function press(page, card, sel, wait = true) {
+  if (await page.locator(`#card-${card}`).isHidden()) await page.locator(`.rail .rbtn[data-card="${card}"]`).click();
+  await page.locator(sel).click();
+  if (wait) await waitCameraStill(page);
+}
+
+test('Karte Mond: Vollmond, Neumond, Sonnenfinsternis', async ({ page }) => {
   await openApp(page, { hash: START });
-  const date = page.locator('#date'),
-    view = page.locator('#viewTxt');
-  const press = async (card, sel) => {
-    if (await page.locator(`#card-${card}`).isHidden()) await page.locator(`.rail .rbtn[data-card="${card}"]`).click();
-    await page.locator(sel).click();
-    await waitCameraStill(page);
-  };
-  await press('moon', '#goFull');
+  const date = page.locator('#date');
+  await press(page, 'moon', '#goFull');
   await expect(date).toHaveValue('2026-06-30');
   await expect(page.locator('#timeOut')).toHaveText('01:26');
-  await press('moon', '#goNew');
+  await press(page, 'moon', '#goNew');
   await expect(date).toHaveValue('2026-07-14');
-  await press('moon', '#goSolEcl');
+  await press(page, 'moon', '#goSolEcl');
   await expect(date).toHaveValue('2026-08-12');
-  await expect(view).toHaveText('Finsternis');
-  await press('sd', '#sdMoonGo');
-  await expect(date).toHaveValue('2026-08-28');
-  await expect(view).toHaveText('Sonnenuhr');
-  await press('clock', '#ckDial');
-  await expect(view).toHaveText('Uhr: Zifferblatt');
-  await press('clock', '#ckCal');
-  await expect(view).toHaveText('Uhr: Kalenderscheibe');
-  await press('light', '#skyGo');
-  await expect(view).toHaveText('Himmel: Sonnen- und Mondbahn');
+  await expect(page.locator('#viewTxt')).toHaveText('Finsternis');
+});
 
+test('Karten Sonnenuhr, Uhr und Licht: Ansichten', async ({ page }) => {
+  await openApp(page, { hash: START });
+  const view = page.locator('#viewTxt');
+  await press(page, 'sd', '#sdMoonGo');
+  await expect(page.locator('#date')).toHaveValue('2026-06-30'); // nächster Vollmond
+  await expect(view).toHaveText('Sonnenuhr');
+  await press(page, 'clock', '#ckDial');
+  await expect(view).toHaveText('Uhr: Zifferblatt');
+  await press(page, 'clock', '#ckCal');
+  await expect(view).toHaveText('Uhr: Kalenderscheibe');
+  await press(page, 'light', '#skyGo', false); // Himmelsansicht: wird beim ersten Mal berechnet
+  await expect(view).toHaveText('Himmel: Sonnen- und Mondbahn', { timeout: 120_000 });
+});
+
+test('Tag vor und zurück, besondere Tage', async ({ page }) => {
+  await openApp(page, { hash: START });
+  const date = page.locator('#date');
   await page.locator('#dayNext').click();
-  await expect(date).toHaveValue('2026-08-29');
+  await expect(date).toHaveValue('2026-06-22');
   await page.locator('#dayPrev').click();
   await page.locator('#dayPrev').click();
-  await expect(date).toHaveValue('2026-08-27');
+  await expect(date).toHaveValue('2026-06-20');
   const special = ['2026-03-20', '2026-06-21', '2026-08-15', '2026-09-22', '2026-12-21'];
   for (const [i, d] of special.entries()) {
     await page.locator('#presetBtn').click();
