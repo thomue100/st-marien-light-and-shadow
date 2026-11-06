@@ -8,7 +8,7 @@ import { clockUpdate } from '../model/clock.js';
 import { goView } from '../scene/camera.js';
 import { setDate, setPlaying } from './controls.js';
 import { yearStop, yr } from './year.js';
-import { introExplore, openCard } from './panels.js';
+import { introExplore, menuOpen, openCard } from './panels.js';
 import { quiz, quizEnd, quizStart } from './quiz.js';
 
 /* ---------------- Geführter Rundgang ---------------- */
@@ -336,12 +336,14 @@ function setTbOpen(o) {
   b.setAttribute('aria-expanded', String(o));
   b.setAttribute(
     'aria-label',
-    o ? tr('Tagesdiagramm ausblenden', 'Hide day chart') : tr('Tagesdiagramm zeigen', 'Show day chart'),
+    o
+      ? tr('Weitere Zeiteinstellungen ausblenden', 'Hide more time settings')
+      : tr('Weitere Zeiteinstellungen: Tempo, besondere Tage, Jetzt', 'More time settings: speed, special days, now'),
   );
   lsSet('stm-tbopen', o ? '1' : '0');
 }
 $('#tbFold').addEventListener('click', () => setTbOpen(!document.body.classList.contains('tbopen')));
 if (lsGet('stm-tbopen') === '1') document.body.classList.add('tbopen');
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && tour.i !== null && $('#views').hidden && $('#presets').hidden) tourEnd();
+  if (e.key === 'Escape' && tour.i !== null && !menuOpen()) tourEnd();
 });

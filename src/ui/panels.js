@@ -1,6 +1,6 @@
 // Schalter, Karten der Symbolleiste, Aufklappmenüs, Bedienhinweis, Glossar, Ansichtstiefe, Sprachwechsel.
 import './year.js'; // Aufbau-Reihenfolge: nach ui/year
-import { $, lsGet, lsSet } from '../core/util.js';
+import { $, lsSet } from '../core/util.js';
 import { applyStaticLang, fmtDeg, LANG, setLang, tr } from '../core/i18n.js';
 import { EXPERT, setExpert } from '../core/prefs.js';
 import { AXIS_MEASURED } from '../model/measures.js';
@@ -11,17 +11,23 @@ import { applyEnv } from '../model/environment.js';
 import { drawYearChart, sdOrient } from '../model/sundial.js';
 import { buildSunPath } from '../light/sky.js';
 import { updateSun } from '../light/sun.js';
-import { bodyViewName, drawPanoGrid, goView, hintFor, lookToBody } from '../scene/camera.js';
+import { BODY_VIEWS, bodyViewName, drawPanoGrid, goView, hintFor, lookToBody } from '../scene/camera.js';
 import { relabel, updateLabelsVisibility } from '../scene/labels.js';
 import { drawChart, drawCompassStatic } from './readouts.js';
-import { buildPresets, goFullMoon, goNewMoon, setAmb, setAxis, setCut, setExp } from './controls.js';
+import { buildPresets, goFullMoon, goNewMoon, setAmb, setAxis, setCut, setExp, setPlaying } from './controls.js';
 import { showTour, tour } from './tour.js';
 import { mtGeo, mtRender, mtSync } from './moontowers.js';
 import { LK, lkFill } from './experiments.js';
 import { quiz, qzRender } from './quiz.js';
 import { updateShare } from './share.js';
 
-document.querySelectorAll('#views button').forEach(b => b.addEventListener('click', () => goView(b.dataset.view)));
+document
+  .querySelectorAll('#views button')
+  .forEach(b =>
+    b.addEventListener('click', () =>
+      BODY_VIEWS.includes(b.dataset.view) ? lookToBody(b.dataset.view) : goView(b.dataset.view),
+    ),
+  );
 $('#cut').addEventListener('input', e => setCut(+e.target.value));
 $('#exp').addEventListener('input', e => setExp(+e.target.value));
 $('#amb').addEventListener('input', e => setAmb(+e.target.value));
@@ -62,6 +68,8 @@ $('#goFull').addEventListener('click', goFullMoon);
 $('#skyGo').addEventListener('click', () => goView('himmel'));
 $('#sunLook').addEventListener('click', () => lookToBody('zurSonne'));
 $('#moonLook').addEventListener('click', () => lookToBody('zumMond'));
+$('#sunChip').addEventListener('click', () => lookToBody('zurSonne'));
+$('#moonChip').addEventListener('click', () => lookToBody('zumMond'));
 $('#goNew').addEventListener('click', goNewMoon);
 $('#moonTog').addEventListener('change', e => {
   state.moon = e.target.checked;
@@ -100,11 +108,15 @@ export function openCard(k) {
   });
   const gp = document.getElementById('glPop');
   if (gp) gp.hidden = true;
-  document.querySelectorAll('.rbtn').forEach(b => b.setAttribute('aria-expanded', String(b.dataset.card === k)));
+  document
+    .querySelectorAll('button[data-card]')
+    .forEach(b => b.setAttribute('aria-expanded', String(b.dataset.card === k)));
   if (typeof mtSync === 'function') mtSync();
+  requestRender(); // Randhinweise für Sonne und Mond weichen der Karte aus
 }
+// Symbolleiste und Menüeinträge (Experimente, Über das Modell, Teilen) öffnen Karten
 document
-  .querySelectorAll('.rbtn')
+  .querySelectorAll('button[data-card]')
   .forEach(b =>
     b.addEventListener('click', () => openCard(b.getAttribute('aria-expanded') === 'true' ? null : b.dataset.card)),
   );
@@ -134,13 +146,17 @@ function menu(btn, m) {
 }
 menu($('#viewBtn'), $('#views'));
 menu($('#presetBtn'), $('#presets'));
+menu($('#discBtn'), $('#discMenu'));
+menu($('#moreBtn'), $('#moreMenu'));
+/** Ist gerade ein Aufklappmenü offen? (Esc schließt dann zuerst das Menü) */
+export const menuOpen = () => ['views', 'presets', 'discMenu', 'moreMenu'].some(id => !$('#' + id).hidden);
 document.addEventListener('keydown', e => {
   if (
     e.key === 'Escape' &&
     !e.defaultPrevented &&
     document.querySelector('.card:not([hidden])') &&
-    $('#views').hidden &&
-    $('#presets').hidden
+    !menuOpen() &&
+    !document.body.classList.contains('free')
   )
     openCard(null);
 });
@@ -162,11 +178,82 @@ function showHint(ms) {
 }
 export function introExplore() {
   showHint(9000);
-  if (lsGet('stm-raillbl') === '1') return;
-  lsSet('stm-raillbl', '1');
-  const r = document.querySelector('.rail');
-  r.classList.add('lbls');
-  setTimeout(() => r.classList.remove('lbls'), 7000);
+}
+
+/* ---------------- Freie Sicht: alle Bedienelemente aus, nur das Modell ---------------- */
+
+// Wie der Vollbild- bzw. Ablenkungsfrei-Modus in Karten- und Bildprogrammen: Taste F, Knopf oben rechts oder Menü „⋯“.
+// Es bleiben der Knopf zum Zurückholen, eine kleine Leiste mit Datum, Uhrzeit und Abspielen und die Randhinweise für Sonne
+// und Mond. Zurück mit F, Esc, dem Knopf oder (Finger) Doppeltipp ins Bild.
+let toastTimer = null;
+export function setFree(on) {
+  document.body.classList.toggle('free', on);
+  const b = $('#freeBtn');
+  b.setAttribute('aria-pressed', String(on));
+  b.setAttribute(
+    'aria-label',
+    on
+      ? tr('Bedienelemente wieder einblenden (F oder Esc)', 'Show the controls again (F or Esc)')
+      : tr('Freie Sicht: alle Bedienelemente ausblenden (Taste F)', 'Clear view: hide all controls (key F)'),
+  );
+  b.title = on ? tr('Bedienelemente einblenden (F)', 'Show controls (F)') : tr('Freie Sicht (F)', 'Clear view (F)');
+  $('#freeMini').hidden = !on;
+  const t = $('#freeToast');
+  clearTimeout(toastTimer);
+  t.hidden = !on;
+  if (on) {
+    t.textContent = matchMedia('(pointer: coarse)').matches
+      ? tr(
+          'Freie Sicht – zurück mit Doppeltipp oder dem Knopf oben rechts',
+          'Clear view – double-tap or use the button top right to return',
+        )
+      : tr(
+          'Freie Sicht – Bedienelemente zurück mit F, Esc oder dem Knopf oben rechts',
+          'Clear view – press F, Esc or the button top right to return',
+        );
+    toastTimer = setTimeout(() => (t.hidden = true), 4500);
+    for (const id of ['views', 'presets', 'discMenu', 'moreMenu']) $('#' + id).hidden = true;
+    $('#glPop').hidden = true;
+  }
+  requestRender();
+}
+$('#freeBtn').addEventListener('click', () => setFree(!document.body.classList.contains('free')));
+$('#freeItem').addEventListener('click', () => setFree(true));
+$('#freePlay').addEventListener('click', () => setPlaying(!state.playing));
+document.addEventListener(
+  'keydown',
+  e => {
+    const tg = e.target.tagName;
+    if (tg === 'INPUT' || tg === 'SELECT' || tg === 'TEXTAREA' || e.metaKey || e.ctrlKey || e.altKey) return;
+    const free = document.body.classList.contains('free');
+    if ((e.key === 'f' || e.key === 'F') && !menuOpen()) {
+      e.preventDefault();
+      setFree(!free);
+    } else if (e.key === 'Escape' && free) {
+      e.preventDefault();
+      e.stopImmediatePropagation(); // nur die Freie Sicht beenden, nicht zugleich Rundgang oder Quiz
+      setFree(false);
+    }
+  },
+  true,
+);
+{
+  // Doppeltipp (Finger) ins Bild beendet die Freie Sicht
+  let lastTap = 0,
+    lx = 0,
+    ly = 0;
+  renderer.domElement.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'touch' || !document.body.classList.contains('free')) return;
+    const now = performance.now();
+    if (now - lastTap < 320 && Math.hypot(e.clientX - lx, e.clientY - ly) < 30) {
+      lastTap = 0;
+      setFree(false);
+    } else {
+      lastTap = now;
+      lx = e.clientX;
+      ly = e.clientY;
+    }
+  });
 }
 // Glossar: Begriffe mit gepunkteter Unterstreichung antippen
 const GL = {

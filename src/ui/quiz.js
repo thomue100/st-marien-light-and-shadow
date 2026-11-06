@@ -11,7 +11,7 @@ import { rc } from '../light/windows.js';
 import { goView } from '../scene/camera.js';
 import { eclWhen, setDate, setMinutes, setPlaying, updateEclText } from './controls.js';
 import { yearStop, yr } from './year.js';
-import { openCard } from './panels.js';
+import { menuOpen, openCard } from './panels.js';
 import { CK_MON, CK_MON_EN } from './clockcard.js';
 import { tour, tourEnd, tourGo } from './tour.js';
 
@@ -435,14 +435,7 @@ $('#qzNext').addEventListener('click', () => {
 $('#qzEnd').addEventListener('click', quizEnd);
 $('#quizBtn').addEventListener('click', quizStart);
 document.addEventListener('keydown', e => {
-  if (
-    e.key === 'Escape' &&
-    quiz.i !== null &&
-    $('#views').hidden &&
-    $('#presets').hidden &&
-    !document.querySelector('.card:not([hidden])')
-  )
-    quizEnd();
+  if (e.key === 'Escape' && quiz.i !== null && !menuOpen() && !document.querySelector('.card:not([hidden])')) quizEnd();
 });
 // Einstell-Aufgaben laufend prüfen; nach 60 s auf den Tipp hinweisen
 setInterval(() => {

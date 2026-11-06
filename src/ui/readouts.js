@@ -169,6 +169,12 @@ export function updateReadouts() {
   const di = dstInfo(state.y, state.m, state.d, state.minutes),
     tzName = tzN(di.off);
   $('#timeOut').textContent = fmtT(di.loc);
+  $('#freeTime').textContent =
+    (LANG === 'en'
+      ? state.y + '-' + pad2(state.m + 1) + '-' + pad2(state.d)
+      : pad2(state.d) + '.' + pad2(state.m + 1) + '.' + state.y) +
+    ' · ' +
+    fmtT(di.loc);
   $('#tzName').textContent = tzName; // angezeigt wird die tatsächliche Ortszeit des berechneten Zeitpunkts
   $('#time').value = Math.round(state.minutes);
   $('#rEl').textContent = fmtDeg(cur.el);
@@ -193,17 +199,19 @@ export function updateReadouts() {
         cur.el > -0.3
           ? tr('Sonne ', 'Sun ') + fmtDeg(cur.el) + ' ' + dirName(cur.az)
           : tr('Sonne unter dem Horizont', 'Sun below the horizon');
+    // Sonne und Mond als antippbare Werte (führen zum Blick dorthin), die Fensterzahl in der zweiten Zeile
+    const mt =
+      state.moon && m
+        ? fmtDeg(m.el) + (m.el > 0 ? ' ' + dirName(m.az) : '') + ' · ' + Math.round(m.k * 100) + ' %'
+        : '';
+    $('#sunChipTxt').textContent =
+      cur.el > -0.3 ? fmtDeg(cur.el) + ' ' + dirName(cur.az) : tr('unter dem Horizont', 'below horizon');
+    $('#sunChip').title = sp + (cur.el > -1 ? tr(' – zur Sonne blicken', ' – look at the sun') : '');
+    $('#moonChip').hidden = !mt;
+    $('#moonChipTxt').textContent = mt;
+    $('#moonChip').title =
+      tr('Mond ', 'Moon ') + mt + (m && m.el > -1 ? tr(' – zum Mond blicken', ' – look at the moon') : '');
     $('#sumLine').textContent =
-      sp +
-      (state.moon && m
-        ? tr(' · Mond ', ' · Moon ') +
-          fmtDeg(m.el) +
-          (m.el > 0 ? ' ' + dirName(m.az) : '') +
-          ', ' +
-          Math.round(m.k * 100) +
-          ' %'
-        : '') +
-      ' · ' +
       (useMoon ? tr('im Mondlicht ', 'in moonlight ') : tr('besonnt ', 'sunlit ')) +
       (cur.el > 0 || useMoon ? litCount : 0) +
       ' / ' +

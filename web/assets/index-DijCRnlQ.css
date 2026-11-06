@@ -200,16 +200,15 @@ body {
   background: var(--panel);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  padding: 8px 14px 7px;
-  border-radius: 6px;
+  padding: 6px 8px 6px 16px;
+  border-radius: 8px;
   box-shadow: var(--shadow);
   display: flex;
-  align-items: baseline;
-  gap: 12px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
   box-sizing: border-box;
-  max-width: calc(100% - 28px - 58px);
-} /* rechts bleibt Platz für die Symbolleiste */
+  max-width: calc(100% - 28px - var(--freew) - 10px);
+} /* rechts bleibt Platz für den Knopf „Freie Sicht“ */
 h1 {
   font-family: var(--f-display);
   font-weight: 700;
@@ -221,6 +220,9 @@ h1 {
 }
 h1 .h1b {
   color: var(--brick);
+}
+h1 {
+  margin-right: 8px;
 }
 
 button,
@@ -300,26 +302,32 @@ input[type='range'] {
 /* Ansichtswahl oben in der Mitte */
 .viewpick {
   position: static;
-  flex: 1 1 0;
+  flex: 0 1 auto;
   min-width: 84px;
-  max-width: max-content;
-} /* in der Titelleiste; das Menü richtet sich nach der Leiste (.brand). Wird es eng, kürzt sie den Namen (…) statt umzubrechen */
+  display: flex;
+  align-items: stretch;
+  height: 38px;
+  box-sizing: border-box;
+  background: var(--chip);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+} /* in der Titelleiste: Haus und Ansicht; das Menü richtet sich nach der Leiste (.brand). Wird es eng, kürzt sie den Namen (…) */
 .brand {
   z-index: 3;
 }
-.brand:has(.vmenu:not([hidden])) {
+.brand:has(.vmenu:not([hidden]), .dmenu:not([hidden])) {
   z-index: 7;
 } /* aufgeklapptes Menü über Rundgang- und Infokarten */
 .vbtn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  max-width: 100%;
-  background: var(--chip);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 3px 10px;
-  font-size: 12.5px;
+  min-width: 0;
+  background: none;
+  border: 0;
+  padding: 0 12px 0 10px;
+  font-size: 14px;
   white-space: nowrap;
 }
 .vbtn .vlab {
@@ -346,39 +354,42 @@ input[type='range'] {
   left: 0;
   box-sizing: border-box;
   max-width: calc(100vw - 28px);
+  max-height: calc(100vh - 100px);
+  overflow: auto;
   background: var(--panel);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 8px;
   box-shadow: var(--shadow);
-  padding: 8px;
+  padding: 10px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px 6px;
-  min-width: 330px;
+  grid-template-columns: repeat(3, minmax(0, max-content));
+  gap: 4px 14px;
+}
+.vcol {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 .vmenu[hidden] {
   display: none;
 }
 .vgroup {
-  grid-column: 1/-1;
-  margin: 6px 6px 2px;
+  margin: 0 8px 4px;
   font-family: var(--f-mono);
   font-size: 10.5px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
 }
-.vgroup:first-child {
-  margin-top: 0;
-}
 .vmenu button {
   text-align: left;
   border: 0;
   background: none;
   border-radius: 5px;
-  padding: 6px 8px;
-  font-size: 13.5px;
+  padding: 7px 8px;
+  font-size: 14px;
+  white-space: nowrap;
 }
 .vmenu button:hover {
   background: var(--chip);
@@ -391,28 +402,59 @@ input[type='range'] {
 /* Symbolleiste rechts und aufklappende Karten */
 .rail {
   position: absolute;
-  top: calc(14px + env(safe-area-inset-top, 0px));
+  top: calc(14px + 40px + 8px + env(safe-area-inset-top, 0px));
   right: max(14px, env(safe-area-inset-right, 0px));
   z-index: 3;
+  width: var(--railw);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   background: var(--panel);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  padding: 5px;
+  padding: 6px 5px;
   border-radius: 8px;
   box-shadow: var(--shadow);
 }
+.rgrp {
+  margin: 2px 0 3px;
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+}
+.rgrp + .rbtn + .rbtn + .rbtn + .rgrp,
+.rsep {
+  border-top: 1px solid var(--line);
+  padding-top: 6px;
+  margin-top: 4px;
+}
+.rsep {
+  display: block;
+  padding-top: 0;
+  margin: 4px 4px 2px;
+}
 .rbtn {
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
+  width: 100%;
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
   border: 0;
   background: none;
   border-radius: 6px;
   color: var(--ink);
+  padding: 0;
+}
+.rl {
+  font-size: 11.5px;
+  line-height: 1;
+  white-space: nowrap;
 }
 .rbtn svg {
   width: 21px;
@@ -432,11 +474,11 @@ input[type='range'] {
 }
 .card {
   position: absolute;
-  top: calc(14px + env(safe-area-inset-top, 0px));
-  right: calc(max(14px, env(safe-area-inset-right, 0px)) + 62px);
+  top: calc(14px + 40px + 8px + env(safe-area-inset-top, 0px));
+  right: calc(max(14px, env(safe-area-inset-right, 0px)) + var(--railw) + 8px);
   z-index: 3;
   width: 360px;
-  max-height: calc(100% - 28px - var(--tbh));
+  max-height: calc(100% - 62px - 22px - var(--tbh));
   display: flex;
   flex-direction: column;
   background: var(--panel);
@@ -656,7 +698,10 @@ dl.readout dd {
 
 /* Zeitleiste unten */
 :root {
-  --tbh: 114px;
+  --tbh: 84px;
+  --tbh0: 84px;
+  --railw: 70px;
+  --freew: 150px;
 }
 .timebar {
   position: absolute;
@@ -669,16 +714,66 @@ dl.readout dd {
   -webkit-backdrop-filter: blur(10px);
   border-radius: 8px;
   box-shadow: var(--shadow);
-  padding: 8px 14px 8px;
+  padding: 7px 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
-.tb-ctrl {
+.tb-main,
+.tb-more {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
+}
+.tb-more {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+body:not(.tbopen) .tb-more {
+  display: none;
+}
+.tb-date {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+.tb-speed {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.skychip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  padding: 5px 10px;
+  flex: none;
+}
+.skychip svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+.sc-sun {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.sc-sun circle {
+  fill: var(--gold);
+}
+.sc-moon {
+  fill: var(--muted);
+}
+.skychip[hidden] {
+  display: none;
 }
 .tb-sum {
   margin: 0 0 0 auto;
@@ -690,11 +785,6 @@ dl.readout dd {
   text-overflow: ellipsis;
   min-width: 0;
   font-variant-numeric: tabular-nums;
-}
-.tb-time {
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }
 .tb-track {
   position: relative;
@@ -1056,23 +1146,6 @@ body:not(.expert) .more .mhide {
 .cbody p {
   margin: 0;
 }
-.brandbtns {
-  display: inline-flex;
-  gap: 6px;
-  margin-left: 4px;
-}
-.brandbtns .chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12.5px;
-  padding: 3px 9px;
-}
-.brandbtns svg {
-  width: 9px;
-  height: 9px;
-  fill: currentColor;
-}
 .sharerow {
   display: flex;
   gap: 6px;
@@ -1152,7 +1225,12 @@ details summary {
   display: none;
 }
 .tbfold {
-  display: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  flex: none;
 }
 .tbfold svg {
   width: 11px;
@@ -1409,15 +1487,261 @@ body.touring .hint {
   }
 }
 .homebtn {
-  padding: 4px 7px;
+  width: 38px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-right: 1px solid var(--line);
+  background: none;
+  padding: 0;
 }
 .homebtn svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.homebtn:hover,
+.vbtn:hover {
+  background: var(--chip);
+}
+/* Menüs „Entdecken“ und „Weitere“ in der Titelleiste */
+.mwrap {
+  position: relative;
+  flex: none;
+}
+.mbtn {
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  background: var(--chip);
+  border-radius: 999px;
+  padding: 0 12px 0 10px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.mbtn:hover {
+  border-color: var(--verd);
+}
+.mbtn.icon {
+  width: 38px;
+  padding: 0;
+  justify-content: center;
+  border-color: transparent;
+  background: none;
+}
+.mbtn .ico {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+.mbtn .dots {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+.chev {
   width: 12px;
   height: 12px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.4;
+  stroke-width: 1.6;
+  flex-shrink: 0;
+}
+.dmenu {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: -8px;
+  z-index: 8;
+  box-sizing: border-box;
+  width: 310px;
+  max-width: calc(100vw - 20px);
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dmenu[hidden] {
+  display: none;
+}
+.dmenu button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 42px;
+  text-align: left;
+  border: 0;
+  background: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 14.5px;
+}
+.dmenu button:hover {
+  background: var(--chip);
+}
+.dmore {
+  left: auto;
+  right: -8px;
+  width: 250px;
+}
+.dmore kbd,
+.freebtn kbd {
+  margin-left: auto;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0 5px;
+}
+.dnum {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--brick) 12%, transparent);
+  color: var(--brick);
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 17px;
+}
+.dtxt {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.dtxt b {
+  font-weight: 500;
+}
+.dtxt span {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+/* Freie Sicht: Knopf oben rechts, Minileiste unten links, Hinweis */
+.freebtn {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  right: max(14px, env(safe-area-inset-right, 0px));
+  z-index: 4;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 10px 0 9px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--shadow);
+  font-size: 14px;
+  color: var(--ink);
+}
+.freebtn svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
   stroke-linejoin: round;
+}
+.freebtn .foff,
+body.free .freebtn .fon,
+body.free .freebtn .fl,
+body.free .freebtn kbd {
+  display: none;
+}
+body.free .freebtn .foff {
+  display: block;
+}
+body.free .freebtn {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+.freemini {
+  position: absolute;
+  left: max(14px, env(safe-area-inset-left, 0px));
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  z-index: 3;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px 0 4px;
+  border-radius: 999px;
+  background: var(--panel);
+  opacity: 0.88;
+  box-shadow: var(--shadow);
+  font-family: var(--f-mono);
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+}
+.freemini[hidden],
+.freetoast[hidden] {
+  display: none;
+}
+#freePlay {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--brick);
+  color: #fff;
+  padding: 0;
+}
+#freePlay svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+.freetoast {
+  position: absolute;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 3;
+  margin: 0;
+  max-width: calc(100% - 40px);
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--lbl-bg);
+  color: var(--lbl-fg);
+  font-size: 13.5px;
+  text-align: center;
+  pointer-events: none;
+}
+body.free .brand,
+body.free .rail,
+body.free .timebar,
+body.free .card,
+body.free #labels,
+body.free .hint,
+body.free .tourcard,
+body.free .yearnote {
+  display: none !important;
 }
 /* Steuerkreis zum Gehen in Innenansichten (nur bei Fingerbedienung) */
 .joy {
@@ -1557,23 +1881,6 @@ body.touring .yearnote {
   padding: 4px 9px;
   font-size: 15px;
   line-height: 1;
-}
-.rail.lbls .rbtn {
-  position: relative;
-}
-.rail.lbls .rbtn::after {
-  content: attr(title);
-  position: absolute;
-  right: calc(100% + 10px);
-  top: 50%;
-  transform: translateY(-50%);
-  white-space: nowrap;
-  background: var(--lbl-bg);
-  color: var(--lbl-fg);
-  font-size: 12.5px;
-  padding: 3px 9px;
-  border-radius: 6px;
-  pointer-events: none;
 }
 .explist {
   display: flex;
@@ -1771,16 +2078,36 @@ body.touring .yearnote {
     border-color: var(--brick);
   }
 }
-@media (max-width: 1100px) {
-  .tb-sum {
+/* Mittlere Breiten: zuerst Texte kürzen, dann Nebensächliches ausblenden */
+@media (max-width: 1180px) {
+  #playTxt {
     display: none;
   }
 }
-@media (max-width: 900px) {
-  .vbtn .vlab {
+@media (max-width: 1040px) {
+  h1 .h1b {
     display: none;
   }
-} /* eng: lieber „Ansicht“ weglassen als den Namen kürzen */
+}
+@media (max-width: 960px) {
+  .skychip {
+    display: none;
+  }
+  .vbtn .vlab,
+  .mbtn .mlab,
+  .freebtn .fl,
+  .freebtn kbd {
+    display: none;
+  }
+  :root {
+    --freew: 44px;
+  }
+  .freebtn {
+    width: 40px;
+    padding: 0;
+    justify-content: center;
+  }
+}
 @media (max-width: 440px) {
   #presetBtn .pl {
     display: none;
@@ -1792,100 +2119,139 @@ body.touring .yearnote {
     text-transform: uppercase;
   }
 }
-@media (max-width: 410px) {
-  .brand h1 {
-    font-size: 16.5px;
-  }
-  .brandbtns {
-    gap: 4px;
-  }
-  .brandbtns .chip {
-    padding: 3px 7px;
-    font-size: 12.5px;
-  }
-  .vbtn {
-    padding: 3px 7px;
-  }
-  .viewpick {
-    min-width: 68px;
-  }
-}
-/* Handy quer (breit, aber niedrig): Ansicht-Knopf nach rechts, damit er die Kopfzeile nicht verdeckt */
-/* niedrige Bildschirme (Handy quer): Leiste zweispaltig, damit sie nicht in die Zeitleiste ragt */
-@media (max-height: 520px) {
+/* niedrige Bildschirme (Handy quer): Leiste zweispaltig und ohne Beschriftung */
+@media (max-height: 560px) and (min-width: 761px) {
   .rail {
     display: grid;
     grid-template-columns: repeat(2, auto);
     gap: 3px;
+    width: auto;
+    padding: 5px;
+  }
+  .rgrp,
+  .rsep,
+  .rl {
+    display: none;
   }
   .rail .rbtn {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
   }
   .rail .rbtn svg {
     width: 18px;
     height: 18px;
   }
+  :root {
+    --railw: 80px;
+  }
 }
+/* Handy hoch */
 @media (max-width: 760px) {
   :root {
-    --tbh: 126px;
+    --freew: 44px;
   }
   .brand {
-    padding: 6px 10px;
-    max-width: calc(100% - 28px - 56px);
-    gap: 4px 8px;
-  }
-  .brandbtns {
-    margin-left: 0;
+    top: calc(10px + env(safe-area-inset-top, 0px));
+    left: max(10px, env(safe-area-inset-left, 0px));
+    padding: 4px 4px 4px 12px;
+    gap: 2px;
+    max-width: calc(100% - 20px - 44px - 8px);
   }
   h1 {
     font-size: 18px;
+    margin-right: auto;
   }
   h1 .h1b {
-    display: block;
-    font-size: 14px;
-    line-height: 1.1;
-    letter-spacing: 0.03em;
-  } /* schmal: Untertitel in eigener Zeile */
+    display: none;
+  }
+  .mwrap {
+    position: static;
+  }
+  .mbtn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+    border-color: transparent;
+    background: none;
+  }
+  .mbtn .mlab,
+  .mbtn .chev,
   .vbtn .vlab {
     display: none;
   }
   .viewpick {
-    order: 1;
-  } /* schmal: Ansicht neben „St. Marien“, die Knöpfe darunter */
-  .brandbtns {
-    order: 2;
+    height: 40px;
+    min-width: 0;
+  }
+  .homebtn {
+    width: 36px;
+  }
+  .vbtn {
+    padding: 0 9px 0 8px;
+    font-size: 14.5px;
+  }
+  .dmenu {
+    left: 0;
+    right: auto;
+    top: calc(100% + 6px);
+    width: min(330px, calc(100vw - 20px));
+  }
+  .dmore {
+    left: auto;
+    right: 0;
   }
   .vmenu {
-    min-width: 0;
-    width: min(330px, calc(100vw - 28px));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(370px, calc(100vw - 20px));
+    max-height: calc(100vh - 120px);
+  }
+  .vmenu button {
+    white-space: normal;
+    padding: 8px;
+  }
+  .freebtn {
+    top: calc(10px + env(safe-area-inset-top, 0px));
+    right: max(10px, env(safe-area-inset-right, 0px));
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .freebtn .fl,
+  .freebtn kbd {
+    display: none;
+  }
+  /* Symbolleiste als beschriftete Leiste über der Zeitleiste */
+  .rail {
+    top: auto;
+    left: max(10px, env(safe-area-inset-left, 0px));
+    right: max(10px, env(safe-area-inset-right, 0px));
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px) + var(--tbh0) + 6px);
+    width: auto;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0;
+    padding: 3px 4px;
+  }
+  .rgrp,
+  .rsep {
+    display: none;
   }
   .rbtn {
-    width: 38px;
-    height: 38px;
+    height: 50px;
+  }
+  .rl {
+    font-size: 10.5px;
   }
   .card {
     top: auto;
-    left: max(14px, env(safe-area-inset-left, 0px));
-    right: max(14px, env(safe-area-inset-right, 0px));
+    left: max(10px, env(safe-area-inset-left, 0px));
+    right: max(10px, env(safe-area-inset-right, 0px));
     width: auto;
-    bottom: calc(14px + env(safe-area-inset-bottom, 0px) + var(--tbh) + 8px);
-    max-height: min(56%, calc(100% - 150px - var(--tbh)));
-  }
-  .tb-ctrl {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  #playTxt {
-    display: none;
-  }
-  .btn {
-    padding: 5px 9px;
-  }
-  input[type='date'] {
-    flex: 1;
-    min-width: 8.5em;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px) + var(--tbh) + 8px);
+    max-height: min(56%, calc(100% - 80px - var(--tbh)));
   }
   .hint {
     white-space: normal;
@@ -1908,10 +2274,7 @@ body.touring .yearnote {
   .card.min .cbody {
     display: none;
   }
-  .dstep {
-    order: 1;
-  }
-  /* Rundgang: Zeitleiste und Leiste rechts ausblenden, Karte als schmale Leiste unten, Text auf drei Zeilen gekürzt */
+  /* Rundgang: Zeitleiste und Leiste ausblenden, Karte als schmale Leiste unten, Text auf drei Zeilen gekürzt */
   body.touring .timebar,
   body.touring .rail,
   body.touring .night {
@@ -1943,7 +2306,7 @@ body.touring .yearnote {
     overflow: auto;
   }
   .tourcard.quizcard {
-    top: calc(98px + env(safe-area-inset-top, 0px));
+    top: calc(64px + env(safe-area-inset-top, 0px));
     bottom: auto;
     max-height: 46%;
   }
@@ -1966,110 +2329,105 @@ body.touring .yearnote {
   .tbtns .btn {
     padding: 5px 12px;
   }
-  /* Zeitleiste kompakt: Zeile 1 Datum und Tage, Zeile 2 Abspielen, Schieber, Uhrzeit; Tagesdiagramm aufklappbar */
+  /* Zeitleiste kompakt: Zeile 1 Datum, Abspielen, Uhrzeit, Aufklappen; Zeile 2 Schieber.
+     Aufgeklappt: Tempo, besondere Tage, Jetzt und das Tagesdiagramm */
   .timebar {
-    display: flex;
-    flex-direction: row;
+    left: max(10px, env(safe-area-inset-left, 0px));
+    right: max(10px, env(safe-area-inset-right, 0px));
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    padding: 6px 8px 8px;
+    gap: 4px;
+  }
+  .tb-main {
     flex-wrap: wrap;
-    align-items: center;
-    column-gap: 6px;
-    row-gap: 5px;
-    padding: 7px 10px;
+    gap: 6px;
   }
-  .timebar::before {
-    content: '';
-    order: 2;
-    flex-basis: 100%;
-    height: 0;
+  .tb-more {
+    flex-wrap: wrap;
+    gap: 6px;
   }
-  .tb-ctrl,
-  .tb-time {
-    display: contents;
-  }
-  #date {
-    order: 1;
-    flex: 1 1 8em;
-    min-width: 7.6em;
-    font-size: 13.5px;
-    padding: 4px 5px;
-  }
-  .timebar .chip {
-    padding: 4px 8px;
-  }
-  #nowBtn,
-  .timebar .pp {
-    order: 1;
-  }
-  .tbfold {
-    display: grid;
-    place-items: center;
-    order: 1;
-    padding: 4px 8px;
-  }
-  #play,
-  #speed {
-    order: 3;
-  }
-  #speed {
-    flex: 0 0 auto;
-    width: 7.6em;
+  .tb-date {
+    flex: 1 1 auto;
     min-width: 0;
   }
   #date {
+    flex: 1 1 8em;
     min-width: 7.2em;
+    height: 40px;
+    box-sizing: border-box;
+    font-size: 14px;
+    padding: 4px 5px;
   }
-  .tb-track {
-    order: 3;
-    flex: 1 1 60px;
-    min-width: 60px;
-    height: 18px;
+  .dstep {
+    width: 34px;
+    height: 40px;
+    padding: 0;
+  }
+  #play {
+    height: 40px;
+    min-width: 44px;
+    justify-content: center;
+  }
+  #playTxt {
+    display: none;
   }
   .tb-clock {
-    order: 3;
     flex-direction: row;
     align-items: baseline;
     gap: 5px;
   }
   .tb-clock output {
-    font-size: 18px;
+    font-size: 19px;
   }
-  .tb-sum {
-    display: none;
+  .tbfold {
+    order: 10;
+    width: 40px;
+    height: 40px;
+  }
+  .tb-track {
+    order: 9;
+    flex: 1 1 calc(100% - 52px); /* eigene Zeile, daneben nur der Aufklapp-Knopf */
+    min-width: 0;
+    height: 24px;
+  }
+  .dstep {
+    width: 30px;
   }
   body:not(.tbopen) #chart {
     display: none;
   }
   body.tbopen .tb-track {
-    order: 4;
-    flex-basis: 100%;
     height: 62px;
   }
-  body.tbopen .tb-clock {
-    margin-left: auto;
+  #speed,
+  #presetBtn,
+  #nowBtn {
+    min-height: 40px;
+  }
+  .tb-sum {
+    display: none;
   }
   .pmenu {
-    left: auto;
-    right: 0;
+    left: 0;
+    right: auto;
+    bottom: calc(100% + 8px);
   }
   .lbl {
     font-size: 9.5px;
   }
+  .freetoast {
+    top: calc(66px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+  }
+  .freemini {
+    left: max(10px, env(safe-area-inset-left, 0px));
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  }
 }
 /* Smartphone quer: wenig Höhe */
 @media (max-height: 520px) and (min-width: 761px) {
-  :root {
-    --tbh: 84px;
-  }
-  .rbtn {
-    width: 32px;
-    height: 32px;
-  }
-  .rbtn svg {
-    width: 18px;
-    height: 18px;
-  }
   .brand {
-    padding: 5px 10px;
+    padding: 4px 6px 4px 12px;
   }
   h1 {
     font-size: 17px;
@@ -2095,27 +2453,17 @@ body.touring .yearnote {
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  .tbfold {
-    display: grid;
-    place-items: center;
-    padding: 4px 8px;
-  }
   body:not(.tbopen) #chart {
     display: none;
   }
   body:not(.tbopen) .tb-track {
-    height: 18px;
+    height: 22px;
   }
   .timebar {
-    padding: 6px 12px;
-    gap: 3px;
-    right: calc(max(14px, env(safe-area-inset-right, 0px)) + 44px);
+    padding: 5px 12px;
   }
   .tb-clock output {
     font-size: 19px;
-  }
-  .card {
-    max-height: calc(100% - 28px - var(--tbh));
   }
 }
 @media (prefers-reduced-motion: reduce) {
