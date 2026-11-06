@@ -15,6 +15,7 @@
 | `e2e/mond-tuerme.spec.js` | Mond zwischen den Türmen: Standort per Fingertipp, Terminsuche West/Ost, Blick vom Standort |
 | `e2e/experimente.spec.js` | Experimente 1–4 mit den berechneten Werten (Schattenlänge, Zeitgleichung, Lichtkalender, Uhr und Himmel) |
 | `e2e/bedienung.spec.js` | alle Ansichten und Karten, Knöpfe in den Karten, Tag vor/zurück, besondere Tage, Rundgang, Sprache, Ansichtstiefe, Teilen |
+| `e2e/sonne-mond.spec.js` | Sonne und Mond finden: Randhinweise am Bildrand, „Blick zur Sonne“ / „Blick zum Mond“, Link, Mond unter dem Horizont, Handy |
 | `e2e/webfassung.spec.js` | die ausgelieferten Fassungen ohne Testhaken: Webfassung (Menü, Link, Handy, keine fremden Server) und Offline-Datei |
 | `e2e/helpers.js` | gemeinsame Hilfen: Öffnen, Warten auf den Aufbau und auf Kamerafahrten, Fingertipps ins Modell |
 | `hooks.mjs` | Testhaken: macht interne Namen aller Module als `window.__…` erreichbar (Liste `HOOKS`); `npm run build:test` baut damit `tests/test.html` (eine Datei, wie die Offline-Fassung). Fehlt ein Name, bricht der Testbau ab. |

@@ -5,10 +5,12 @@ import { V3 } from '../three-global.js';
 import { $, clamp01 } from '../core/util.js';
 import { LANG, tr } from '../core/i18n.js';
 import { HR } from '../model/measures.js';
-import { state, sunVec } from '../state.js';
+import { cur, state, sunVec } from '../state.js';
 import { camera, coarse, lowEnd, renderer, requestRender, scene } from './renderer.js';
 import { CLK } from '../model/clock.js';
 import { SD, sdX, sdZ } from '../model/sundial.js';
+import { envGroup, envH, envHeightAt } from '../model/environment.js';
+import { occluders } from '../model/geometry.js';
 import { curMoonPass, hourOf, setMoonMag } from '../light/sky.js';
 import { updateLabelsVisibility } from './labels.js';
 import { setCut, setExp } from '../ui/controls.js';
@@ -35,6 +37,9 @@ export const VIEWS = {
   tuermeost: { pos: [-2, 57, 0.5], tgt: [-44, 73, 0], mode: 'orbit', cut: 60, exp: 0.85, minD: 1 },
   luft: { pos: [-120, 190, 150], tgt: [-4, 20, 0], mode: 'orbit', cut: 60, exp: 0.85 },
   himmel: { pos: [0, 140, -170], dir: [0, 0, 1], mode: 'pano', cut: 60, exp: 1.0 },
+  // Blick zur Sonne / zum Mond: Standpunkt und Blickziel berechnet bodyView() bei jedem Aufruf neu
+  zurSonne: { pos: [-154, 20, 0], tgt: [-4, 47, 0], mode: 'orbit', cut: 60, exp: 0.85, tilt: true },
+  zumMond: { pos: [-154, 20, 0], tgt: [-4, 47, 0], mode: 'orbit', cut: 60, exp: 0.85, tilt: true },
   dachreiter: {
     pos: [10.72, DR_EYE, 0.0],
     dir: [-1, 0.1, 0],
@@ -119,7 +124,7 @@ export function applyMode(mode, minD, walk) {
       minDistance: minD || 5,
       maxDistance: state.view === 'mtTop' ? 20000 : yr.on || state.view === 'jahr' ? 1600 : 800,
       minPolarAngle: 0.03,
-      maxPolarAngle: Math.PI * 0.62,
+      maxPolarAngle: VIEWS[state.view] && VIEWS[state.view].tilt ? Math.PI * 0.75 : Math.PI * 0.62, // tilt: steiler nach oben
       rotateSpeed: 0.55,
       panSpeed: 1,
     });
@@ -437,6 +442,132 @@ function panoZoom(f) {
   panoUniforms();
   requestRender();
 }
+// Blick zur Sonne / zum Mond (wie „Objekt zentrieren“ in Planetariumsprogrammen): Die Kamera fährt auf die dem
+// Himmelskörper abgewandte Seite der Kirche, etwas über die Dächer, und blickt in seine Richtung. Die Kirche steht dann im
+// unteren Bildteil, Sonne oder Mond mit ihrer Bahn darüber. Steht der Himmelskörper hoch, blickt die Kamera steiler nach
+// oben und der Bildwinkel wird größer (bis 75°), damit Kirche und Himmelskörper zwischen Titelleiste und Zeitleiste passen;
+// dafür lässt die Steuerung in diesen Ansichten mehr Neigung zu (tilt).
+const BODY_C = new V3(-4, 0, 0), // Mitte der Kirche am Boden
+  BODY_Q = new V3(-20, 50, 0); // Punkt über dem Dach, der vom Standpunkt aus frei sichtbar sein soll
+export const BODY_VIEWS = ['zurSonne', 'zumMond'];
+export function bodyViewName(name) {
+  return name === 'zurSonne'
+    ? tr('Blick zur Sonne', 'Looking at the sun')
+    : name === 'zumMond'
+      ? tr('Blick zum Mond', 'Looking at the moon')
+      : null;
+}
+function bodyEl(name) {
+  return name === 'zumMond' ? (moonCur ? moonCur.el : -90) : cur.el;
+}
+/** Steht der Standpunkt frei über den Dächern, und ist der Punkt über dem Kirchendach von dort aus zu sehen? */
+function clearSight(p) {
+  if (!state.env || !envH) return true;
+  for (let dx = -4; dx <= 4; dx += 4)
+    for (let dz = -4; dz <= 4; dz += 4) if (envHeightAt(p.x + dx, p.z + dz) > p.y - 3) return false;
+  const d = BODY_Q.clone().sub(p),
+    n = Math.ceil(d.length() / 2);
+  for (let i = 1; i < n; i++) {
+    const x = p.x + (d.x * i) / n,
+      y = p.y + (d.y * i) / n,
+      z = p.z + (d.z * i) / n;
+    if (Math.abs(x - BODY_C.x) < 56 && Math.abs(z) < 34) break; // an der Kirche angekommen
+    if (envHeightAt(x, z) > y - 0.5) return false;
+  }
+  return true;
+}
+const bodyRay = new THREE.Raycaster();
+/** Ist der Himmelskörper vom Standpunkt aus frei zu sehen, mit 2,5° Abstand zu Kirche und Häusern? */
+function bodyFree(p, el, az) {
+  const objs = envGroup.visible ? occluders.concat(envGroup.children) : occluders,
+    d = new V3();
+  bodyRay.far = 3000;
+  for (const [e, a] of [
+    [el, az],
+    [Math.max(0.3, el - 2.5), az],
+    [el, az - 2.5],
+    [el, az + 2.5],
+  ]) {
+    bodyRay.set(p, sunVec(e, a, d));
+    if (bodyRay.intersectObjects(objs, false).length) return false;
+  }
+  return true;
+}
+function bodyView(name) {
+  const moon = name === 'zumMond',
+    el = bodyEl(name),
+    az = moon ? (moonCur ? moonCur.az : 180) : cur.az;
+  const h = sunVec(0, az, new V3());
+  h.y = 0;
+  h.normalize();
+  // Bildwinkel und Höhe der Bildmitte: unten (über der Zeitleiste) die Kirche ab etwa Dachhöhe, oben (unter der
+  // Titelleiste) der Himmelskörper mit etwas Rand
+  const W0 = renderer.domElement.clientWidth || innerWidth,
+    H0 = renderer.domElement.clientHeight || innerHeight,
+    tb = document.querySelector('.timebar'),
+    br = document.querySelector('.brand'),
+    ub = Math.min(0.35, tb ? tb.offsetHeight / H0 : 0.15),
+    ut = Math.min(0.2, br ? br.getBoundingClientRect().bottom / H0 : 0.08),
+    lo = Math.max(-8, Math.min(2, el - 30)),
+    hi = Math.max(el, 0) + 6,
+    fov = Math.max(55, Math.min(75, (hi - lo) / (1 - ub - ut))),
+    c = Math.min(40, Math.max(lo + fov / 2 - ub * fov, hi - fov / 2 + ut * fov));
+  // Standpunkt: gegenüber dem Himmelskörper, über den Dächern. Stünde er dann hinter Türmen oder Dach (tief stehende
+  // Sonne, Mond), rückt der Standpunkt seitlich um die Kirche herum, bis er frei zu sehen ist.
+  let P = null,
+    phi = 0,
+    first = null;
+  search: for (const f of [0, 14, -14, 26, -26, 38, -38, 50, -50]) {
+    const out = h
+      .clone()
+      .negate()
+      .applyAxisAngle(new V3(0, 1, 0), f * rad);
+    for (const R of [150, 130, 175, 110]) {
+      let p = null;
+      for (let H = 20; H <= 80 && !p; H += 5) {
+        const q = BODY_C.clone().addScaledVector(out, R);
+        q.y = H;
+        if (clearSight(q)) p = q;
+      }
+      if (!p) continue;
+      if (!first) first = { p, f };
+      if (el < 0.5 || bodyFree(p, Math.max(el, 0.3), az)) {
+        P = p;
+        phi = f;
+        break search;
+      }
+    }
+  }
+  if (!P && first) ({ p: P, f: phi } = first);
+  if (!P) {
+    P = BODY_C.clone().addScaledVector(h, -150);
+    P.y = 80;
+  }
+  // Blickrichtung: zum Himmelskörper; liegt die Kirche dann zu weit seitlich, etwas zu ihr hin gedreht,
+  // solange der Himmelskörper im Bild bleibt
+  const hh = Math.atan(Math.tan((fov / 2) * rad) * (W0 / H0)) / rad,
+    shift = Math.min(Math.max(0, Math.abs(phi) + 12 - hh), Math.max(0, hh - 8)),
+    view = h.clone().applyAxisAngle(new V3(0, 1, 0), Math.sign(phi) * shift * rad), // Kirche liegt um phi gedreht
+    R = Math.hypot(P.x - BODY_C.x, P.z - BODY_C.z),
+    T = P.clone().addScaledVector(view, R);
+  T.y = P.y + R * Math.tan(c * rad); // Drehpunkt etwa über der Kirche, in Blickrichtung
+  Object.assign(VIEWS[name], { pos: P.toArray(), tgt: T.toArray(), fov: Math.round(fov) });
+}
+/** Knöpfe und Randhinweise: zur Sonne oder zum Mond blicken; steht er unter dem Horizont, nur ein Hinweis. */
+export function lookToBody(name) {
+  if (bodyEl(name) < -1) {
+    const h = $('#hint');
+    h.textContent =
+      name === 'zumMond'
+        ? tr('Der Mond steht gerade unter dem Horizont.', 'The moon is below the horizon right now.')
+        : tr('Die Sonne steht gerade unter dem Horizont.', 'The sun is below the horizon right now.');
+    h.classList.remove('gone');
+    setTimeout(() => h.classList.add('gone'), 4000);
+    return false;
+  }
+  goView(name);
+  return true;
+}
 export const busyState = { panoWarm: false, hideOnPano: false };
 export function busyShow(t) {
   $('#busyTxt').textContent = t;
@@ -450,6 +581,7 @@ export function busyHide() {
 }
 export function goView(name, instant) {
   if (name === 'himmel') fitSky();
+  if (name === 'zurSonne' || name === 'zumMond') bodyView(name);
   const v = VIEWS[name];
   if (!v) return;
   {
@@ -540,7 +672,7 @@ export function goView(name, instant) {
                       ? tr('Jahreslauf', 'Year')
                       : name === 'uhrkalender'
                         ? tr('Uhr: Kalenderscheibe', 'Clock: calendar disk')
-                        : tr('eigene', 'custom');
+                        : bodyViewName(name) || tr('eigene', 'custom');
   }
   const tp = new V3(...v.pos);
   const tt = v.mode === 'inside' ? tp.clone().add(new V3(...v.dir).normalize().multiplyScalar(1.2)) : new V3(...v.tgt);

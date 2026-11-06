@@ -7,7 +7,7 @@ Interaktives 3D-Modell der Marienkirche zu Lübeck (three.js r128). Es zeigt Son
 3. **die Astronomische Uhr** mit Kalenderscheibe und Finsternissen,
 4. **das Licht im Kirchenraum** – Lichtbahnen durch die Fenster und die farbigen Glasmalereien.
 
-Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, die im Modell gelöst werden, den Jahreslauf im Zeitraffer, eine Himmelsansicht mit Sonnen- und Mondbahn sowie eine deutsche und eine englische Oberfläche.
+Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, die im Modell gelöst werden, den Jahreslauf im Zeitraffer, eine Himmelsansicht mit Sonnen- und Mondbahn, „Blick zur Sonne“ und „Blick zum Mond“ (mit Hinweisen am Bildrand, wenn Sonne oder Mond außerhalb des Bildes stehen) sowie eine deutsche und eine englische Oberfläche.
 
 ## Aufbau
 
@@ -17,7 +17,7 @@ Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, d
 | `src/app.js` | Render-Schleife und Start (lädt über die Aufbau-Reihenfolge alle anderen Module) |
 | `src/core/` | `loader.js` (Ladeanzeige), `util.js` (Helfer), `i18n.js` (Sprache, Zahlen- und Zeitformat), `prefs.js` (einfache/erweiterte Bedienung) |
 | `src/state.js` | gemeinsamer Zustand: Datum, Uhrzeit, Ansicht, Schalter; Sonnenstand und Lichtrichtung |
-| `src/scene/` | `renderer.js` (Renderer, Szene, „neu zeichnen“), `textures.js`, `shaders.js`, `materials.js`, `camera.js` (Ansichten, Steuerung), `labels.js` (Beschriftungen) |
+| `src/scene/` | `renderer.js` (Renderer, Szene, „neu zeichnen“), `textures.js`, `shaders.js`, `materials.js`, `camera.js` (Ansichten, Steuerung, Blick zu Sonne und Mond), `labels.js` (Beschriftungen, Randhinweise für Sonne und Mond) |
 | `src/model/` | `measures.js` (Maße der Kirche), `geometry.js` (Bauteile, Fensterliste), `church.js`, `clock.js` (Astronomische Uhr), `environment.js` (Umgebung), `sundial.js` (Sonnenuhr) |
 | `src/ui/` | Bedienoberfläche: `readouts.js` (Tagesdiagramm, Kompass, Anzeigen), `controls.js` (Datum, Uhrzeit, besondere Tage, Regler), `year.js` (Jahr im Zeitraffer), `panels.js` (Schalter, Karten, Menüs, Glossar, Sprachwechsel), `clockcard.js` (Karte Astronomische Uhr), `tour.js` (Rundgang), `moontowers.js` (Mond zwischen den Türmen), `experiments.js`, `quiz.js`, `share.js` (Teilen, Bild speichern) |
 | `src/light/` | `sky.js` (Sonne, Mond, Himmel, Bahnen), `windows.js` (Licht durch die Fenster), `sun.js` (Licht anwenden, Finsternisse) |
