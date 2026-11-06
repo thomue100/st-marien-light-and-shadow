@@ -93,7 +93,9 @@ function loop(now) {
   if (clk.pending && now - clk.lastDraw >= 70) clockUpdate(null);
   if (keys.size) keyMove(dt);
   if (joy.id !== null) joyMove(dt);
-  if (!tween && controls.update()) {
+  // In der Himmelsansicht ruht die Orbit-Steuerung: Sonst zöge sie die Kamera auf den Abstand der vorigen Ansicht zurück
+  // (innen höchstens 20 m vom Blickziel) und das Panorama würde aus der Kirche heraus gerendert.
+  if (!tween && !state.pano && controls.update()) {
     requestRender();
     if (state.walk) clampWalk();
     if (state.mode === 'orbit' && camera.position.y < 1.5) {

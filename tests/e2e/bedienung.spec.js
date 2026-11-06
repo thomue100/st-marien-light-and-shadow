@@ -133,3 +133,19 @@ test('Rundgang, Sprache, Ansichtstiefe und Teilen', async ({ page }) => {
   await expect(page.locator('#shareUrl')).toHaveValue(/#.*d=2026-11-05/);
   await expect(page.locator('#shareUrl')).toHaveValue(/v=aussen/);
 });
+
+test('Himmelsansicht aus einer Innenansicht und zurück', async ({ page }) => {
+  // Fehler bis November 2026: Die Orbit-Steuerung zog die Kamera in der Himmelsansicht auf den Abstand
+  // der Innenansicht zurück, das Panorama zeigte dann das Innere der Kirche statt Himmel und Stadt.
+  await openApp(page, { hash: '#d=2026-11-06&t=781&v=schiff&l=de' });
+  const pos = () => page.evaluate(() => window.__cam.position.toArray().map(v => Math.round(v)));
+  await press(page, 'light', '#skyGo', false);
+  await expect(page.locator('#viewTxt')).toHaveText('Himmel: Sonnen- und Mondbahn', { timeout: 120_000 });
+  await page.evaluate(() => new Promise(r => setTimeout(r, 1000)));
+  const sky = await page.evaluate(() => window.__V.himmel.pos.map(v => Math.round(v)));
+  expect(await pos()).toEqual(sky);
+  await page.evaluate(() => window.__go('schiff'));
+  await waitCameraStill(page);
+  await expect(page.locator('#viewTxt')).toHaveText('Mittelschiff');
+  expect(await pos()).toEqual([-46, 2, 0]);
+});
