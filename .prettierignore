@@ -1,0 +1,16 @@
+# Erzeugt oder Daten – nicht formatieren
+web/
+dist/
+node_modules/
+src/data/
+src/assets/
+tests/test.html
+tests/.build/
+tests/astro/
+package-lock.json
+# Texte: Tabellen und Zeilenumbrüche bleiben, wie sie geschrieben sind
+*.md
+public/
+tests/.results/
+tests/.report/
+test-results/

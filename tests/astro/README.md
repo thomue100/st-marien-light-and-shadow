@@ -3,16 +3,15 @@
 Prüft die Rechnungen des Lichtmodells gegen unabhängige Astronomie-Software.
 
 ```bash
-npm install                               # einmalig (acorn für die Code-Entnahme)
+npm install                               # einmalig
 pip install skyfield skyfield-data ephem  # Referenz: Skyfield + JPL-Ephemeride DE421 (bis 2053), danach PyEphem
-npm run test:astro                        # = node tests/astro/dump.js && python3 tests/astro/check.py
+npm run test:astro                        # = node tests/astro/dump.mjs && python tests/astro/check.py
 Y0=2041 Y1=2080 npm run test:astro        # anderer Zeitraum (Standard 2000–2040)
 python3 tests/astro/check.py --usno       # zusätzlich U.S. Naval Observatory (Internet nötig)
 ```
 
-1. `extract.js` holt die Astronomie-Funktionen **unverändert** aus `src/marienkirche.html` (Syntaxbaum, mit allen Abhängigkeiten) – geprüft wird also genau der Code, der im Browser läuft.
-2. `dump.js` rechnet damit alle Prüffälle → `model.json`.
-3. `check.py` rechnet dieselben Fälle mit Skyfield/DE421 (Zeitachse UT1) und der Zeitzonen-Datenbank (Europe/Berlin); Termine nach September 2053 (Ende von DE421) mit PyEphem, vergleicht und schreibt `report.md` und `report.html`. Rückgabewert 1, wenn eine Grenze überschritten ist.
+1. `dump.mjs` importiert die Astronomie-Module aus `src/astro/` – geprüft wird also genau der Code, der im Browser läuft – und rechnet damit alle Prüffälle → `model.json`.
+2. `check.py` rechnet dieselben Fälle mit Skyfield/DE421 (Zeitachse UT1) und der Zeitzonen-Datenbank (Europe/Berlin); Termine nach September 2053 (Ende von DE421) mit PyEphem, vergleicht und schreibt `report.md` und `report.html`. Rückgabewert 1, wenn eine Grenze überschritten ist.
 
 | Prüfung | Referenz | Grenze |
 |---|---|---|

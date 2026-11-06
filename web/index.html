@@ -1,446 +1,1350 @@
 <!doctype html>
 <html lang="de">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Interaktives 3D-Modell von St. Marien zu Lübeck: Sonne, Mond, Sonnenuhr und Astronomische Uhr zu jeder Stunde des Jahres.">
-<link rel="preload" href="vendor/three.min.js" as="script">
-<link rel="preload" href="data/umgebung.json" as="fetch" crossorigin="anonymous">
-<link rel="preload" href="data/uhr.json" as="fetch" crossorigin="anonymous">
-<link rel="preload" href="data/glas.json" as="fetch" crossorigin="anonymous">
-<title>St. Marien – Licht und Schatten</title>
-<link rel="stylesheet" href="css/app.css">
-
-</head>
-<body>
-<div id="app">
-  <div id="stage"></div>
-  <div id="labels"></div>
-  <svg id="panoGrid" aria-hidden="true" hidden></svg>
-  <div class="glpop" id="glPop" role="tooltip" hidden></div>
-  <p class="panonote" id="panoNote" hidden data-en="The sky view is a schematic projection: compass direction across, altitude upwards. Distances and shapes therefore look different from the sky seen with the eye.">Die Himmelsansicht ist eine schematische Projektion: Himmelsrichtung nach rechts, Höhe nach oben. Abstände und Formen wirken deshalb anders als beim Blick mit dem Auge zum Himmel.</p>
-  <header class="brand">
-    <h1><span class="h1a" data-en="St. Mary's">St. Marien</span> <span class="h1b" data-en="Light and Shadow">Licht und Schatten</span></h1>
-    <p class="eyebrow" data-en="53.868° N · 10.685° E · axis 98.5°">53,868° N · 10,685° O · Achse 98,5°</p>
-    <span class="brandbtns"><button class="chip" id="tourBtn"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg> <span data-en="Guided tour">Rundgang</span></button><button class="chip" id="quizBtn"><span aria-hidden="true">?</span> <span data-en="Quiz">Quiz</span></button><button class="chip homebtn" id="homeBtn" aria-label="Zurück zum Start" data-en-aria="Back to start" title="Zurück zum Start" data-en-title="Back to start"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M1.5 6L6 2l4.5 4M3 5v5h2.2V7.5h1.6V10H9V5"/></svg></button><button class="chip" id="langBtn" aria-label="English" data-en-aria="Deutsch" lang="en">EN</button></span>
-  </header>
-
-  <div class="viewpick">
-    <button class="vbtn" id="viewBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="views"><span class="vlab" data-en="View">Ansicht</span> <span id="viewTxt">Aufgeschnitten</span> <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5"/></svg></button>
-    <div class="vmenu" id="views" role="menu" hidden>
-      <p class="vgroup" data-en="Outside">Außen</p>
-        <button data-view="aussen" role="menuitem" data-en="Outside">Außen</button>
-        <button data-view="westseite" role="menuitem" data-en="West front">Westseite</button>
-        <button data-view="sued" role="menuitem" data-en="South side">Südseite</button>
-        <button data-view="nord" role="menuitem" data-en="North side">Nordseite</button>
-        <button data-view="chorost" role="menuitem" data-en="Choir from the east">Chor von Osten</button>
-        <button data-view="tuermeost" role="menuitem" data-en="Towers from the east">Türme von Osten</button>
-        <button data-view="luft" role="menuitem" data-en="Aerial view">Luftbild</button>
-        <button data-view="puppe" role="menuitem" data-en="Cut-away">Aufgeschnitten</button>
-        <p class="vgroup" data-en="Viewpoints">Aussichtspunkt</p>
-        <button data-view="dachreiter" role="menuitem" data-en="On the ridge turret">Auf dem Dachreiter</button>
-        <button data-view="himmel" role="menuitem" data-en="Sky: paths of sun and moon">Himmel: Sonnen- und Mondbahn</button>
-      <p class="vgroup" data-en="Inside">Innen</p>
-        <button data-view="schiff" role="menuitem" data-en="Nave">Mittelschiff</button>
-        <button data-view="chor" role="menuitem" data-en="Choir, looking east">Chor, Blick Ost</button>
-        <button data-view="westen" role="menuitem" data-en="West window">Westfenster</button>
-        <button data-view="brief" role="menuitem" data-en="Briefkapelle (Letter Chapel)">Briefkapelle</button>
-        <button data-view="totentanz" role="menuitem" data-en="Dance of Death">Totentanz</button>
-        <button data-view="uhr" role="menuitem" data-en="Astronomical clock">Astronomische Uhr</button>
-        <button data-view="gedenk" role="menuitem" data-en="Memorial Chapel">Gedenkkapelle</button>
-        <button data-view="gewoelbe" role="menuitem" data-en="Vaults">Gewölbe</button>
-    </div>
-  </div>
-
-  <nav class="rail" aria-label="Bereiche" data-en-aria="Panels">
-    <button class="rbtn" data-card="sun" title="Sonnenstand" aria-label="Sonnenstand" data-en-title="Sun" data-en-aria="Sun" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg></button>
-    <button class="rbtn" data-card="moon" title="Mond" aria-label="Mond" data-en-title="Moon" data-en-aria="Moon" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg></button>
-    <button class="rbtn" data-card="sd" title="Sonnenuhr" aria-label="Sonnenuhr" data-en-title="Sundial" data-en-aria="Sundial" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17h18M5 17a7 7 0 0 1 14 0"/><path d="M12 17L8.5 9.5"/><path d="M12 5v2M5.6 7.6l1.4 1.4M18.4 7.6L17 9"/></svg></button>
-    <button class="rbtn" data-card="clock" title="Astronomische Uhr" aria-label="Astronomische Uhr" data-en-title="Astronomical clock" data-en-aria="Astronomical clock" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.6"/><path d="M12 3.5v1.8M12 18.7v1.8M3.5 12h1.8M18.7 12h1.8"/><path d="M13.9 10.2l3.6-3.4"/></svg></button>
-    <button class="rbtn" data-card="exp" title="Experimente" aria-label="Experimente" data-en-title="Experiments" data-en-aria="Experiments" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6.2L4.8 18.4A1.8 1.8 0 0 0 6.4 21h11.2a1.8 1.8 0 0 0 1.6-2.6L14 9.2V3"/><path d="M7.4 15h9.2"/></svg></button>
-    <button class="rbtn" data-card="disp" title="Darstellung" aria-label="Darstellung" data-en-title="Display" data-en-aria="Display" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
-    <button class="rbtn" data-card="light" title="Licht" aria-label="Licht" data-en-title="Light" data-en-aria="Light" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></button>
-    <button class="rbtn" data-card="info" title="Über das Modell" aria-label="Über das Modell" data-en-title="About the model" data-en-aria="About the model" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></button>
-    <button class="rbtn" data-card="share" title="Teilen und speichern" aria-label="Teilen und speichern" data-en-title="Share and save" data-en-aria="Share and save" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></svg></button>
-  </nav>
-
-  <section class="card" id="card-sun" hidden aria-label="Sonnenstand" data-en-aria="Sun">
-    <div class="chead"><h2 data-en="Sun">Sonnenstand</h2><button class="cx" aria-label="Schließen" data-en-aria="Close">×</button></div>
-    <div class="cbody sunblock">
-      <svg id="compass" viewBox="-50 -50 100 100" role="img" aria-label="Kompass mit Sonnenstand und Kirchenachse" data-en-aria="Compass with sun position and church axis"></svg>
-      <dl class="readout">
-          <div><dt data-gl="alt" data-en="Sun altitude">Sonnenhöhe</dt><dd id="rEl">–</dd></div>
-          <div><dt data-gl="az" data-en="Azimuth">Azimut</dt><dd id="rAz">–</dd></div>
-          <div><dt data-en="Rise">Aufgang</dt><dd id="rRise">–</dd></div>
-          <div><dt data-en="Set">Untergang</dt><dd id="rSet">–</dd></div>
-          <div><dt data-en="Highest">Höchststand</dt><dd id="rMax">–</dd></div>
-          <div><dt id="rLitLbl">Fenster besonnt</dt><dd id="rLit">–</dd></div>
-        </dl>
-        <p class="small note sunnote" data-en="Rise and set: the upper edge of the sun touches a free horizon (standard definition: centre of the sun about 0.8° below the geometric horizon, average refraction). Houses, trees and the weather shift the visible moment by a few minutes.">Auf- und Untergang: Der obere Sonnenrand berührt den freien Horizont (Standarddefinition: Sonnenmitte rund 0,8° unter dem geometrischen Horizont, mittlere Lichtbrechung). Häuser, Bäume und Wetter verschieben den sichtbaren Moment um einige Minuten.</p>
-    </div>
-  </section>
-
-  <section class="card" id="card-moon" hidden aria-label="Mond" data-en-aria="Moon">
-    <div class="chead"><h2 data-en="Moon">Mond</h2><span class="small" id="mPhase">–</span><button class="cx" aria-label="Schließen" data-en-aria="Close">×</button></div>
-    <div class="cbody">
-        <div class="moonrow">
-          <svg id="moonIcon" viewBox="-50 -50 100 100" role="img" aria-label="Mondphase, wie von der Nordhalbkugel gesehen" data-en-aria="Moon phase as seen from the northern hemisphere"></svg>
-          <dl class="readout">
-            <div><dt data-gl="alt" data-en="Moon altitude">Mondhöhe</dt><dd id="mEl">–</dd></div>
-            <div><dt data-gl="az" data-en="Azimuth">Azimut</dt><dd id="mAz">–</dd></div>
-            <div><dt data-en="Rise">Aufgang</dt><dd id="mRise">–</dd></div>
-            <div><dt data-en="Set">Untergang</dt><dd id="mSet">–</dd></div>
-            <div><dt data-en="Illuminated">Beleuchtet</dt><dd id="mIll">–</dd></div>
-            <div><dt data-gl="age" data-en="Moon age">Mondalter</dt><dd id="mAge">–</dd></div>
-          </dl>
-        </div>
-        <p class="small" id="mNext"></p>
-        <p class="small" id="mEcl"></p>
-        <p class="small note" data-en="Rise and set: upper limb of the moon on a free horizon, with average refraction. In the 3D view the moon is drawn 2.2 times larger and its light is boosted so that phase and position are easy to see; real moonlight is about 400,000 times weaker than sunlight.">Auf- und Untergang: oberer Mondrand am freien Horizont, mit mittlerer Lichtbrechung. In der 3D-Ansicht ist der Mond 2,2-fach vergrößert und sein Licht verstärkt, damit Phase und Lage gut zu erkennen sind; echtes Mondlicht ist rund 400 000-mal schwächer als Sonnenlicht.</p>
-        <div class="btnrow"><button class="chip" id="goSolEcl" data-en="Next solar eclipse">Nächste Sonnenfinsternis</button><button class="chip" id="goLunEcl" data-en="Next lunar eclipse">Nächste Mondfinsternis</button></div>
-        <div class="btnrow"><button class="chip" id="goFull" data-en="Next full-moon night">Nächste Vollmondnacht</button><button class="chip" id="goNew" data-en="Next new moon">Nächster Neumond</button></div>
-      
-    </div>
-  </section>
-
-  <section class="card" id="card-sd" hidden aria-label="Sonnenuhr" data-en-aria="Sundial">
-    <div class="chead"><h2 data-en="Sundial on the south buttress">Sonnenuhr am Südpfeiler</h2><button class="cx" aria-label="Schließen" data-en-aria="Close">×</button></div>
-    <div class="cbody" id="sdBlock">
-        <div class="btnrow"><button class="chip" id="sdGo" data-en="Look at it">Ansehen</button><button class="chip" id="sdMoonGo" data-en="At full moon">Bei Vollmond</button></div>
-        <dl class="readout">
-          <div><dt data-en="Clock time">Uhrzeit</dt><dd id="sdClock">–</dd></div>
-          <div><dt data-gl="woz" data-en="Apparent solar time">Wahre Ortszeit</dt><dd id="sdWoz">–</dd></div>
-          <div><dt id="sdShowLbl">Sonnenuhr zeigt</dt><dd id="sdShow">–</dd></div>
-          <div class="adv"><dt id="sdDiffLbl">gegenüber Uhrzeit</dt><dd id="sdDiff">–</dd></div>
-          <div class="adv"><dt id="sdErrLbl">Ablesefehler</dt><dd id="sdErr">–</dd></div>
-        </dl>
-        <p class="small" id="sdState"></p>
-        <p class="small l-de">Der Schatten des Stabes zeigt die <b>wahre Ortszeit</b>: 12 Uhr ist, wenn die Sonne genau im Süden steht. Unsere Uhren gehen danach im Winter rund 20 Minuten, im Sommer gut eine Stunde vor.</p>
-        <p class="small l-en">The shadow of the rod shows <b>apparent solar time</b>: 12 o'clock is when the sun stands due south. Our clocks run about 20 minutes ahead of it in winter and over an hour in summer.</p>
-        <p class="small adv l-de">„Sonnenuhr zeigt“ liest den berechneten Stabschatten an den gemalten Linien ab. Linien, Stab und Strebe sind für eine genau nach Süden zeigende Platte angelegt. Die Wand zeigt auf 188,5°, die Platte ist deshalb mit einem Keil herausgedreht. Eine richtig konstruierte Uhr zeigt die wahre Ortszeit. Der Ablesefehler ist der Unterschied zwischen beiden. Bei Mondschein wirft der Stab ebenfalls einen Schatten; die Uhr zeigt dann die Mondzeit, die je Tag Mondalter um etwa 48 min hinter der Sonnenzeit zurückbleibt. Die Korrektur rechnet mit dem genauen Abstand von Mond und Sonne.</p>
-        <p class="small adv l-en">“Sundial shows” reads the computed rod shadow against the painted hour lines. Lines, rod and strut are laid out for a dial facing exactly south. The wall faces 188.5°, so the plate is turned out on a wedge. A correctly built dial shows apparent solar time; the reading error is the difference between the two. By moonlight the rod casts a shadow as well; the dial then shows lunar time, which lags solar time by about 48 min per day of moon age. The correction uses the exact separation of moon and sun.</p>
-        <svg id="sdChart" class="adv" viewBox="0 0 316 96" role="img" aria-label="Wahrer Mittag in MEZ über das Jahr" data-en-aria="Apparent noon in CET over the year"></svg>
-        <p class="small adv" id="sdRange"></p>
-        <label class="ctl adv"><span data-en="Wedge of plate">Keil der Platte</span><input type="range" id="sdWedge" min="0" max="12" step="0.5" value="8.5"><output id="sdWedgeOut">8,5°</output></label>
-        <p class="small adv"><span id="sdFace"></span>. <span data-en="Estimated from the detail photo: 6–9°; at 8.5° the plate faces exactly south. 0° means flat on the wall (188.5°).">Aus dem Detailfoto geschätzt sind 6–9°, bei 8,5° zeigt die Platte genau nach Süden. 0° bedeutet flach auf der Wand (188,5°).</span></p>
-        <button class="chip more"><span class="mshow" data-en="More settings">Mehr Einstellungen</span><span class="mhide" data-en="Fewer settings">Weniger Einstellungen</span></button>
-      
-    </div>
-  </section>
-
-  <section class="card" id="card-clock" hidden aria-label="Astronomische Uhr" data-en-aria="Astronomical clock">
-    <div class="chead"><h2 data-en="Astronomical clock">Astronomische Uhr</h2><span class="small" id="ckDate">–</span><button class="cx" aria-label="Schließen" data-en-aria="Close">×</button></div>
-    <div class="cbody">
-        <div class="btnrow"><button class="chip" id="ckGo" data-en="Look at it">Ansehen</button><button class="chip" id="ckDial" data-en="Dial">Zifferblatt</button><button class="chip" id="ckCal" data-en="Calendar disk">Kalenderscheibe</button></div>
-        <div class="ckrow">
-          <button class="ckmini" id="ckZoomBtn" type="button" aria-label="Zifferblatt vergrößern"><canvas id="ckMini" width="256" height="256" aria-hidden="true"></canvas></button>
-          <dl class="readout">
-            <div><dt data-gl="dl" data-en="Day letter">Tagesbuchstabe</dt><dd id="ckLetter">–</dd></div>
-            <div><dt data-gl="sl" data-en="Sunday letter">Sonntagsbuchst.</dt><dd id="ckSun">–</dd></div>
-            <div><dt data-gl="gz" data-en="Golden number">Goldene Zahl</dt><dd id="ckGold">–</dd></div>
-            <div><dt data-en="Easter">Ostern</dt><dd id="ckEaster">–</dd></div>
-          </dl>
-        </div>
-        <dl class="readout ckwide">
-          <div><dt data-en="Saint of the day (calendar disk)">Tagesheilige(r) der Kalenderscheibe</dt><dd id="ckSaint">–</dd></div>
-          <div><dt data-en="Eclipses this year (Lübeck), click to view">Finsternisse im Jahr (Lübeck), zum Ansehen anklicken</dt><dd id="ckEcl">–</dd></div>
-        </dl>
-        <h3 class="ck3" data-en="Clock versus sky">Uhr gegen Himmel</h3>
-        <table class="ckcmp"><thead><tr><th></th><th data-en="Clock">Uhr</th><th data-en="Sky">Himmel</th></tr></thead><tbody id="ckCmp"></tbody></table>
-        <p class="small" id="ckNote"></p>
-        <p class="small note" id="ckRange" hidden></p>
-        <p class="small l-de">Die Uhr von Paul Behrens (1955–1976) ersetzt die 1942 zerstörte Uhr von 1561–66. Der goldene Sonnenzeiger umläuft das 24-Stunden-Zifferblatt einmal am Tag. Die Sternscheibe mit 13 Sternbildern in wahrer Größe dreht sich einmal je Sterntag, der Mondzeiger in 24 h 50 min; die Kugel daran zeigt die Mondphase. Darunter dreht sich die Kalenderscheibe einmal im Jahr, der feste Zeiger links weist auf den Tag.</p>
-        <p class="small l-en">Paul Behrens’ clock (1955–1976) replaces the clock of 1561–66 destroyed in 1942. The golden sun hand circles the 24-hour dial once a day. The star disk with 13 constellations at their true size turns once per sidereal day, the moon hand in 24 h 50 min; the ball on it shows the phase. Below, the calendar disk turns once a year; the fixed pointer on the left marks the day.</p>
-        <p class="small adv l-de">Zifferblatt und Rechnung folgen der Simulation „astro-uhr-app“: Mond 6940 : 6705 nach dem 19-jährigen Mondzyklus, Sternscheibe 366¼ : 365¼. Daten der Kalenderscheibe: Jahre 1911–2080, Finsternisse 2000–2036. Das Gehäuse ist ein entzerrtes Foto (13,45 m hoch, Zifferblatt und Kalenderscheibe je 3 m). Der Figurenumgang zur Mittagszeit ist nicht nachgebildet.</p>
-        <p class="small adv l-en">Dial and arithmetic follow the “astro-uhr-app” simulation: moon 6940 : 6705 from the 19-year lunar cycle, star disk 366¼ : 365¼. Calendar disk data: years 1911–2080, eclipses 2000–2036. The case is a rectified photo (13.45 m tall, dial and calendar disk 3 m each). The noon procession of figures is not modelled.</p>
-        <button class="chip more"><span class="mshow" data-en="More details">Mehr Details</span><span class="mhide" data-en="Fewer details">Weniger Details</span></button>
-    </div>
-  </section>
-
-  <section class="card" id="card-exp" hidden aria-label="Experimente" data-en-aria="Experiments">
-    <div class="chead"><h2 data-en="Experiments">Experimente</h2><button class="cx" aria-label="Schließen" data-en-aria="Close">×</button></div>
-    <div class="cbody">
-      <div id="expList" class="explist">
-        <button class="explink" data-exp="ks"><b data-en="The church as a sundial">Die Kirche als Sonnenuhr</b><span data-en="Why does the sun stand so high in summer and so low in winter?">Warum steht die Sonne im Sommer so hoch und im Winter so tief?</span></button>
-        <button class="explink" data-exp="su"><b data-en="Sundial and wristwatch">Sonnenuhr und Armbanduhr</b><span data-en="On which day do the sundial and your watch show the same time?">An welchem Tag zeigen Sonnenuhr und Armbanduhr dieselbe Zeit?</span></button>
-        <button class="explink" data-exp="lk"><b data-en="Light calendar of a window">Lichtkalender eines Fensters</b><span data-en="When does sunlight fall directly through a window of St. Mary’s?">Wann fällt Sonnenlicht direkt durch ein Fenster von St. Marien?</span></button>
-        <button class="explink" data-exp="au"><b data-en="Astronomical clock and sky">Astronomische Uhr und Himmel</b><span data-en="What does the clock show – and what really happens in the sky?">Was zeigt die Uhr – und was geschieht wirklich am Himmel?</span></button>
-        <button class="explink" data-exp="mt"><b data-en="The moon between the towers">Mond zwischen den Türmen</b><span data-en="For photographers: when does the moon stand in the gap between the two towers?">Für Fotografen: Wann steht der Mond im Spalt zwischen den beiden Türmen?</span></button>
-      </div>
-      <div id="exp-ks" class="exppanel" hidden>
-        <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
-        <h3 class="ck3" data-en="The church as a sundial">Die Kirche als Sonnenuhr</h3>
-        <p class="small" data-en="The towers cast a shadow across the town – like the rod of a giant sundial. How does it change between summer and winter?">Die Türme werfen ihren Schatten über die Stadt – wie der Stab einer riesigen Sonnenuhr. Wie ändert er sich zwischen Sommer und Winter?</p>
-        <p class="small"><b data-en="Try it:">Ausprobieren:</b> <span data-en="Switch between the two days at the same clock time and compare the tower shadow. Then play each day.">Schalten Sie zur gleichen Uhrzeit zwischen den beiden Tagen um und vergleichen Sie den Turmschatten. Spielen Sie dann jeden Tag ab.</span></p>
-        <div class="btnrow segp" id="ksSeg"><button class="chip" data-m="5" data-en="21 June">21. Juni</button><button class="chip" data-m="11" data-en="21 December">21. Dezember</button><button class="chip" id="ksPlay" data-en="Play the day">Tag abspielen</button></div>
-        <dl class="readout">
-          <div><dt data-en="Sun now">Sonne jetzt</dt><dd id="ksEl">–</dd></div>
-          <div><dt data-en="Tower shadow now">Turmschatten jetzt</dt><dd id="ksSh">–</dd></div>
-          <div><dt data-en="Highest at midday">Mittags höchstens</dt><dd id="ksMax">–</dd></div>
-          <div><dt data-en="Length of day">Tageslänge</dt><dd id="ksLen">–</dd></div>
-        </dl>
-        <details class="expx"><summary data-en="Why is that?">Warum ist das so?</summary>
-          <p class="small" data-en="The earth’s axis is tilted by 23.4° against its orbit. In summer the northern hemisphere leans towards the sun: in Lübeck (53.9° north) it stands almost 60° high at midday and the day lasts over 17 hours. In winter it reaches only about 13° and the day lasts about 7 hours. The distance to the sun has nothing to do with it – the earth is even closest to the sun in early January.">Die Erdachse ist um 23,4° gegen die Erdbahn geneigt. Im Sommer ist die Nordhalbkugel der Sonne zugeneigt: In Lübeck (53,9° Nord) steht sie mittags fast 60° hoch, der Tag dauert über 17 Stunden. Im Winter erreicht sie nur rund 13°, der Tag dauert etwa 7 Stunden. Mit dem Abstand zur Sonne hat das nichts zu tun – die Erde ist ihr Anfang Januar sogar am nächsten.</p>
-          <p class="small"><b data-en="In short:">Kurz:</b> <span data-en="High sun – short shadow, long day. Low sun – long shadow, short day. The tilt of the earth’s axis makes the seasons.">Hohe Sonne – kurzer Schatten, langer Tag. Tiefe Sonne – langer Schatten, kurzer Tag. Die Neigung der Erdachse macht die Jahreszeiten.</span></p>
-        </details>
-      </div>
-      <div id="exp-su" class="exppanel" hidden>
-        <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
-        <h3 class="ck3" data-en="Sundial and wristwatch">Sonnenuhr und Armbanduhr</h3>
-        <p class="small" data-en="The sundial on the south tower shows 12 o’clock when the sun stands due south. On which day does your watch show 12 o’clock at the same moment?">Die Sonnenuhr am Südturm zeigt 12 Uhr, wenn die Sonne genau im Süden steht. An welchem Tag zeigt Ihre Armbanduhr im selben Augenblick ebenfalls 12 Uhr?</p>
-        <p class="small"><b data-en="Try it:">Ausprobieren:</b> <span data-en="Change the date below; the model always sets the moment at which the sundial shows 12 o’clock. Or jump to a notable day:">Ändern Sie unten das Datum; das Modell stellt jeweils den Augenblick ein, in dem die Sonnenuhr 12 Uhr zeigt. Oder springen Sie zu einem besonderen Tag:</span></p>
-        <div class="btnrow" id="suBtns"><button class="chip" data-k="today" data-en="Today">Heute</button><button class="chip" data-k="min" data-en="Smallest difference">Kleinster Unterschied</button><button class="chip" data-k="win" data-en="Largest in winter">Größter im Winter</button><button class="chip" data-k="sum" data-en="Largest in summer">Größter im Sommer</button></div>
-        <p class="small expres" id="suNow"></p>
-        <details class="expx"><summary data-en="Why is that?">Warum ist das so?</summary>
-          <p class="small" data-en="Three things add up. First: our clocks follow the sun at Görlitz (15° east); Lübeck lies further west, so the sun reaches the south here about 17 minutes later. Second: the sun does not keep perfect time – because the earth’s orbit is an ellipse and its axis is tilted, true noon wanders by up to 16 minutes over the year (the equation of time). Third: in summer the clocks are put forward one hour.">Drei Dinge kommen zusammen. Erstens: Unsere Uhren richten sich nach der Sonne in Görlitz (15° Ost); Lübeck liegt weiter westlich, hier steht die Sonne rund 17 Minuten später im Süden. Zweitens: Die Sonne geht nicht gleichmäßig – weil die Erdbahn eine Ellipse und die Erdachse geneigt ist, wandert der wahre Mittag übers Jahr um bis zu 16 Minuten hin und her (Zeitgleichung). Drittens: Im Sommer wird die Uhr eine Stunde vorgestellt.</p>
-          <p class="small"><b data-en="In short:">Kurz:</b> <span data-en="In Lübeck the sundial is never exactly right by the watch – at best, in early November, it is only about a minute behind. A sundial shows the sun’s time at its own place, our watches an agreed time for a whole country.">In Lübeck stimmt die Sonnenuhr nie ganz genau mit der Armbanduhr überein – am besten Anfang November, dann geht sie nur etwa eine Minute nach. Eine Sonnenuhr zeigt die Zeit der Sonne am eigenen Ort, unsere Uhren eine vereinbarte Zeit für ein ganzes Land.</span></p>
-        </details>
-      </div>
-      <div id="exp-lk" class="exppanel" hidden>
-        <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
-        <h3 class="ck3" data-en="Light calendar of a window">Lichtkalender eines Fensters</h3>
-        <p class="small" data-en="The position of the sun alone does not decide whether light falls through a window: its direction, height and size matter, and so do buttresses, roofs and the houses around. Choose a window – the model works out for the whole year when direct sunlight comes in.">Der Sonnenstand allein entscheidet nicht, ob Licht durch ein Fenster fällt: Es kommt auf Richtung, Höhe und Größe des Fensters an und auf Strebepfeiler, Dächer und Häuser ringsum. Wählen Sie ein Fenster – das Modell rechnet für das ganze Jahr aus, wann direktes Sonnenlicht hineinfällt.</p>
-        <label class="ctl"><span data-en="Window">Fenster</span><select id="lkWin"></select></label>
-        <canvas id="lkCv" class="lkcv" width="600" height="300" role="img" aria-label="Lichtkalender: Monate von oben nach unten, Uhrzeit von links nach rechts" data-en-aria="Light calendar: months top to bottom, time of day left to right"></canvas>
-        <p class="small" id="lkSum"></p>
-        <p class="small"><b data-en="Try it:">Ausprobieren:</b> <span data-en="Tap a bright spot – the model jumps to that day and hour and shows the window from inside.">Tippen Sie auf eine helle Stelle – das Modell springt zu diesem Tag und dieser Stunde und zeigt das Fenster von innen.</span></p>
-        <p class="small note" data-en="Yellow: direct sunlight reaches the window (the brighter, the more of it). Grey: daytime without direct sun. Dark: night. Computed for the 1st and 15th of each month in 15-minute steps, with shading by the church itself and by houses within 200 m (trees if switched on); tracery, glass and clouds are not included. Light falling in and the brightness inside are two different things.">Gelb: Direktes Sonnenlicht erreicht das Fenster (je heller, desto mehr davon). Grau: Tag ohne direkte Sonne. Dunkel: Nacht. Berechnet für den 1. und 15. jedes Monats in 15-Minuten-Schritten, mit Verdeckung durch die Kirche selbst und durch Häuser im Umkreis von 200 m (Bäume, wenn eingeschaltet); Maßwerk, Glas und Wolken sind nicht berücksichtigt. Einfallendes Licht und die Helligkeit im Raum sind zweierlei.</p>
-      </div>
-      <div id="exp-au" class="exppanel" hidden>
-        <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
-        <h3 class="ck3" data-en="Astronomical clock and sky">Astronomische Uhr und Himmel</h3>
-        <p class="small" data-en="The astronomical clock is a historical instrument with its own gear trains and calendar. Its hands follow average motions – the real sun and moon do not. How far apart do they drift?">Die Astronomische Uhr ist ein historisches Instrument mit eigenen Getrieben und eigenem Kalender. Ihre Zeiger folgen mittleren Bewegungen – Sonne und Mond am Himmel tun das nicht. Wie weit laufen beide auseinander?</p>
-        <p class="small"><b data-en="Try it:">Ausprobieren:</b> <span data-en="Step forward month by month and watch how far the clock’s moon runs ahead of or behind the real one; step a day to see the phase change.">Gehen Sie Monat für Monat weiter und beobachten Sie, wie weit der Mond der Uhr dem echten voraus- oder hinterherläuft; mit „+1 Tag“ sehen Sie, wie sich die Phase ändert.</span></p>
-        <div class="btnrow" id="auBtns"><button class="chip" data-d="0" data-en="Today">Heute</button><button class="chip" data-d="1" data-en="+1 day">+1 Tag</button><button class="chip" data-d="30" data-en="+1 month">+1 Monat</button><button class="chip" data-d="365" data-en="+1 year">+1 Jahr</button></div>
-        <table class="ckcmp"><thead><tr><th></th><th data-en="Clock">Uhr</th><th data-en="Sky">Himmel</th></tr></thead><tbody id="auCmp"></tbody></table>
-        <p class="small expres" id="auNote"></p>
-        <details class="expx"><summary data-en="Why is that?">Warum ist das so?</summary>
-          <p class="small" data-en="The clock’s moon hand turns with a fixed gear ratio (6940 : 6705, from the 19-year lunar cycle) and so follows the average month of 29.5 days. The real moon moves on an ellipse, sometimes faster, sometimes slower, so the two drift apart by hours and come together again. The sun hand shows clock time, not the true solar time of a sundial. None of this is an error of the clock – it is how the instrument was built, and the model shows it unchanged.">Der Mondzeiger der Uhr dreht sich mit einem festen Übersetzungsverhältnis (6940 : 6705, aus dem 19-jährigen Mondzyklus) und folgt damit dem mittleren Monat von 29,5 Tagen. Der echte Mond läuft auf einer Ellipse mal schneller, mal langsamer; deshalb laufen beide um Stunden auseinander und wieder zusammen. Der Sonnenzeiger zeigt die Uhrzeit, nicht die wahre Ortszeit einer Sonnenuhr. Das alles ist kein Fehler der Uhr, sondern ihre Bauweise – das Modell zeigt sie unverändert.</p>
-        </details>
-      </div>
-      <div id="exp-mt" class="exppanel" hidden>
-        <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
-        <h3 class="ck3" data-en="The moon between the towers">Mond zwischen den Türmen</h3>
-        <p class="small" data-en="Your position lies on the extended church axis. Choose it in the top view or with the slider; the model finds the moments in the six months from the date set below when the moon stands between the north and south tower.">Ihr Standort liegt auf der verlängerten Kirchenachse. Wählen Sie ihn in der Draufsicht oder mit dem Regler; das Modell findet die Augenblicke in den sechs Monaten ab dem unten eingestellten Datum, in denen der Mond zwischen Nord- und Südturm steht.</p>
-        <div class="btnrow" id="mtSide"><button class="chip" data-side="w" aria-pressed="true" data-en="From the west">Von Westen</button><button class="chip" data-side="e" aria-pressed="false" data-en="From the east">Von Osten</button><button class="chip" id="mtTopBtn" data-en="Top view">Draufsicht</button></div>
-        <label class="ctl"><span data-en="Distance to the towers">Entfernung zu den Türmen</span><input type="range" id="mtDist" min="150" max="2000" step="10" value="700"><output id="mtDistOut">700 m</output></label>
-        <p class="small" id="mtGeo"></p>
-        <div class="btnrow"><button class="btn" id="mtFind" data-en="Find dates (6 months)">Termine suchen (6 Monate)</button></div>
-        <p class="small" id="mtSum"></p>
-        <ol class="mtres" id="mtRes"></ol>
-        <p class="small note" data-en="Directions and heights of moon and towers are computed exactly; the moon is shown at its true size in the camera view. Buildings are only modelled within 200 m of the church and the ground beyond is assumed flat at Trave level – whether a house or tree near your position blocks the view, the model cannot tell. Weather is not included.">Richtung und Höhe von Mond und Türmen sind genau berechnet; in der Kameraansicht ist der Mond in wahrer Größe gezeigt. Gebäude kennt das Modell nur im Umkreis von 200 m um die Kirche, darüber hinaus ist ebenes Gelände auf Höhe der Trave angenommen – ob ein Haus oder Baum in der Nähe Ihres Standorts die Sicht versperrt, kann es nicht beurteilen. Das Wetter ist nicht berücksichtigt.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="card" id="card-disp" hidden aria-label="Darstellung" data-en-aria="Display">
-    <div class="chead"><h2 data-en="Display">Darstellung</h2><button class="cx" aria-label="Schließen" data-en-aria="Close">×</button></div>
-    <div class="cbody">
-        <label class="ctl"><span data-en="Cut height">Schnitthöhe</span><input type="range" id="cut" min="4" max="60" step="0.5"><output id="cutOut">aus</output></label>
-        <label class="tog"><input type="checkbox" id="envTog" checked> <span data-en="Surroundings (LoD2 buildings and terrain)">Umgebung (LoD2-Gebäude und Gelände)</span></label>
-        <label class="tog"><input type="checkbox" id="treeTog" checked> <span data-en="Trees from the surface model">Bäume aus dem Oberflächenmodell</span></label>
-        <label class="tog"><input type="checkbox" id="lodTog"> <span data-en="LoD2 outline of the church for comparison">LoD2-Umriss der Kirche zum Vergleich</span></label>
-        <label class="tog"><input type="checkbox" id="labelsTog" checked> <span data-en="Labels">Beschriftungen</span></label>
-      
-    </div>
-  </section>
-
-  <section class="card" id="card-light" hidden aria-label="Licht" data-en-aria="Light">
-    <div class="chead"><h2 data-en="Light">Licht</h2><button class="cx" aria-label="Schließen" data-en-aria="Close">×</button></div>
-    <div class="cbody">
-        <label class="tog"><input type="checkbox" id="beamsTog" checked> <span data-en="Visible light beams">Sichtbare Lichtbahnen</span></label>
-        <label class="tog"><input type="checkbox" id="tintTog" checked> <span data-en="Coloured light from the stained glass">Farbiges Licht der Glasmalereien</span></label>
-        <label class="tog"><input type="checkbox" id="moonTog" checked> <span data-en="Moon, stars and moonlight">Mond, Sterne und Mondlicht</span></label>
-        <label class="tog"><input type="checkbox" id="sunPathTog" checked> <span data-en="Sun path in the sky">Sonnenbahn am Himmel</span></label>
-        <label class="tog"><input type="checkbox" id="moonPathTog" checked> <span data-en="Moon path in the sky">Mondbahn am Himmel</span></label>
-        <button class="chip" id="skyGo" style="align-self:flex-start" data-en="Show both paths in full">Beide Bahnen ins Bild holen</button>
-        <label class="ctl adv"><span data-en="Indoor ambient">Streulicht innen</span><input type="range" id="amb" min="0.02" max="0.8" step="0.01"><output id="ambOut"></output></label>
-        <label class="ctl adv"><span data-en="Exposure">Belichtung</span><input type="range" id="exp" min="0.3" max="3.5" step="0.05"><output id="expOut"></output></label>
-        <label class="ctl adv"><span data-en="Church axis">Chorachse</span><input type="range" id="axis" min="80" max="120" step="0.1"><output id="axisOut"></output></label>
-        <p class="small axisnote adv"><span data-en="Measured: 98.5° (grid 97.1° plus meridian convergence 1.36°).">Gemessen: 98,5° (Gitter 97,1° plus Meridiankonvergenz 1,36°).</span> <button class="chip" id="axisReset" data-en="Measured value">Messwert</button></p>
-        <button class="chip more"><span class="mshow" data-en="More settings">Mehr Einstellungen</span><span class="mhide" data-en="Fewer settings">Weniger Einstellungen</span></button>
-      
-    </div>
-  </section>
-
-  <section class="card about" id="card-info" hidden aria-label="Über das Modell" data-en-aria="About the model">
-    <div class="chead"><h2 data-en="About the model">Über das Modell</h2><button class="cx" aria-label="Schließen" data-en-aria="Close">×</button></div>
-    <div class="cbody">
-        <div class="wrap l-de">
-          <p>Dieses Modell zeigt, wie Sonne und Mond zu jeder Stunde des Jahres auf St. Marien und durch ihre Fenster scheinen, und was die Sonnenuhr am Südpfeiler dabei anzeigt. Die Kirche ist nach amtlichen Vermessungsdaten, historischen Grundrissen und vielen Fotos nachgebaut; Sonnen- und Mondstand sind astronomisch berechnet und mit unabhängigen Quellen geprüft.</p>
-          <p>Es ist ein vereinfachtes Modell und noch in Arbeit. Details der Ausstattung fehlen, und manches ist nach Fotos geschätzt.</p>
-          <p>Farbige Fenster nach Fotos (Nutzung freigegeben): Totentanzfenster (A. Mahlau), Tympanon über dem Nordportal (M. Lüpertz), Briefkapelle (J. Schreiter), Wappenfenster der Marientidenkapelle und der Gedenkkapelle im Südturm. Totentanz-, Tympanon-, Briefkapellen- und Wappenfenster sowie die Astronomische Uhr nach eigenen Fotos des Projekts (2026), perspektivisch entzerrt. Das Westfenster (Auferstehungsfenster, H. G. von Stockhausen) ist vorerst nur vereinfacht als helle, neutrale Verglasung dargestellt.</p>
-          <p>Astronomische Uhr: Gehäuse nach einem entzerrten Foto, Zifferblatt, Kalenderscheibe und Rechnung nach der Simulation „astro-uhr-app“.</p>
-          <p>Wählbar sind die Jahre 1911 bis 2080 – der Zeitraum, den die Kalenderscheibe der Astronomischen Uhr abdeckt.</p>
-          <p>Geobasisdaten: © GeoBasis-DE/LVermGeo SH, bDOM20 und LoD2.</p>
-          <div class="adv wrap">
-          
-          <p>Vereinfachtes Volumenmodell. Lage, Achse und Hauptmaße sind am amtlichen LoD2-Gebäudemodell (2025) und am Oberflächenmodell bDOM20 (Bildflug April 2023) abgeglichen. Fenster, Wandstärken, Innenraum und Gewölbe sind ergänzt, weil LoD2 nur die Außenhülle enthält. Die Sonnenposition wird astronomisch für den Standort berechnet, inklusive Sommerzeit und Lichtbrechung am Horizont.</p>
-          <table>
-            <tr><td>Chorachse, geografisch</td><td>98,5°</td></tr>
-            <tr><td>Länge über alles</td><td>102,0 m</td></tr>
-            <tr><td>Breite über Seitenschiffe (N / S)</td><td>18,1 / 21,8 m</td></tr>
-            <tr><td>Mittelschiff außen breit</td><td>15,7 m</td></tr>
-            <tr><td>Traufe / First Mittelschiff</td><td>40,9 / 49,6 m</td></tr>
-            <tr><td>Gewölbe Mittelschiff / Seitenschiffe</td><td>38,5 / 20,5 m</td></tr>
-            <tr><td>Joche bis zum Chorschluss</td><td>10 (6,0–7,1 m)</td></tr>
-            <tr><td>Türme Nord / Süd (Hahn)</td><td>124,95 / 124,75 m</td></tr>
-            <tr><td>Giebelspitzen Nord / Süd</td><td>73,19 / 73,08 m</td></tr>
-          </table>
-          <p><strong>Abgleich mit LoD2</strong>, vorheriges Modell → jetzt:</p>
-          <table>
-            <tr><td>Chorachse</td><td>99,5° → 98,5°</td></tr>
-            <tr><td>Joche</td><td>9 × 7,1 → 10 × 6,0–7,1 m</td></tr>
-            <tr><td>Mittelschiff außen</td><td>17,0 → 15,7 m</td></tr>
-            <tr><td>Traufe / First</td><td>40,0 / 48,8 → 40,9 / 49,6 m</td></tr>
-            <tr><td>Nordseitenschiff außen</td><td>21,6 → 18,1 m (+ niedrige Kapellen bis 21,0)</td></tr>
-            <tr><td>Ostwand Hochchor</td><td>x 36,2 → 34,2 m</td></tr>
-            <tr><td>Turm-Innenflucht</td><td>±6,5 → ±7,85 m</td></tr>
-            <tr><td>Briefkapelle außen / Traufe</td><td>29,5 / 17 → 27,4 / 14,1 m</td></tr>
-            <tr><td>Totentanzkapelle</td><td>x 6,7–20,9 → 1,6–15,0 m</td></tr>
-            <tr><td>Südvorhalle</td><td>x 6,7–20,9 → 1,6–16,2 m</td></tr>
-            <tr><td>Marientidenkapelle Ostende</td><td>x 50,2 → 51,1 m</td></tr>
-          </table>
-          <p>Neu nach LoD2: nördliche Chorkapellen, Bürgermeisterkapelle, niedrige Kapellenreihe an der Nordseite. LoD2 gibt die Turmhelme nur bis 116,5 m wieder (die schlanken Spitzen fehlen in der Bildauswertung); die Türme folgen deshalb der Vermessung: Giebelspitze, Helm bis Knauf (46,56 / 46,47 m), Knauf 0,90 m, Helmstange 3,30 m, Hahn 1,00 m.</p>
-          <p><strong>Nach den Grundrissen</strong> (Dehio; Plan von 1906 mit Maßleiste; die Pfeilerachsen stimmen auf ±0,4 m mit LoD2 überein):</p>
-          <table>
-            <tr><td>Hochchor</td><td>abgeflachtes Zehneck → drei Seiten des Achtecks</td></tr>
-            <tr><td>Umgang</td><td>Polygon → Kapellenkranz mit je einer vortretenden Kapelle, eigene Dächer</td></tr>
-            <tr><td>Marientidenkapelle</td><td>beginnt am Umgang (x 38,4 statt 43,6 m)</td></tr>
-            <tr><td>Südseitenschiff</td><td>Wand bei 17,3 m, dahinter Briefkapelle und vier Kapellen</td></tr>
-            <tr><td>Briefkapelle</td><td>Säulen in der Mittelachse, Sterngewölbe</td></tr>
-            <tr><td>Treppentürme der Westtürme</td><td>Südostecke → mittig vor Nord- und Südseite</td></tr>
-            <tr><td>Treppentürme am Chor</td><td>Nord (28,5 / −18,8) über Dach, Süd (26,4 / 17,6) unter Dach</td></tr>
-          </table>
-          <p><strong>Nach Detailfotos:</strong> Chorschluss innen mit Laufgang und Blendmaßwerk, Chorfenster ab etwa 25 m (bisher 29,8 m), die Dächer des Kapellenkranzes entsprechend flacher; Granitsockel und helle Eckquader an den Westecken der Türme.</p>
-          <ul>
-            <li>Umgebung im Umkreis von 200 m: 273 Gebäude aus dem LoD2-Modell (Standard-Dachformen, ohne Gauben und Schornsteine). Gelände und Bäume sind aus dem Oberflächenmodell abgeleitet. Bäume stecken darin als feste Körper und verschatten deshalb stärker als in der Wirklichkeit; sie lassen sich abschalten.</li>
-            <li>Für die Verschattung der Fenster werden die Dachhöhen des Oberflächenmodells verwendet (1-m-Raster), die Darstellung zeigt die LoD2-Gebäude.</li>
-            <li>Verwendet sind die Kacheln 32_610_5970 und 32_610_5969. Östlich von etwa 200 m hinter dem Chor endet der Kachelbereich, dort ist nur Gelände angenommen.</li>
-            <li>Höhen beziehen sich auf 13,0 m über NHN (DHHN2016) als Fußboden der Kirche. Der tatsächliche Fußboden ist nicht vermessen; die Unterlage zu den Turmmaßen nennt für den Westzugang rund 13,5 m über NN. Der Unterschied ändert an Sonnenstand und Sonnenuhr nichts.</li>
-            <li>Farbig verglast nach Fotos (Nutzung freigegeben): beide Totentanzfenster (A. Mahlau, 1955/56), Tympanon über dem Nordportal (M. Lüpertz, 2002), Briefkapelle (J. Schreiter), Marientidenkapelle (Wappenfenster), Wappenfenster der Gedenkkapelle im Südturm. Das Westfenster (Auferstehungsfenster, H. G. von Stockhausen) ist vorerst vereinfacht als neutrale Verglasung dargestellt. Alle übrigen Fenster sind helle Rechteckverglasung; in den Chorkapellen tragen sie kleine Wappenscheiben (Stiftungen von 1953), hier vereinfacht und nicht den einzelnen Fenstern zugeordnet.</li>
-            <li>Die Gewölbe von Umgang und Kapellen und die Kapellenhöhen sind vereinfacht.</li>
-          </ul>
-          <p><strong>Mond:</strong> Bahn nach der verkürzten Mondtheorie von Meeus (Astronomical Algorithms, Kap. 47) mit Parallaxe für Lübeck; Sonne nach den Formeln des Astronomical Almanac mit Lichtbrechung. Für 1911–2080 gegen die JPL-Ephemeride DE421 (bis 2053) und PyEphem (danach) geprüft: Höhe und Azimut von Sonne und Mond auf etwa 0,03° (meist 0,01°), Auf- und Untergang auf unter 1 Minute, Voll- und Neumond sowie Finsternisse auf 1–3 Minuten genau. Das ist die Rechengenauigkeit; in der Natur verschieben wechselnde Lichtbrechung, Häuser und Bäume Auf- und Untergang um einige Minuten. Mondlicht ist in Wirklichkeit rund 400 000-mal schwächer als Sonnenlicht; hier ist es stark angehoben und bläulich, damit Schatten und Lichtflecke sichtbar bleiben. Der Mond am Himmel ist 2,2-fach vergrößert. Sterne: die 66 hellsten.</p>
-          <p>Geobasisdaten: © GeoBasis-DE/LVermGeo SH, bDOM20 und LoD2, Kacheln 32_610_5970 und 32_610_5969.</p>
-          <p>Der fotografische 3D-Rundgang von cp360pano ist ein gehosteter Rundgang ohne exportierbares Modell. Er eignet sich gut zum Vergleich: <a href="https://cp360pano.com/st-marien-zu-luebeck-in-360-grad/" target="_blank" rel="noopener">St. Marien in 360° und 3D</a>.</p>
-        
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Interaktives 3D-Modell von St. Marien zu Lübeck: Sonne, Mond, Sonnenuhr und Astronomische Uhr zu jeder Stunde des Jahres."
+    />
+    <title>St. Marien – Licht und Schatten</title>
+    <script type="module" crossorigin src="./assets/index-CUlB0Tiz.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-Cp2mH3f3.css">
+  </head>
+  <body>
+    <div id="app">
+      <div id="stage"></div>
+      <div id="labels"></div>
+      <svg id="panoGrid" aria-hidden="true" hidden></svg>
+      <div class="glpop" id="glPop" role="tooltip" hidden></div>
+      <p
+        class="panonote"
+        id="panoNote"
+        hidden
+        data-en="The sky view is a schematic projection: compass direction across, altitude upwards. Distances and shapes therefore look different from the sky seen with the eye."
+      >
+        Die Himmelsansicht ist eine schematische Projektion: Himmelsrichtung nach rechts, Höhe nach oben. Abstände und
+        Formen wirken deshalb anders als beim Blick mit dem Auge zum Himmel.
+      </p>
+      <header class="brand">
+        <h1>
+          <span class="h1a" data-en="St. Mary's">St. Marien</span>
+          <span class="h1b" data-en="Light and Shadow">Licht und Schatten</span>
+        </h1>
+        <span class="brandbtns"
+          ><button class="chip" id="tourBtn">
+            <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" /></svg>
+            <span data-en="Guided tour">Rundgang</span></button
+          ><button class="chip" id="quizBtn"><span aria-hidden="true">?</span> <span data-en="Quiz">Quiz</span></button
+          ><button
+            class="chip homebtn"
+            id="homeBtn"
+            aria-label="Zurück zum Start"
+            data-en-aria="Back to start"
+            title="Zurück zum Start"
+            data-en-title="Back to start"
+          >
+            <svg viewBox="0 0 12 12" aria-hidden="true">
+              <path d="M1.5 6L6 2l4.5 4M3 5v5h2.2V7.5h1.6V10H9V5" />
+            </svg></button
+          ><button class="chip" id="langBtn" aria-label="English" data-en-aria="Deutsch" lang="en">EN</button></span
+        >
+        <div class="viewpick">
+          <button class="vbtn" id="viewBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="views">
+            <span class="vlab" data-en="View">Ansicht</span> <span id="viewTxt">Aufgeschnitten</span>
+            <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" /></svg>
+          </button>
+          <div class="vmenu" id="views" role="menu" hidden>
+            <p class="vgroup" data-en="Outside">Außen</p>
+            <button data-view="aussen" role="menuitem" data-en="Outside">Außen</button>
+            <button data-view="westseite" role="menuitem" data-en="West front">Westseite</button>
+            <button data-view="sued" role="menuitem" data-en="South side">Südseite</button>
+            <button data-view="nord" role="menuitem" data-en="North side">Nordseite</button>
+            <button data-view="chorost" role="menuitem" data-en="Choir from the east">Chor von Osten</button>
+            <button data-view="tuermeost" role="menuitem" data-en="Towers from the east">Türme von Osten</button>
+            <button data-view="luft" role="menuitem" data-en="Aerial view">Luftbild</button>
+            <button data-view="puppe" role="menuitem" data-en="Cut-away">Aufgeschnitten</button>
+            <p class="vgroup" data-en="Viewpoints">Aussichtspunkt</p>
+            <button data-view="dachreiter" role="menuitem" data-en="On the ridge turret">Auf dem Dachreiter</button>
+            <button data-view="himmel" role="menuitem" data-en="Sky: paths of sun and moon">
+              Himmel: Sonnen- und Mondbahn
+            </button>
+            <p class="vgroup" data-en="Inside">Innen</p>
+            <button data-view="schiff" role="menuitem" data-en="Nave">Mittelschiff</button>
+            <button data-view="chor" role="menuitem" data-en="Choir, looking east">Chor, Blick Ost</button>
+            <button data-view="westen" role="menuitem" data-en="West window">Westfenster</button>
+            <button data-view="brief" role="menuitem" data-en="Briefkapelle (Letter Chapel)">Briefkapelle</button>
+            <button data-view="totentanz" role="menuitem" data-en="Dance of Death">Totentanz</button>
+            <button data-view="uhr" role="menuitem" data-en="Astronomical clock">Astronomische Uhr</button>
+            <button data-view="gedenk" role="menuitem" data-en="Memorial Chapel">Gedenkkapelle</button>
+            <button data-view="gewoelbe" role="menuitem" data-en="Vaults">Gewölbe</button>
           </div>
         </div>
-        <div class="wrap l-en">
-          <p>This model shows how sun and moon shine on St. Mary's and through its windows at any hour of the year, and what the sundial on the south buttress shows. The church is rebuilt from official survey data, historic floor plans and many photographs; the positions of sun and moon are computed astronomically and checked against independent sources.</p>
-          <p>It is a simplified model and a work in progress. Details of the furnishings are missing, and some things are estimated from photos.</p>
-          <p>Stained glass after photos (used with permission): Dance of Death windows (A. Mahlau), tympanum above the north portal (M. Lüpertz), Briefkapelle (J. Schreiter), coat-of-arms windows of the Marientiden Chapel and of the Memorial Chapel in the south tower. The clear windows of the choir chapels carry small coat-of-arms panes (donated in 1953), shown here in simplified form. Dance of Death, tympanum, Briefkapelle and coat-of-arms windows and the astronomical clock after the project’s own photographs (2026), corrected for perspective. The west window (Resurrection window, H. G. von Stockhausen) is for now shown only in simplified form as plain, neutral glazing.</p>
-          <p>Astronomical clock: case from a rectified photo; dial, calendar disk and arithmetic after the “astro-uhr-app” simulation.</p>
-          <p>Dates can be chosen from 1911 to 2080 – the years covered by the calendar disk of the astronomical clock.</p>
-          <p>Geodata: © GeoBasis-DE/LVermGeo SH, bDOM20 and LoD2.</p>
-          <div class="adv wrap">
-            <p>Position, axis and main dimensions are matched to the official LoD2 building model (2025) and the bDOM20 surface model (aerial survey April 2023). Windows, wall thicknesses, interior and vaults are added, as LoD2 only contains the outer shell.</p>
-            <table>
-              <tr><td>Church axis (geographic)</td><td>98.5°</td></tr>
-              <tr><td>Overall length</td><td>102.0 m</td></tr>
-              <tr><td>Eaves / ridge of nave</td><td>40.9 / 49.6 m</td></tr>
-              <tr><td>Vault nave / aisles</td><td>38.5 / 20.5 m</td></tr>
-              <tr><td>Towers north / south (weathercock)</td><td>124.95 / 124.75 m</td></tr>
-              <tr><td>Gable tips north / south</td><td>73.19 / 73.08 m</td></tr>
+      </header>
+
+      <nav class="rail" aria-label="Bereiche" data-en-aria="Panels">
+        <button
+          class="rbtn"
+          data-card="sun"
+          title="Sonnenstand"
+          aria-label="Sonnenstand"
+          data-en-title="Sun"
+          data-en-aria="Sun"
+          aria-expanded="false"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path
+              d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"
+            />
+          </svg>
+        </button>
+        <button
+          class="rbtn"
+          data-card="moon"
+          title="Mond"
+          aria-label="Mond"
+          data-en-title="Moon"
+          data-en-aria="Moon"
+          aria-expanded="false"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z" /></svg>
+        </button>
+        <button
+          class="rbtn"
+          data-card="sd"
+          title="Sonnenuhr"
+          aria-label="Sonnenuhr"
+          data-en-title="Sundial"
+          data-en-aria="Sundial"
+          aria-expanded="false"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 17h18M5 17a7 7 0 0 1 14 0" />
+            <path d="M12 17L8.5 9.5" />
+            <path d="M12 5v2M5.6 7.6l1.4 1.4M18.4 7.6L17 9" />
+          </svg>
+        </button>
+        <button
+          class="rbtn"
+          data-card="clock"
+          title="Astronomische Uhr"
+          aria-label="Astronomische Uhr"
+          data-en-title="Astronomical clock"
+          data-en-aria="Astronomical clock"
+          aria-expanded="false"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.5" />
+            <circle cx="12" cy="12" r="2.6" />
+            <path d="M12 3.5v1.8M12 18.7v1.8M3.5 12h1.8M18.7 12h1.8" />
+            <path d="M13.9 10.2l3.6-3.4" />
+          </svg>
+        </button>
+        <button
+          class="rbtn"
+          data-card="exp"
+          title="Experimente"
+          aria-label="Experimente"
+          data-en-title="Experiments"
+          data-en-aria="Experiments"
+          aria-expanded="false"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 3h6M10 3v6.2L4.8 18.4A1.8 1.8 0 0 0 6.4 21h11.2a1.8 1.8 0 0 0 1.6-2.6L14 9.2V3" />
+            <path d="M7.4 15h9.2" />
+          </svg>
+        </button>
+        <button
+          class="rbtn"
+          data-card="disp"
+          title="Darstellung"
+          aria-label="Darstellung"
+          data-en-title="Display"
+          data-en-aria="Display"
+          aria-expanded="false"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3l9 5-9 5-9-5 9-5z" />
+            <path d="M3 13l9 5 9-5" />
+          </svg>
+        </button>
+        <button
+          class="rbtn"
+          data-card="light"
+          title="Licht"
+          aria-label="Licht"
+          data-en-title="Light"
+          data-en-aria="Light"
+          aria-expanded="false"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 18h6M10 21h4" />
+            <path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" />
+          </svg>
+        </button>
+        <button
+          class="rbtn"
+          data-card="info"
+          title="Über das Modell"
+          aria-label="Über das Modell"
+          data-en-title="About the model"
+          data-en-aria="About the model"
+          aria-expanded="false"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 11v6M12 7.5v.5" />
+          </svg>
+        </button>
+        <button
+          class="rbtn"
+          data-card="share"
+          title="Teilen und speichern"
+          aria-label="Teilen und speichern"
+          data-en-title="Share and save"
+          data-en-aria="Share and save"
+          aria-expanded="false"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="18" cy="5.5" r="2.5" />
+            <circle cx="6" cy="12" r="2.5" />
+            <circle cx="18" cy="18.5" r="2.5" />
+            <path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1" />
+          </svg>
+        </button>
+      </nav>
+
+      <section class="card" id="card-sun" hidden aria-label="Sonnenstand" data-en-aria="Sun">
+        <div class="chead">
+          <h2 data-en="Sun">Sonnenstand</h2>
+          <button class="cx" aria-label="Schließen" data-en-aria="Close">×</button>
+        </div>
+        <div class="cbody sunblock">
+          <svg
+            id="compass"
+            viewBox="-50 -50 100 100"
+            role="img"
+            aria-label="Kompass mit Sonnenstand und Kirchenachse"
+            data-en-aria="Compass with sun position and church axis"
+          ></svg>
+          <dl class="readout">
+            <div>
+              <dt data-gl="alt" data-en="Sun altitude">Sonnenhöhe</dt>
+              <dd id="rEl">–</dd>
+            </div>
+            <div>
+              <dt data-gl="az" data-en="Azimuth">Azimut</dt>
+              <dd id="rAz">–</dd>
+            </div>
+            <div>
+              <dt data-en="Rise">Aufgang</dt>
+              <dd id="rRise">–</dd>
+            </div>
+            <div>
+              <dt data-en="Set">Untergang</dt>
+              <dd id="rSet">–</dd>
+            </div>
+            <div>
+              <dt data-en="Highest">Höchststand</dt>
+              <dd id="rMax">–</dd>
+            </div>
+            <div>
+              <dt id="rLitLbl">Fenster besonnt</dt>
+              <dd id="rLit">–</dd>
+            </div>
+          </dl>
+          <p
+            class="small note sunnote"
+            data-en="Rise and set: the upper edge of the sun touches a free horizon (standard definition: centre of the sun about 0.8° below the geometric horizon, average refraction). Houses, trees and the weather shift the visible moment by a few minutes."
+          >
+            Auf- und Untergang: Der obere Sonnenrand berührt den freien Horizont (Standarddefinition: Sonnenmitte rund
+            0,8° unter dem geometrischen Horizont, mittlere Lichtbrechung). Häuser, Bäume und Wetter verschieben den
+            sichtbaren Moment um einige Minuten.
+          </p>
+        </div>
+      </section>
+
+      <section class="card" id="card-moon" hidden aria-label="Mond" data-en-aria="Moon">
+        <div class="chead">
+          <h2 data-en="Moon">Mond</h2>
+          <span class="small" id="mPhase">–</span
+          ><button class="cx" aria-label="Schließen" data-en-aria="Close">×</button>
+        </div>
+        <div class="cbody">
+          <div class="moonrow">
+            <svg
+              id="moonIcon"
+              viewBox="-50 -50 100 100"
+              role="img"
+              aria-label="Mondphase, wie von der Nordhalbkugel gesehen"
+              data-en-aria="Moon phase as seen from the northern hemisphere"
+            ></svg>
+            <dl class="readout">
+              <div>
+                <dt data-gl="alt" data-en="Moon altitude">Mondhöhe</dt>
+                <dd id="mEl">–</dd>
+              </div>
+              <div>
+                <dt data-gl="az" data-en="Azimuth">Azimut</dt>
+                <dd id="mAz">–</dd>
+              </div>
+              <div>
+                <dt data-en="Rise">Aufgang</dt>
+                <dd id="mRise">–</dd>
+              </div>
+              <div>
+                <dt data-en="Set">Untergang</dt>
+                <dd id="mSet">–</dd>
+              </div>
+              <div>
+                <dt data-en="Illuminated">Beleuchtet</dt>
+                <dd id="mIll">–</dd>
+              </div>
+              <div>
+                <dt data-gl="age" data-en="Moon age">Mondalter</dt>
+                <dd id="mAge">–</dd>
+              </div>
+            </dl>
+          </div>
+          <p class="small" id="mNext"></p>
+          <p class="small" id="mEcl"></p>
+          <p
+            class="small note"
+            data-en="Rise and set: upper limb of the moon on a free horizon, with average refraction. In the 3D view the moon is drawn 2.2 times larger and its light is boosted so that phase and position are easy to see; real moonlight is about 400,000 times weaker than sunlight."
+          >
+            Auf- und Untergang: oberer Mondrand am freien Horizont, mit mittlerer Lichtbrechung. In der 3D-Ansicht ist
+            der Mond 2,2-fach vergrößert und sein Licht verstärkt, damit Phase und Lage gut zu erkennen sind; echtes
+            Mondlicht ist rund 400 000-mal schwächer als Sonnenlicht.
+          </p>
+          <div class="btnrow">
+            <button class="chip" id="goSolEcl" data-en="Next solar eclipse">Nächste Sonnenfinsternis</button
+            ><button class="chip" id="goLunEcl" data-en="Next lunar eclipse">Nächste Mondfinsternis</button>
+          </div>
+          <div class="btnrow">
+            <button class="chip" id="goFull" data-en="Next full-moon night">Nächste Vollmondnacht</button
+            ><button class="chip" id="goNew" data-en="Next new moon">Nächster Neumond</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" id="card-sd" hidden aria-label="Sonnenuhr" data-en-aria="Sundial">
+        <div class="chead">
+          <h2 data-en="Sundial on the south buttress">Sonnenuhr am Südpfeiler</h2>
+          <button class="cx" aria-label="Schließen" data-en-aria="Close">×</button>
+        </div>
+        <div class="cbody" id="sdBlock">
+          <div class="btnrow">
+            <button class="chip" id="sdGo" data-en="Look at it">Ansehen</button
+            ><button class="chip" id="sdMoonGo" data-en="At full moon">Bei Vollmond</button>
+          </div>
+          <dl class="readout">
+            <div>
+              <dt data-en="Clock time">Uhrzeit</dt>
+              <dd id="sdClock">–</dd>
+            </div>
+            <div>
+              <dt data-gl="woz" data-en="Apparent solar time">Wahre Ortszeit</dt>
+              <dd id="sdWoz">–</dd>
+            </div>
+            <div>
+              <dt id="sdShowLbl">Sonnenuhr zeigt</dt>
+              <dd id="sdShow">–</dd>
+            </div>
+            <div class="adv">
+              <dt id="sdDiffLbl">gegenüber Uhrzeit</dt>
+              <dd id="sdDiff">–</dd>
+            </div>
+            <div class="adv">
+              <dt id="sdErrLbl">Ablesefehler</dt>
+              <dd id="sdErr">–</dd>
+            </div>
+          </dl>
+          <p class="small" id="sdState"></p>
+          <p class="small l-de">
+            Der Schatten des Stabes zeigt die <b>wahre Ortszeit</b>: 12 Uhr ist, wenn die Sonne genau im Süden steht.
+            Unsere Uhren gehen danach im Winter rund 20 Minuten, im Sommer gut eine Stunde vor.
+          </p>
+          <p class="small l-en">
+            The shadow of the rod shows <b>apparent solar time</b>: 12 o'clock is when the sun stands due south. Our
+            clocks run about 20 minutes ahead of it in winter and over an hour in summer.
+          </p>
+          <p class="small adv l-de">
+            „Sonnenuhr zeigt“ liest den berechneten Stabschatten an den gemalten Linien ab. Linien, Stab und Strebe sind
+            für eine genau nach Süden zeigende Platte angelegt. Die Wand zeigt auf 188,5°, die Platte ist deshalb mit
+            einem Keil herausgedreht. Eine richtig konstruierte Uhr zeigt die wahre Ortszeit. Der Ablesefehler ist der
+            Unterschied zwischen beiden. Bei Mondschein wirft der Stab ebenfalls einen Schatten; die Uhr zeigt dann die
+            Mondzeit, die je Tag Mondalter um etwa 48 min hinter der Sonnenzeit zurückbleibt. Die Korrektur rechnet mit
+            dem genauen Abstand von Mond und Sonne.
+          </p>
+          <p class="small adv l-en">
+            “Sundial shows” reads the computed rod shadow against the painted hour lines. Lines, rod and strut are laid
+            out for a dial facing exactly south. The wall faces 188.5°, so the plate is turned out on a wedge. A
+            correctly built dial shows apparent solar time; the reading error is the difference between the two. By
+            moonlight the rod casts a shadow as well; the dial then shows lunar time, which lags solar time by about 48
+            min per day of moon age. The correction uses the exact separation of moon and sun.
+          </p>
+          <svg
+            id="sdChart"
+            class="adv"
+            viewBox="0 0 316 96"
+            role="img"
+            aria-label="Wahrer Mittag in MEZ über das Jahr"
+            data-en-aria="Apparent noon in CET over the year"
+          ></svg>
+          <p class="small adv" id="sdRange"></p>
+          <label class="ctl adv"
+            ><span data-en="Wedge of plate">Keil der Platte</span
+            ><input type="range" id="sdWedge" min="0" max="12" step="0.5" value="8.5" /><output id="sdWedgeOut"
+              >8,5°</output
+            ></label
+          >
+          <p class="small adv">
+            <span id="sdFace"></span>.
+            <span
+              data-en="Estimated from the detail photo: 6–9°; at 8.5° the plate faces exactly south. 0° means flat on the wall (188.5°)."
+              >Aus dem Detailfoto geschätzt sind 6–9°, bei 8,5° zeigt die Platte genau nach Süden. 0° bedeutet flach auf
+              der Wand (188,5°).</span
+            >
+          </p>
+          <button class="chip more">
+            <span class="mshow" data-en="More settings">Mehr Einstellungen</span
+            ><span class="mhide" data-en="Fewer settings">Weniger Einstellungen</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="card" id="card-clock" hidden aria-label="Astronomische Uhr" data-en-aria="Astronomical clock">
+        <div class="chead">
+          <h2 data-en="Astronomical clock">Astronomische Uhr</h2>
+          <span class="small" id="ckDate">–</span
+          ><button class="cx" aria-label="Schließen" data-en-aria="Close">×</button>
+        </div>
+        <div class="cbody">
+          <div class="btnrow">
+            <button class="chip" id="ckGo" data-en="Look at it">Ansehen</button
+            ><button class="chip" id="ckDial" data-en="Dial">Zifferblatt</button
+            ><button class="chip" id="ckCal" data-en="Calendar disk">Kalenderscheibe</button>
+          </div>
+          <div class="ckrow">
+            <button class="ckmini" id="ckZoomBtn" type="button" aria-label="Zifferblatt vergrößern">
+              <canvas id="ckMini" width="256" height="256" aria-hidden="true"></canvas>
+            </button>
+            <dl class="readout">
+              <div>
+                <dt data-gl="dl" data-en="Day letter">Tagesbuchstabe</dt>
+                <dd id="ckLetter">–</dd>
+              </div>
+              <div>
+                <dt data-gl="sl" data-en="Sunday letter">Sonntagsbuchst.</dt>
+                <dd id="ckSun">–</dd>
+              </div>
+              <div>
+                <dt data-gl="gz" data-en="Golden number">Goldene Zahl</dt>
+                <dd id="ckGold">–</dd>
+              </div>
+              <div>
+                <dt data-en="Easter">Ostern</dt>
+                <dd id="ckEaster">–</dd>
+              </div>
+            </dl>
+          </div>
+          <dl class="readout ckwide">
+            <div>
+              <dt data-en="Saint of the day (calendar disk)">Tagesheilige(r) der Kalenderscheibe</dt>
+              <dd id="ckSaint">–</dd>
+            </div>
+            <div>
+              <dt data-en="Eclipses this year (Lübeck), click to view">
+                Finsternisse im Jahr (Lübeck), zum Ansehen anklicken
+              </dt>
+              <dd id="ckEcl">–</dd>
+            </div>
+          </dl>
+          <h3 class="ck3" data-en="Clock versus sky">Uhr gegen Himmel</h3>
+          <table class="ckcmp">
+            <thead>
+              <tr>
+                <th></th>
+                <th data-en="Clock">Uhr</th>
+                <th data-en="Sky">Himmel</th>
+              </tr>
+            </thead>
+            <tbody id="ckCmp"></tbody>
+          </table>
+          <p class="small" id="ckNote"></p>
+          <p class="small note" id="ckRange" hidden></p>
+          <p class="small l-de">
+            Die Uhr von Paul Behrens (1955–1976) ersetzt die 1942 zerstörte Uhr von 1561–66. Der goldene Sonnenzeiger
+            umläuft das 24-Stunden-Zifferblatt einmal am Tag. Die Sternscheibe mit 13 Sternbildern in wahrer Größe dreht
+            sich einmal je Sterntag, der Mondzeiger in 24 h 50 min; die Kugel daran zeigt die Mondphase. Darunter dreht
+            sich die Kalenderscheibe einmal im Jahr, der feste Zeiger links weist auf den Tag.
+          </p>
+          <p class="small l-en">
+            Paul Behrens’ clock (1955–1976) replaces the clock of 1561–66 destroyed in 1942. The golden sun hand circles
+            the 24-hour dial once a day. The star disk with 13 constellations at their true size turns once per sidereal
+            day, the moon hand in 24 h 50 min; the ball on it shows the phase. Below, the calendar disk turns once a
+            year; the fixed pointer on the left marks the day.
+          </p>
+          <p class="small adv l-de">
+            Zifferblatt und Rechnung folgen der Simulation „astro-uhr-app“: Mond 6940 : 6705 nach dem 19-jährigen
+            Mondzyklus, Sternscheibe 366¼ : 365¼. Daten der Kalenderscheibe: Jahre 1911–2080, Finsternisse 2000–2036.
+            Das Gehäuse ist ein entzerrtes Foto (13,45 m hoch, Zifferblatt und Kalenderscheibe je 3 m). Der
+            Figurenumgang zur Mittagszeit ist nicht nachgebildet.
+          </p>
+          <p class="small adv l-en">
+            Dial and arithmetic follow the “astro-uhr-app” simulation: moon 6940 : 6705 from the 19-year lunar cycle,
+            star disk 366¼ : 365¼. Calendar disk data: years 1911–2080, eclipses 2000–2036. The case is a rectified
+            photo (13.45 m tall, dial and calendar disk 3 m each). The noon procession of figures is not modelled.
+          </p>
+          <button class="chip more">
+            <span class="mshow" data-en="More details">Mehr Details</span
+            ><span class="mhide" data-en="Fewer details">Weniger Details</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="card" id="card-exp" hidden aria-label="Experimente" data-en-aria="Experiments">
+        <div class="chead">
+          <h2 data-en="Experiments">Experimente</h2>
+          <button class="cx" aria-label="Schließen" data-en-aria="Close">×</button>
+        </div>
+        <div class="cbody">
+          <div id="expList" class="explist">
+            <button class="explink" data-exp="ks">
+              <b data-en="The church as a sundial">Die Kirche als Sonnenuhr</b
+              ><span data-en="Why does the sun stand so high in summer and so low in winter?"
+                >Warum steht die Sonne im Sommer so hoch und im Winter so tief?</span
+              >
+            </button>
+            <button class="explink" data-exp="su">
+              <b data-en="Sundial and wristwatch">Sonnenuhr und Armbanduhr</b
+              ><span data-en="On which day do the sundial and your watch show the same time?"
+                >An welchem Tag zeigen Sonnenuhr und Armbanduhr dieselbe Zeit?</span
+              >
+            </button>
+            <button class="explink" data-exp="lk">
+              <b data-en="Light calendar of a window">Lichtkalender eines Fensters</b
+              ><span data-en="When does sunlight fall directly through a window of St. Mary’s?"
+                >Wann fällt Sonnenlicht direkt durch ein Fenster von St. Marien?</span
+              >
+            </button>
+            <button class="explink" data-exp="au">
+              <b data-en="Astronomical clock and sky">Astronomische Uhr und Himmel</b
+              ><span data-en="What does the clock show – and what really happens in the sky?"
+                >Was zeigt die Uhr – und was geschieht wirklich am Himmel?</span
+              >
+            </button>
+            <button class="explink" data-exp="mt">
+              <b data-en="The moon between the towers">Mond zwischen den Türmen</b
+              ><span data-en="For photographers: when does the moon stand in the gap between the two towers?"
+                >Für Fotografen: Wann steht der Mond im Spalt zwischen den beiden Türmen?</span
+              >
+            </button>
+          </div>
+          <div id="exp-ks" class="exppanel" hidden>
+            <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
+            <h3 class="ck3" data-en="The church as a sundial">Die Kirche als Sonnenuhr</h3>
+            <p
+              class="small"
+              data-en="The towers cast a shadow across the town – like the rod of a giant sundial. How does it change between summer and winter?"
+            >
+              Die Türme werfen ihren Schatten über die Stadt – wie der Stab einer riesigen Sonnenuhr. Wie ändert er sich
+              zwischen Sommer und Winter?
+            </p>
+            <p class="small">
+              <b data-en="Try it:">Ausprobieren:</b>
+              <span
+                data-en="Switch between the two days at the same clock time and compare the tower shadow. Then play each day."
+                >Schalten Sie zur gleichen Uhrzeit zwischen den beiden Tagen um und vergleichen Sie den Turmschatten.
+                Spielen Sie dann jeden Tag ab.</span
+              >
+            </p>
+            <div class="btnrow segp" id="ksSeg">
+              <button class="chip" data-m="5" data-en="21 June">21. Juni</button
+              ><button class="chip" data-m="11" data-en="21 December">21. Dezember</button
+              ><button class="chip" id="ksPlay" data-en="Play the day">Tag abspielen</button>
+            </div>
+            <dl class="readout">
+              <div>
+                <dt data-en="Sun now">Sonne jetzt</dt>
+                <dd id="ksEl">–</dd>
+              </div>
+              <div>
+                <dt data-en="Tower shadow now">Turmschatten jetzt</dt>
+                <dd id="ksSh">–</dd>
+              </div>
+              <div>
+                <dt data-en="Highest at midday">Mittags höchstens</dt>
+                <dd id="ksMax">–</dd>
+              </div>
+              <div>
+                <dt data-en="Length of day">Tageslänge</dt>
+                <dd id="ksLen">–</dd>
+              </div>
+            </dl>
+            <details class="expx">
+              <summary data-en="Why is that?">Warum ist das so?</summary>
+              <p
+                class="small"
+                data-en="The earth’s axis is tilted by 23.4° against its orbit. In summer the northern hemisphere leans towards the sun: in Lübeck (53.9° north) it stands almost 60° high at midday and the day lasts over 17 hours. In winter it reaches only about 13° and the day lasts about 7 hours. The distance to the sun has nothing to do with it – the earth is even closest to the sun in early January."
+              >
+                Die Erdachse ist um 23,4° gegen die Erdbahn geneigt. Im Sommer ist die Nordhalbkugel der Sonne
+                zugeneigt: In Lübeck (53,9° Nord) steht sie mittags fast 60° hoch, der Tag dauert über 17 Stunden. Im
+                Winter erreicht sie nur rund 13°, der Tag dauert etwa 7 Stunden. Mit dem Abstand zur Sonne hat das
+                nichts zu tun – die Erde ist ihr Anfang Januar sogar am nächsten.
+              </p>
+              <p class="small">
+                <b data-en="In short:">Kurz:</b>
+                <span
+                  data-en="High sun – short shadow, long day. Low sun – long shadow, short day. The tilt of the earth’s axis makes the seasons."
+                  >Hohe Sonne – kurzer Schatten, langer Tag. Tiefe Sonne – langer Schatten, kurzer Tag. Die Neigung der
+                  Erdachse macht die Jahreszeiten.</span
+                >
+              </p>
+            </details>
+          </div>
+          <div id="exp-su" class="exppanel" hidden>
+            <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
+            <h3 class="ck3" data-en="Sundial and wristwatch">Sonnenuhr und Armbanduhr</h3>
+            <p
+              class="small"
+              data-en="The sundial on the south tower shows 12 o’clock when the sun stands due south. On which day does your watch show 12 o’clock at the same moment?"
+            >
+              Die Sonnenuhr am Südturm zeigt 12 Uhr, wenn die Sonne genau im Süden steht. An welchem Tag zeigt Ihre
+              Armbanduhr im selben Augenblick ebenfalls 12 Uhr?
+            </p>
+            <p class="small">
+              <b data-en="Try it:">Ausprobieren:</b>
+              <span
+                data-en="Change the date below; the model always sets the moment at which the sundial shows 12 o’clock. Or jump to a notable day:"
+                >Ändern Sie unten das Datum; das Modell stellt jeweils den Augenblick ein, in dem die Sonnenuhr 12 Uhr
+                zeigt. Oder springen Sie zu einem besonderen Tag:</span
+              >
+            </p>
+            <div class="btnrow" id="suBtns">
+              <button class="chip" data-k="today" data-en="Today">Heute</button
+              ><button class="chip" data-k="min" data-en="Smallest difference">Kleinster Unterschied</button
+              ><button class="chip" data-k="win" data-en="Largest in winter">Größter im Winter</button
+              ><button class="chip" data-k="sum" data-en="Largest in summer">Größter im Sommer</button>
+            </div>
+            <p class="small expres" id="suNow"></p>
+            <details class="expx">
+              <summary data-en="Why is that?">Warum ist das so?</summary>
+              <p
+                class="small"
+                data-en="Three things add up. First: our clocks follow the sun at Görlitz (15° east); Lübeck lies further west, so the sun reaches the south here about 17 minutes later. Second: the sun does not keep perfect time – because the earth’s orbit is an ellipse and its axis is tilted, true noon wanders by up to 16 minutes over the year (the equation of time). Third: in summer the clocks are put forward one hour."
+              >
+                Drei Dinge kommen zusammen. Erstens: Unsere Uhren richten sich nach der Sonne in Görlitz (15° Ost);
+                Lübeck liegt weiter westlich, hier steht die Sonne rund 17 Minuten später im Süden. Zweitens: Die Sonne
+                geht nicht gleichmäßig – weil die Erdbahn eine Ellipse und die Erdachse geneigt ist, wandert der wahre
+                Mittag übers Jahr um bis zu 16 Minuten hin und her (Zeitgleichung). Drittens: Im Sommer wird die Uhr
+                eine Stunde vorgestellt.
+              </p>
+              <p class="small">
+                <b data-en="In short:">Kurz:</b>
+                <span
+                  data-en="In Lübeck the sundial is never exactly right by the watch – at best, in early November, it is only about a minute behind. A sundial shows the sun’s time at its own place, our watches an agreed time for a whole country."
+                  >In Lübeck stimmt die Sonnenuhr nie ganz genau mit der Armbanduhr überein – am besten Anfang November,
+                  dann geht sie nur etwa eine Minute nach. Eine Sonnenuhr zeigt die Zeit der Sonne am eigenen Ort,
+                  unsere Uhren eine vereinbarte Zeit für ein ganzes Land.</span
+                >
+              </p>
+            </details>
+          </div>
+          <div id="exp-lk" class="exppanel" hidden>
+            <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
+            <h3 class="ck3" data-en="Light calendar of a window">Lichtkalender eines Fensters</h3>
+            <p
+              class="small"
+              data-en="The position of the sun alone does not decide whether light falls through a window: its direction, height and size matter, and so do buttresses, roofs and the houses around. Choose a window – the model works out for the whole year when direct sunlight comes in."
+            >
+              Der Sonnenstand allein entscheidet nicht, ob Licht durch ein Fenster fällt: Es kommt auf Richtung, Höhe
+              und Größe des Fensters an und auf Strebepfeiler, Dächer und Häuser ringsum. Wählen Sie ein Fenster – das
+              Modell rechnet für das ganze Jahr aus, wann direktes Sonnenlicht hineinfällt.
+            </p>
+            <label class="ctl"
+              ><span data-en="Window">Fenster</span
+              ><select id="lkWin"></select
+            ></label>
+            <canvas
+              id="lkCv"
+              class="lkcv"
+              width="600"
+              height="300"
+              role="img"
+              aria-label="Lichtkalender: Monate von oben nach unten, Uhrzeit von links nach rechts"
+              data-en-aria="Light calendar: months top to bottom, time of day left to right"
+            ></canvas>
+            <p class="small" id="lkSum"></p>
+            <p class="small">
+              <b data-en="Try it:">Ausprobieren:</b>
+              <span data-en="Tap a bright spot – the model jumps to that day and hour and shows the window from inside."
+                >Tippen Sie auf eine helle Stelle – das Modell springt zu diesem Tag und dieser Stunde und zeigt das
+                Fenster von innen.</span
+              >
+            </p>
+            <p
+              class="small note"
+              data-en="Yellow: direct sunlight reaches the window (the brighter, the more of it). Grey: daytime without direct sun. Dark: night. Computed for the 1st and 15th of each month in 15-minute steps, with shading by the church itself and by houses within 200 m (trees if switched on); tracery, glass and clouds are not included. Light falling in and the brightness inside are two different things."
+            >
+              Gelb: Direktes Sonnenlicht erreicht das Fenster (je heller, desto mehr davon). Grau: Tag ohne direkte
+              Sonne. Dunkel: Nacht. Berechnet für den 1. und 15. jedes Monats in 15-Minuten-Schritten, mit Verdeckung
+              durch die Kirche selbst und durch Häuser im Umkreis von 200 m (Bäume, wenn eingeschaltet); Maßwerk, Glas
+              und Wolken sind nicht berücksichtigt. Einfallendes Licht und die Helligkeit im Raum sind zweierlei.
+            </p>
+          </div>
+          <div id="exp-au" class="exppanel" hidden>
+            <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
+            <h3 class="ck3" data-en="Astronomical clock and sky">Astronomische Uhr und Himmel</h3>
+            <p
+              class="small"
+              data-en="The astronomical clock is a historical instrument with its own gear trains and calendar. Its hands follow average motions – the real sun and moon do not. How far apart do they drift?"
+            >
+              Die Astronomische Uhr ist ein historisches Instrument mit eigenen Getrieben und eigenem Kalender. Ihre
+              Zeiger folgen mittleren Bewegungen – Sonne und Mond am Himmel tun das nicht. Wie weit laufen beide
+              auseinander?
+            </p>
+            <p class="small">
+              <b data-en="Try it:">Ausprobieren:</b>
+              <span
+                data-en="Step forward month by month and watch how far the clock’s moon runs ahead of or behind the real one; step a day to see the phase change."
+                >Gehen Sie Monat für Monat weiter und beobachten Sie, wie weit der Mond der Uhr dem echten voraus- oder
+                hinterherläuft; mit „+1 Tag“ sehen Sie, wie sich die Phase ändert.</span
+              >
+            </p>
+            <div class="btnrow" id="auBtns">
+              <button class="chip" data-d="0" data-en="Today">Heute</button
+              ><button class="chip" data-d="1" data-en="+1 day">+1 Tag</button
+              ><button class="chip" data-d="30" data-en="+1 month">+1 Monat</button
+              ><button class="chip" data-d="365" data-en="+1 year">+1 Jahr</button>
+            </div>
+            <table class="ckcmp">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th data-en="Clock">Uhr</th>
+                  <th data-en="Sky">Himmel</th>
+                </tr>
+              </thead>
+              <tbody id="auCmp"></tbody>
             </table>
-            <p>Choir, ambulatory with chapels, Briefkapelle and south chapels follow the floor plans (Dehio; plan of 1906); towers follow a survey (gable tips, spire, knob, rod, weathercock). Interior details follow photographs.</p>
-            <ul>
-              <li>Surroundings within 200 m: 273 buildings from LoD2; terrain and trees derived from the surface model. Trees are solid bodies there and cast more shade than in reality; they can be switched off.</li>
-              <li>Heights refer to 13.0 m above sea level (DHHN2016) as the church floor.</li>
-              <li>Sun: Astronomical Almanac formulas with refraction and daylight saving time. Moon: abridged lunar theory after Meeus with parallax for Lübeck. Checked for 1911–2080 against the JPL ephemeris DE421 (to 2053) and PyEphem (after): altitude and azimuth of sun and moon to about 0.03° (mostly 0.01°), rise and set to under a minute, full and new moons and eclipses to 1–3 minutes. That is the accuracy of the computation; in nature, varying refraction, houses and trees shift rise and set by a few minutes.</li>
-              <li>Moonlight is really about 400,000 times weaker than sunlight; here it is boosted and bluish so that shadows remain visible. The moon in the sky is shown 2.2 times enlarged.</li>
-            </ul>
-            <p>The photographic 3D tour by cp360pano is a hosted tour without an exportable model, good for comparison: <a href="https://cp360pano.com/st-marien-zu-luebeck-in-360-grad/" target="_blank" rel="noopener">St. Mary's in 360° and 3D</a>.</p>
+            <p class="small expres" id="auNote"></p>
+            <details class="expx">
+              <summary data-en="Why is that?">Warum ist das so?</summary>
+              <p
+                class="small"
+                data-en="The clock’s moon hand turns with a fixed gear ratio (6940 : 6705, from the 19-year lunar cycle) and so follows the average month of 29.5 days. The real moon moves on an ellipse, sometimes faster, sometimes slower, so the two drift apart by hours and come together again. The sun hand shows clock time, not the true solar time of a sundial. None of this is an error of the clock – it is how the instrument was built, and the model shows it unchanged."
+              >
+                Der Mondzeiger der Uhr dreht sich mit einem festen Übersetzungsverhältnis (6940 : 6705, aus dem
+                19-jährigen Mondzyklus) und folgt damit dem mittleren Monat von 29,5 Tagen. Der echte Mond läuft auf
+                einer Ellipse mal schneller, mal langsamer; deshalb laufen beide um Stunden auseinander und wieder
+                zusammen. Der Sonnenzeiger zeigt die Uhrzeit, nicht die wahre Ortszeit einer Sonnenuhr. Das alles ist
+                kein Fehler der Uhr, sondern ihre Bauweise – das Modell zeigt sie unverändert.
+              </p>
+            </details>
+          </div>
+          <div id="exp-mt" class="exppanel" hidden>
+            <button class="chip expback" data-en="‹ All experiments">‹ Alle Experimente</button>
+            <h3 class="ck3" data-en="The moon between the towers">Mond zwischen den Türmen</h3>
+            <p
+              class="small"
+              data-en="Your position lies on the extended church axis. Choose it in the top view or with the slider; the model finds the moments in the six months from the date set below when the moon stands between the north and south tower."
+            >
+              Ihr Standort liegt auf der verlängerten Kirchenachse. Wählen Sie ihn in der Draufsicht oder mit dem
+              Regler; das Modell findet die Augenblicke in den sechs Monaten ab dem unten eingestellten Datum, in denen
+              der Mond zwischen Nord- und Südturm steht.
+            </p>
+            <div class="btnrow" id="mtSide">
+              <button class="chip" data-side="w" aria-pressed="true" data-en="From the west">Von Westen</button
+              ><button class="chip" data-side="e" aria-pressed="false" data-en="From the east">Von Osten</button
+              ><button class="chip" id="mtTopBtn" data-en="Top view">Draufsicht</button>
+            </div>
+            <label class="ctl"
+              ><span data-en="Distance to the towers">Entfernung zu den Türmen</span
+              ><input type="range" id="mtDist" min="150" max="2000" step="10" value="700" /><output id="mtDistOut"
+                >700 m</output
+              ></label
+            >
+            <p class="small" id="mtGeo"></p>
+            <div class="btnrow">
+              <button class="btn" id="mtFind" data-en="Find dates (6 months)">Termine suchen (6 Monate)</button>
+            </div>
+            <p class="small" id="mtSum"></p>
+            <ol class="mtres" id="mtRes"></ol>
+            <p
+              class="small note"
+              data-en="Directions and heights of moon and towers are computed exactly; the moon is shown at its true size in the camera view. Buildings are only modelled within 200 m of the church and the ground beyond is assumed flat at Trave level – whether a house or tree near your position blocks the view, the model cannot tell. Weather is not included."
+            >
+              Richtung und Höhe von Mond und Türmen sind genau berechnet; in der Kameraansicht ist der Mond in wahrer
+              Größe gezeigt. Gebäude kennt das Modell nur im Umkreis von 200 m um die Kirche, darüber hinaus ist ebenes
+              Gelände auf Höhe der Trave angenommen – ob ein Haus oder Baum in der Nähe Ihres Standorts die Sicht
+              versperrt, kann es nicht beurteilen. Das Wetter ist nicht berücksichtigt.
+            </p>
           </div>
         </div>
-        <button class="chip more"><span class="mshow" data-en="More details">Mehr Details</span><span class="mhide" data-en="Fewer details">Weniger Details</span></button>
-    </div>
-  </section>
+      </section>
 
-  <section class="card" id="card-share" hidden aria-label="Teilen und speichern" data-en-aria="Share and save">
-    <div class="chead"><h2 data-en="Share and save">Teilen und speichern</h2><button class="cx" aria-label="Schließen" data-en-aria="Close">×</button></div>
-    <div class="cbody">
-      <p class="small" data-en="The link opens the model with this date, time and view.">Der Link öffnet das Modell mit diesem Datum, dieser Uhrzeit und dieser Ansicht.</p>
-      <div class="sharerow"><input type="text" id="shareUrl" readonly aria-label="Link zu dieser Ansicht" data-en-aria="Link to this view"><button class="chip" id="copyBtn" data-en="Copy">Kopieren</button></div>
-      <div class="btnrow"><button class="chip" id="nativeShare" hidden data-en="Share …">Teilen …</button><button class="chip" id="saveImg" data-en="Save image">Bild speichern</button></div>
-      <p class="small" id="shareMsg" aria-live="polite"></p>
+      <section class="card" id="card-disp" hidden aria-label="Darstellung" data-en-aria="Display">
+        <div class="chead">
+          <h2 data-en="Display">Darstellung</h2>
+          <button class="cx" aria-label="Schließen" data-en-aria="Close">×</button>
+        </div>
+        <div class="cbody">
+          <label class="ctl"
+            ><span data-en="Cut height">Schnitthöhe</span
+            ><input type="range" id="cut" min="4" max="60" step="0.5" /><output id="cutOut">aus</output></label
+          >
+          <label class="tog"
+            ><input type="checkbox" id="envTog" checked />
+            <span data-en="Surroundings (LoD2 buildings and terrain)">Umgebung (LoD2-Gebäude und Gelände)</span></label
+          >
+          <label class="tog"
+            ><input type="checkbox" id="treeTog" checked />
+            <span data-en="Trees from the surface model">Bäume aus dem Oberflächenmodell</span></label
+          >
+          <label class="tog"
+            ><input type="checkbox" id="lodTog" />
+            <span data-en="LoD2 outline of the church for comparison">LoD2-Umriss der Kirche zum Vergleich</span></label
+          >
+          <label class="tog"
+            ><input type="checkbox" id="labelsTog" checked /> <span data-en="Labels">Beschriftungen</span></label
+          >
+        </div>
+      </section>
 
-    </div>
-  </section>
+      <section class="card" id="card-light" hidden aria-label="Licht" data-en-aria="Light">
+        <div class="chead">
+          <h2 data-en="Light">Licht</h2>
+          <button class="cx" aria-label="Schließen" data-en-aria="Close">×</button>
+        </div>
+        <div class="cbody">
+          <label class="tog"
+            ><input type="checkbox" id="beamsTog" checked />
+            <span data-en="Visible light beams">Sichtbare Lichtbahnen</span></label
+          >
+          <label class="tog"
+            ><input type="checkbox" id="tintTog" checked />
+            <span data-en="Coloured light from the stained glass">Farbiges Licht der Glasmalereien</span></label
+          >
+          <label class="tog"
+            ><input type="checkbox" id="moonTog" checked />
+            <span data-en="Moon, stars and moonlight">Mond, Sterne und Mondlicht</span></label
+          >
+          <label class="tog"
+            ><input type="checkbox" id="sunPathTog" checked />
+            <span data-en="Sun path in the sky">Sonnenbahn am Himmel</span></label
+          >
+          <label class="tog"
+            ><input type="checkbox" id="moonPathTog" checked />
+            <span data-en="Moon path in the sky">Mondbahn am Himmel</span></label
+          >
+          <button class="chip" id="skyGo" style="align-self: flex-start" data-en="Show both paths in full">
+            Beide Bahnen ins Bild holen
+          </button>
+          <label class="ctl adv"
+            ><span data-en="Indoor ambient">Streulicht innen</span
+            ><input type="range" id="amb" min="0.02" max="0.8" step="0.01" /><output id="ambOut"></output
+          ></label>
+          <label class="ctl adv"
+            ><span data-en="Exposure">Belichtung</span
+            ><input type="range" id="exp" min="0.3" max="3.5" step="0.05" /><output id="expOut"></output
+          ></label>
+          <label class="ctl adv"
+            ><span data-en="Church axis">Chorachse</span
+            ><input type="range" id="axis" min="80" max="120" step="0.1" /><output id="axisOut"></output
+          ></label>
+          <p class="small axisnote adv">
+            <span data-en="Measured: 98.5° (grid 97.1° plus meridian convergence 1.36°)."
+              >Gemessen: 98,5° (Gitter 97,1° plus Meridiankonvergenz 1,36°).</span
+            >
+            <button class="chip" id="axisReset" data-en="Measured value">Messwert</button>
+          </p>
+          <button class="chip more">
+            <span class="mshow" data-en="More settings">Mehr Einstellungen</span
+            ><span class="mhide" data-en="Fewer settings">Weniger Einstellungen</span>
+          </button>
+        </div>
+      </section>
 
-  <aside class="tourcard" id="tour" hidden aria-live="polite" aria-label="Rundgang" data-en-aria="Guided tour">
-    <p class="tstep"><span id="tourStep"></span><span class="twhen" id="tourWhen"></span></p>
-    <h3 id="tourTitle"></h3>
-    <p id="tourText"></p>
-    <button class="tmore" id="tourMore" hidden></button>
-    <div class="tbtns"><button class="chip" id="tourEnd"></button><span class="tsp"></span><button class="chip" id="tourPrev"></button><button class="btn" id="tourNext"></button></div>
-    <div class="tchoice" id="tourChoice" hidden><button class="btn" data-act="a"></button><button class="chip" data-act="b"></button><button class="chip" data-act="c"></button><button class="chip" data-act="d"></button></div>
-  </aside>
+      <section class="card about" id="card-info" hidden aria-label="Über das Modell" data-en-aria="About the model">
+        <div class="chead">
+          <h2 data-en="About the model">Über das Modell</h2>
+          <button class="cx" aria-label="Schließen" data-en-aria="Close">×</button>
+        </div>
+        <div class="cbody">
+          <div class="wrap l-de">
+            <p>
+              Dieses Modell zeigt, wie Sonne und Mond zu jeder Stunde des Jahres auf St. Marien und durch ihre Fenster
+              scheinen, und was die Sonnenuhr am Südpfeiler dabei anzeigt. Die Kirche ist nach amtlichen
+              Vermessungsdaten, historischen Grundrissen und vielen Fotos nachgebaut; Sonnen- und Mondstand sind
+              astronomisch berechnet und mit unabhängigen Quellen geprüft.
+            </p>
+            <p>
+              Lage: 53,868° N, 10,685° O. Die Chorachse weist nach 98,5° – fast genau nach Osten, um 8,5° nach Süden
+              gedreht.
+            </p>
+            <p>
+              Es ist ein vereinfachtes Modell und noch in Arbeit. Details der Ausstattung fehlen, und manches ist nach
+              Fotos geschätzt.
+            </p>
+            <p>
+              Farbige Fenster nach Fotos (Nutzung freigegeben): Totentanzfenster (A. Mahlau), Tympanon über dem
+              Nordportal (M. Lüpertz), Briefkapelle (J. Schreiter), Wappenfenster der Marientidenkapelle und der
+              Gedenkkapelle im Südturm. Totentanz-, Tympanon-, Briefkapellen- und Wappenfenster sowie die Astronomische
+              Uhr nach eigenen Fotos des Projekts (2026), perspektivisch entzerrt. Das Westfenster
+              (Auferstehungsfenster, H. G. von Stockhausen) ist vorerst nur vereinfacht als helle, neutrale Verglasung
+              dargestellt.
+            </p>
+            <p>
+              Astronomische Uhr: Gehäuse nach einem entzerrten Foto, Zifferblatt, Kalenderscheibe und Rechnung nach der
+              Simulation „astro-uhr-app“.
+            </p>
+            <p>
+              Wählbar sind die Jahre 1911 bis 2080 – der Zeitraum, den die Kalenderscheibe der Astronomischen Uhr
+              abdeckt.
+            </p>
+            <p>Geobasisdaten: © GeoBasis-DE/LVermGeo SH, bDOM20 und LoD2.</p>
+            <div class="adv wrap">
+              <p>
+                Vereinfachtes Volumenmodell. Lage, Achse und Hauptmaße sind am amtlichen LoD2-Gebäudemodell (2025) und
+                am Oberflächenmodell bDOM20 (Bildflug April 2023) abgeglichen. Fenster, Wandstärken, Innenraum und
+                Gewölbe sind ergänzt, weil LoD2 nur die Außenhülle enthält. Die Sonnenposition wird astronomisch für den
+                Standort berechnet, inklusive Sommerzeit und Lichtbrechung am Horizont.
+              </p>
+              <table>
+                <tr>
+                  <td>Chorachse, geografisch</td>
+                  <td>98,5°</td>
+                </tr>
+                <tr>
+                  <td>Länge über alles</td>
+                  <td>102,0 m</td>
+                </tr>
+                <tr>
+                  <td>Breite über Seitenschiffe (N / S)</td>
+                  <td>18,1 / 21,8 m</td>
+                </tr>
+                <tr>
+                  <td>Mittelschiff außen breit</td>
+                  <td>15,7 m</td>
+                </tr>
+                <tr>
+                  <td>Traufe / First Mittelschiff</td>
+                  <td>40,9 / 49,6 m</td>
+                </tr>
+                <tr>
+                  <td>Gewölbe Mittelschiff / Seitenschiffe</td>
+                  <td>38,5 / 20,5 m</td>
+                </tr>
+                <tr>
+                  <td>Joche bis zum Chorschluss</td>
+                  <td>10 (6,0–7,1 m)</td>
+                </tr>
+                <tr>
+                  <td>Türme Nord / Süd (Hahn)</td>
+                  <td>124,95 / 124,75 m</td>
+                </tr>
+                <tr>
+                  <td>Giebelspitzen Nord / Süd</td>
+                  <td>73,19 / 73,08 m</td>
+                </tr>
+              </table>
+              <p><strong>Abgleich mit LoD2</strong>, vorheriges Modell → jetzt:</p>
+              <table>
+                <tr>
+                  <td>Chorachse</td>
+                  <td>99,5° → 98,5°</td>
+                </tr>
+                <tr>
+                  <td>Joche</td>
+                  <td>9 × 7,1 → 10 × 6,0–7,1 m</td>
+                </tr>
+                <tr>
+                  <td>Mittelschiff außen</td>
+                  <td>17,0 → 15,7 m</td>
+                </tr>
+                <tr>
+                  <td>Traufe / First</td>
+                  <td>40,0 / 48,8 → 40,9 / 49,6 m</td>
+                </tr>
+                <tr>
+                  <td>Nordseitenschiff außen</td>
+                  <td>21,6 → 18,1 m (+ niedrige Kapellen bis 21,0)</td>
+                </tr>
+                <tr>
+                  <td>Ostwand Hochchor</td>
+                  <td>x 36,2 → 34,2 m</td>
+                </tr>
+                <tr>
+                  <td>Turm-Innenflucht</td>
+                  <td>±6,5 → ±7,85 m</td>
+                </tr>
+                <tr>
+                  <td>Briefkapelle außen / Traufe</td>
+                  <td>29,5 / 17 → 27,4 / 14,1 m</td>
+                </tr>
+                <tr>
+                  <td>Totentanzkapelle</td>
+                  <td>x 6,7–20,9 → 1,6–15,0 m</td>
+                </tr>
+                <tr>
+                  <td>Südvorhalle</td>
+                  <td>x 6,7–20,9 → 1,6–16,2 m</td>
+                </tr>
+                <tr>
+                  <td>Marientidenkapelle Ostende</td>
+                  <td>x 50,2 → 51,1 m</td>
+                </tr>
+              </table>
+              <p>
+                Neu nach LoD2: nördliche Chorkapellen, Bürgermeisterkapelle, niedrige Kapellenreihe an der Nordseite.
+                LoD2 gibt die Turmhelme nur bis 116,5 m wieder (die schlanken Spitzen fehlen in der Bildauswertung); die
+                Türme folgen deshalb der Vermessung: Giebelspitze, Helm bis Knauf (46,56 / 46,47 m), Knauf 0,90 m,
+                Helmstange 3,30 m, Hahn 1,00 m.
+              </p>
+              <p>
+                <strong>Nach den Grundrissen</strong> (Dehio; Plan von 1906 mit Maßleiste; die Pfeilerachsen stimmen auf
+                ±0,4 m mit LoD2 überein):
+              </p>
+              <table>
+                <tr>
+                  <td>Hochchor</td>
+                  <td>abgeflachtes Zehneck → drei Seiten des Achtecks</td>
+                </tr>
+                <tr>
+                  <td>Umgang</td>
+                  <td>Polygon → Kapellenkranz mit je einer vortretenden Kapelle, eigene Dächer</td>
+                </tr>
+                <tr>
+                  <td>Marientidenkapelle</td>
+                  <td>beginnt am Umgang (x 38,4 statt 43,6 m)</td>
+                </tr>
+                <tr>
+                  <td>Südseitenschiff</td>
+                  <td>Wand bei 17,3 m, dahinter Briefkapelle und vier Kapellen</td>
+                </tr>
+                <tr>
+                  <td>Briefkapelle</td>
+                  <td>Säulen in der Mittelachse, Sterngewölbe</td>
+                </tr>
+                <tr>
+                  <td>Treppentürme der Westtürme</td>
+                  <td>Südostecke → mittig vor Nord- und Südseite</td>
+                </tr>
+                <tr>
+                  <td>Treppentürme am Chor</td>
+                  <td>Nord (28,5 / −18,8) über Dach, Süd (26,4 / 17,6) unter Dach</td>
+                </tr>
+              </table>
+              <p>
+                <strong>Nach Detailfotos:</strong> Chorschluss innen mit Laufgang und Blendmaßwerk, Chorfenster ab etwa
+                25 m (bisher 29,8 m), die Dächer des Kapellenkranzes entsprechend flacher; Granitsockel und helle
+                Eckquader an den Westecken der Türme.
+              </p>
+              <ul>
+                <li>
+                  Umgebung im Umkreis von 200 m: 273 Gebäude aus dem LoD2-Modell (Standard-Dachformen, ohne Gauben und
+                  Schornsteine). Gelände und Bäume sind aus dem Oberflächenmodell abgeleitet. Bäume stecken darin als
+                  feste Körper und verschatten deshalb stärker als in der Wirklichkeit; sie lassen sich abschalten.
+                </li>
+                <li>
+                  Für die Verschattung der Fenster werden die Dachhöhen des Oberflächenmodells verwendet (1-m-Raster),
+                  die Darstellung zeigt die LoD2-Gebäude.
+                </li>
+                <li>
+                  Verwendet sind die Kacheln 32_610_5970 und 32_610_5969. Östlich von etwa 200 m hinter dem Chor endet
+                  der Kachelbereich, dort ist nur Gelände angenommen.
+                </li>
+                <li>
+                  Höhen beziehen sich auf 13,0 m über NHN (DHHN2016) als Fußboden der Kirche. Der tatsächliche Fußboden
+                  ist nicht vermessen; die Unterlage zu den Turmmaßen nennt für den Westzugang rund 13,5 m über NN. Der
+                  Unterschied ändert an Sonnenstand und Sonnenuhr nichts.
+                </li>
+                <li>
+                  Farbig verglast nach Fotos (Nutzung freigegeben): beide Totentanzfenster (A. Mahlau, 1955/56),
+                  Tympanon über dem Nordportal (M. Lüpertz, 2002), Briefkapelle (J. Schreiter), Marientidenkapelle
+                  (Wappenfenster), Wappenfenster der Gedenkkapelle im Südturm. Das Westfenster (Auferstehungsfenster, H.
+                  G. von Stockhausen) ist vorerst vereinfacht als neutrale Verglasung dargestellt. Alle übrigen Fenster
+                  sind helle Rechteckverglasung; in den Chorkapellen tragen sie kleine Wappenscheiben (Stiftungen von
+                  1953), hier vereinfacht und nicht den einzelnen Fenstern zugeordnet.
+                </li>
+                <li>Die Gewölbe von Umgang und Kapellen und die Kapellenhöhen sind vereinfacht.</li>
+              </ul>
+              <p>
+                <strong>Mond:</strong> Bahn nach der verkürzten Mondtheorie von Meeus (Astronomical Algorithms, Kap. 47)
+                mit Parallaxe für Lübeck; Sonne nach den Formeln des Astronomical Almanac mit Lichtbrechung. Für
+                1911–2080 gegen die JPL-Ephemeride DE421 (bis 2053) und PyEphem (danach) geprüft: Höhe und Azimut von
+                Sonne und Mond auf etwa 0,03° (meist 0,01°), Auf- und Untergang auf unter 1 Minute, Voll- und Neumond
+                sowie Finsternisse auf 1–3 Minuten genau. Das ist die Rechengenauigkeit; in der Natur verschieben
+                wechselnde Lichtbrechung, Häuser und Bäume Auf- und Untergang um einige Minuten. Mondlicht ist in
+                Wirklichkeit rund 400 000-mal schwächer als Sonnenlicht; hier ist es stark angehoben und bläulich, damit
+                Schatten und Lichtflecke sichtbar bleiben. Der Mond am Himmel ist 2,2-fach vergrößert. Sterne: die 66
+                hellsten.
+              </p>
+              <p>Geobasisdaten: © GeoBasis-DE/LVermGeo SH, bDOM20 und LoD2, Kacheln 32_610_5970 und 32_610_5969.</p>
+              <p>
+                Der fotografische 3D-Rundgang von cp360pano ist ein gehosteter Rundgang ohne exportierbares Modell. Er
+                eignet sich gut zum Vergleich:
+                <a href="https://cp360pano.com/st-marien-zu-luebeck-in-360-grad/" target="_blank" rel="noopener"
+                  >St. Marien in 360° und 3D</a
+                >.
+              </p>
+            </div>
+          </div>
+          <div class="wrap l-en">
+            <p>
+              This model shows how sun and moon shine on St. Mary's and through its windows at any hour of the year, and
+              what the sundial on the south buttress shows. The church is rebuilt from official survey data, historic
+              floor plans and many photographs; the positions of sun and moon are computed astronomically and checked
+              against independent sources.
+            </p>
+            <p>
+              Location: 53.868° N, 10.685° E. The choir axis points to 98.5° – almost due east, turned 8.5° towards the
+              south.
+            </p>
+            <p>
+              It is a simplified model and a work in progress. Details of the furnishings are missing, and some things
+              are estimated from photos.
+            </p>
+            <p>
+              Stained glass after photos (used with permission): Dance of Death windows (A. Mahlau), tympanum above the
+              north portal (M. Lüpertz), Briefkapelle (J. Schreiter), coat-of-arms windows of the Marientiden Chapel and
+              of the Memorial Chapel in the south tower. The clear windows of the choir chapels carry small coat-of-arms
+              panes (donated in 1953), shown here in simplified form. Dance of Death, tympanum, Briefkapelle and
+              coat-of-arms windows and the astronomical clock after the project’s own photographs (2026), corrected for
+              perspective. The west window (Resurrection window, H. G. von Stockhausen) is for now shown only in
+              simplified form as plain, neutral glazing.
+            </p>
+            <p>
+              Astronomical clock: case from a rectified photo; dial, calendar disk and arithmetic after the
+              “astro-uhr-app” simulation.
+            </p>
+            <p>
+              Dates can be chosen from 1911 to 2080 – the years covered by the calendar disk of the astronomical clock.
+            </p>
+            <p>Geodata: © GeoBasis-DE/LVermGeo SH, bDOM20 and LoD2.</p>
+            <div class="adv wrap">
+              <p>
+                Position, axis and main dimensions are matched to the official LoD2 building model (2025) and the bDOM20
+                surface model (aerial survey April 2023). Windows, wall thicknesses, interior and vaults are added, as
+                LoD2 only contains the outer shell.
+              </p>
+              <table>
+                <tr>
+                  <td>Church axis (geographic)</td>
+                  <td>98.5°</td>
+                </tr>
+                <tr>
+                  <td>Overall length</td>
+                  <td>102.0 m</td>
+                </tr>
+                <tr>
+                  <td>Eaves / ridge of nave</td>
+                  <td>40.9 / 49.6 m</td>
+                </tr>
+                <tr>
+                  <td>Vault nave / aisles</td>
+                  <td>38.5 / 20.5 m</td>
+                </tr>
+                <tr>
+                  <td>Towers north / south (weathercock)</td>
+                  <td>124.95 / 124.75 m</td>
+                </tr>
+                <tr>
+                  <td>Gable tips north / south</td>
+                  <td>73.19 / 73.08 m</td>
+                </tr>
+              </table>
+              <p>
+                Choir, ambulatory with chapels, Briefkapelle and south chapels follow the floor plans (Dehio; plan of
+                1906); towers follow a survey (gable tips, spire, knob, rod, weathercock). Interior details follow
+                photographs.
+              </p>
+              <ul>
+                <li>
+                  Surroundings within 200 m: 273 buildings from LoD2; terrain and trees derived from the surface model.
+                  Trees are solid bodies there and cast more shade than in reality; they can be switched off.
+                </li>
+                <li>Heights refer to 13.0 m above sea level (DHHN2016) as the church floor.</li>
+                <li>
+                  Sun: Astronomical Almanac formulas with refraction and daylight saving time. Moon: abridged lunar
+                  theory after Meeus with parallax for Lübeck. Checked for 1911–2080 against the JPL ephemeris DE421 (to
+                  2053) and PyEphem (after): altitude and azimuth of sun and moon to about 0.03° (mostly 0.01°), rise
+                  and set to under a minute, full and new moons and eclipses to 1–3 minutes. That is the accuracy of the
+                  computation; in nature, varying refraction, houses and trees shift rise and set by a few minutes.
+                </li>
+                <li>
+                  Moonlight is really about 400,000 times weaker than sunlight; here it is boosted and bluish so that
+                  shadows remain visible. The moon in the sky is shown 2.2 times enlarged.
+                </li>
+              </ul>
+              <p>
+                The photographic 3D tour by cp360pano is a hosted tour without an exportable model, good for comparison:
+                <a href="https://cp360pano.com/st-marien-zu-luebeck-in-360-grad/" target="_blank" rel="noopener"
+                  >St. Mary's in 360° and 3D</a
+                >.
+              </p>
+            </div>
+          </div>
+          <button class="chip more">
+            <span class="mshow" data-en="More details">Mehr Details</span
+            ><span class="mhide" data-en="Fewer details">Weniger Details</span>
+          </button>
+        </div>
+      </section>
 
-  <div id="ckZoom" class="ckzoom" hidden role="dialog" aria-modal="true"><button class="cx" id="ckZoomX" aria-label="Schließen" data-en-aria="Close">×</button><canvas id="ckBig" width="1024" height="1024"></canvas><p id="ckZoomTxt"></p></div>
-  <aside class="tourcard quizcard" id="quiz" hidden aria-live="polite" aria-label="Quiz" data-en-aria="Quiz">
-    <p class="tstep" id="qzStep"></p>
-    <h3 id="qzTitle"></h3>
-    <p id="qzText"></p>
-    <div class="qzopts" id="qzOpts"></div>
-    <p class="qzfb" id="qzFb" hidden></p>
-    <div class="tbtns"><button class="chip" id="qzEnd"></button><span class="tsp"></span><button class="chip" id="qzHint"></button><button class="chip" id="qzSkip"></button><button class="btn" id="qzNext" hidden></button></div>
-  </aside>
+      <section class="card" id="card-share" hidden aria-label="Teilen und speichern" data-en-aria="Share and save">
+        <div class="chead">
+          <h2 data-en="Share and save">Teilen und speichern</h2>
+          <button class="cx" aria-label="Schließen" data-en-aria="Close">×</button>
+        </div>
+        <div class="cbody">
+          <p class="small" data-en="The link opens the model with this date, time and view.">
+            Der Link öffnet das Modell mit diesem Datum, dieser Uhrzeit und dieser Ansicht.
+          </p>
+          <div class="sharerow">
+            <input
+              type="text"
+              id="shareUrl"
+              readonly
+              aria-label="Link zu dieser Ansicht"
+              data-en-aria="Link to this view"
+            /><button class="chip" id="copyBtn" data-en="Copy">Kopieren</button>
+          </div>
+          <div class="btnrow">
+            <button class="chip" id="nativeShare" hidden data-en="Share …">Teilen …</button
+            ><button class="chip" id="saveImg" data-en="Save image">Bild speichern</button>
+          </div>
+          <p class="small" id="shareMsg" aria-live="polite"></p>
+        </div>
+      </section>
 
-  <div class="night" id="night" hidden>Die Sonne steht unter dem Horizont</div>
-  <div class="joy" id="joy" hidden aria-hidden="true"><div class="joyk" id="joyk"></div></div>
-  <aside class="yearnote" id="yearNote" hidden aria-live="polite">
-    <p class="l-de"><b>Die Kirche als Sonnenuhr.</b> Die Uhrzeit bleibt fest (in MEZ), das Datum läuft. Die Spur zeigt, wohin die Spitze des Südturms an jedem Tag ihren Schatten wirft; der helle Strahl verbindet sie mit dem heutigen Punkt.</p>
-    <p class="l-en"><b>The church as a sundial.</b> The clock time stays fixed (in CET) while the date runs. The trace shows where the tip of the south tower casts its shadow each day; the bright ray links it to today's point.</p>
-    <p class="ylegend"><span style="--c:#2f6fc0" data-en="Winter">Winter</span><span style="--c:#3f9a4c" data-en="Spring">Frühling</span><span style="--c:#e09a1a" data-en="Summer">Sommer</span><span style="--c:#c0461f" data-en="Autumn">Herbst</span></p>
-  </aside>
-  <div class="busy" id="busy" hidden role="status"><span class="spin" aria-hidden="true"></span><span id="busyTxt"></span></div>
-  <div class="hint" id="hint">Ziehen: drehen · Rechtsklick oder zwei Finger: verschieben · Mausrad: zoomen · WASD: gehen</div>
+      <aside class="tourcard" id="tour" hidden aria-live="polite" aria-label="Rundgang" data-en-aria="Guided tour">
+        <p class="tstep"><span id="tourStep"></span><span class="twhen" id="tourWhen"></span></p>
+        <h3 id="tourTitle"></h3>
+        <p id="tourText"></p>
+        <button class="tmore" id="tourMore" hidden></button>
+        <div class="tbtns">
+          <button class="chip" id="tourEnd"></button><span class="tsp"></span
+          ><button class="chip" id="tourPrev"></button><button class="btn" id="tourNext"></button>
+        </div>
+        <div class="tchoice" id="tourChoice" hidden>
+          <button class="btn" data-act="a"></button><button class="chip" data-act="b"></button
+          ><button class="chip" data-act="c"></button><button class="chip" data-act="d"></button>
+        </div>
+      </aside>
 
-  <div id="loader" role="status" aria-live="polite">
-    <div class="ld-card">
-      <div class="ld-spin" aria-hidden="true"></div>
-      <div class="ld-body">
-        <strong data-en="Building St. Mary's">St. Marien wird aufgebaut</strong>
-        <span id="ldText">3D-Bibliothek wird geladen</span>
-        <div class="ld-bar"><i id="ldBar"></i></div>
+      <div id="ckZoom" class="ckzoom" hidden role="dialog" aria-modal="true">
+        <button class="cx" id="ckZoomX" aria-label="Schließen" data-en-aria="Close">×</button
+        ><canvas id="ckBig" width="1024" height="1024"></canvas>
+        <p id="ckZoomTxt"></p>
       </div>
-    </div>
-  </div>
+      <aside class="tourcard quizcard" id="quiz" hidden aria-live="polite" aria-label="Quiz" data-en-aria="Quiz">
+        <p class="tstep" id="qzStep"></p>
+        <h3 id="qzTitle"></h3>
+        <p id="qzText"></p>
+        <div class="qzopts" id="qzOpts"></div>
+        <p class="qzfb" id="qzFb" hidden></p>
+        <div class="tbtns">
+          <button class="chip" id="qzEnd"></button><span class="tsp"></span><button class="chip" id="qzHint"></button
+          ><button class="chip" id="qzSkip"></button><button class="btn" id="qzNext" hidden></button>
+        </div>
+      </aside>
 
-  <footer class="timebar" aria-label="Datum und Uhrzeit" data-en-aria="Date and time">
-    <div class="tb-ctrl">
-      <button class="chip dstep" id="dayPrev" aria-label="Einen Tag zurück" data-en-aria="One day back">‹</button>
-      <input type="date" id="date" min="1911-01-01" max="2080-12-31" aria-label="Datum (1911–2080)" data-en-aria="Date (1911–2080)">
-      <button class="chip dstep" id="dayNext" aria-label="Einen Tag vor" data-en-aria="One day forward">›</button>
-      <button class="chip" id="nowBtn" data-en="Now">Jetzt</button>
-      <div class="pp"><button class="chip" id="presetBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="presets"><span class="pl" data-en="Special ">Besondere </span><span data-en="days ▾">Tage ▾</span></button><div class="pmenu" id="presets" role="menu" hidden></div></div>
-      <button class="btn" id="play" aria-label="Tagesverlauf abspielen" data-en-aria="Play the day"><svg viewBox="0 0 12 12" id="playIcon"><path d="M2 1l9 5-9 5z"/></svg><span id="playTxt" data-en="Play day">Tagesverlauf</span></button>
-      <select id="speed" aria-label="Geschwindigkeit" data-en-aria="Speed">
-        <option value="10">10 min/s</option>
-        <option value="30" selected>30 min/s</option>
-        <option value="60">1 h/s</option>
-        <option value="120">2 h/s</option>
-        <option value="y2" data-en="Year: 2 days/s">Jahr: 2 Tage/s</option>
-        <option value="y7" data-en="Year: 1 week/s">Jahr: 1 Woche/s</option>
-      </select>
-      <p class="tb-sum" id="sumLine">–</p>
-      <button class="chip tbfold" id="tbFold" aria-expanded="false" aria-label="Tagesdiagramm zeigen" data-en-aria="Show day chart"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 7.5L6 4l3.5 3.5"/></svg></button>
-    </div>
-    <div class="tb-time">
-      <div class="tb-track">
-        <svg id="chart" role="img" aria-label="Sonnenhöhe (Fläche) und Mondhöhe (gestrichelt) im Tagesverlauf; klicken setzt die Uhrzeit" data-en-aria="Sun altitude (area) and moon altitude (dashed) over the day; click to set the time"></svg>
-        <input type="range" id="time" min="0" max="1439" step="1" aria-label="Uhrzeit" data-en-aria="Time">
+      <div class="night" id="night" hidden>Die Sonne steht unter dem Horizont</div>
+      <div class="joy" id="joy" hidden aria-hidden="true"><div class="joyk" id="joyk"></div></div>
+      <aside class="yearnote" id="yearNote" hidden aria-live="polite">
+        <p class="l-de">
+          <b>Die Kirche als Sonnenuhr.</b> Die Uhrzeit bleibt fest (in MEZ), das Datum läuft. Die Spur zeigt, wohin die
+          Spitze des Südturms an jedem Tag ihren Schatten wirft; der helle Strahl verbindet sie mit dem heutigen Punkt.
+        </p>
+        <p class="l-en">
+          <b>The church as a sundial.</b> The clock time stays fixed (in CET) while the date runs. The trace shows where
+          the tip of the south tower casts its shadow each day; the bright ray links it to today's point.
+        </p>
+        <p class="ylegend">
+          <span style="--c: #2f6fc0" data-en="Winter">Winter</span
+          ><span style="--c: #3f9a4c" data-en="Spring">Frühling</span
+          ><span style="--c: #e09a1a" data-en="Summer">Sommer</span
+          ><span style="--c: #c0461f" data-en="Autumn">Herbst</span>
+        </p>
+      </aside>
+      <div class="busy" id="busy" hidden role="status">
+        <span class="spin" aria-hidden="true"></span><span id="busyTxt"></span>
       </div>
-      <div class="tb-clock"><output id="timeOut">12:00</output><span class="small" id="tzName" data-gl="tz">MEZ</span></div>
+      <div class="hint" id="hint">
+        Ziehen: drehen · Rechtsklick oder zwei Finger: verschieben · Mausrad: zoomen · WASD: gehen
+      </div>
+
+      <div id="loader" role="status" aria-live="polite">
+        <div class="ld-card">
+          <div class="ld-spin" aria-hidden="true"></div>
+          <div class="ld-body">
+            <strong data-en="Building St. Mary's">St. Marien wird aufgebaut</strong>
+            <span id="ldText">3D-Bibliothek wird geladen</span>
+            <div class="ld-bar"><i id="ldBar"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="timebar" aria-label="Datum und Uhrzeit" data-en-aria="Date and time">
+        <div class="tb-ctrl">
+          <button class="chip dstep" id="dayPrev" aria-label="Einen Tag zurück" data-en-aria="One day back">‹</button>
+          <input
+            type="date"
+            id="date"
+            min="1911-01-01"
+            max="2080-12-31"
+            aria-label="Datum (1911–2080)"
+            data-en-aria="Date (1911–2080)"
+          />
+          <button class="chip dstep" id="dayNext" aria-label="Einen Tag vor" data-en-aria="One day forward">›</button>
+          <button class="chip" id="nowBtn" data-en="Now">Jetzt</button>
+          <div class="pp">
+            <button class="chip" id="presetBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="presets">
+              <span class="pl" data-en="Special ">Besondere </span><span data-en="days ▾">Tage ▾</span>
+            </button>
+            <div class="pmenu" id="presets" role="menu" hidden></div>
+          </div>
+          <button class="btn" id="play" aria-label="Tagesverlauf abspielen" data-en-aria="Play the day">
+            <svg viewBox="0 0 12 12" id="playIcon"><path d="M2 1l9 5-9 5z" /></svg
+            ><span id="playTxt" data-en="Play day">Tagesverlauf</span>
+          </button>
+          <select id="speed" aria-label="Geschwindigkeit" data-en-aria="Speed">
+            <option value="10">10 min/s</option>
+            <option value="30" selected>30 min/s</option>
+            <option value="60">1 h/s</option>
+            <option value="120">2 h/s</option>
+            <option value="y2" data-en="Year: 2 days/s">Jahr: 2 Tage/s</option>
+            <option value="y7" data-en="Year: 1 week/s">Jahr: 1 Woche/s</option>
+          </select>
+          <p class="tb-sum" id="sumLine">–</p>
+          <button
+            class="chip tbfold"
+            id="tbFold"
+            aria-expanded="false"
+            aria-label="Tagesdiagramm zeigen"
+            data-en-aria="Show day chart"
+          >
+            <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 7.5L6 4l3.5 3.5" /></svg>
+          </button>
+        </div>
+        <div class="tb-time">
+          <div class="tb-track">
+            <svg
+              id="chart"
+              role="img"
+              aria-label="Sonnenhöhe (Fläche) und Mondhöhe (gestrichelt) im Tagesverlauf; klicken setzt die Uhrzeit"
+              data-en-aria="Sun altitude (area) and moon altitude (dashed) over the day; click to set the time"
+            ></svg>
+            <input type="range" id="time" min="0" max="1439" step="1" aria-label="Uhrzeit" data-en-aria="Time" />
+          </div>
+          <div class="tb-clock">
+            <output id="timeOut">12:00</output><span class="small" id="tzName" data-gl="tz">MEZ</span>
+          </div>
+        </div>
+      </footer>
     </div>
-  </footer>
-</div>
-
-<script src="vendor/three.min.js"></script>
-<script src="vendor/OrbitControls.js"></script>
-<script src="js/app.js"></script>
-
-</body>
+  </body>
 </html>

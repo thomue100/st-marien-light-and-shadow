@@ -1,6 +1,6 @@
 # Fensterbilder
 
-Die Glasmalereien werden als Fotos in den Atlas gelegt (`glassdata` in `src/marienkirche.html`, Schlüssel = Fenstertyp).
+Die Glasmalereien werden als Fotos in den Atlas gelegt (`src/assets/glas/<Fenstertyp>.jpg`).
 
 | Typ | Fenster | Quelle |
 |---|---|---|

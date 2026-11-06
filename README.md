@@ -13,20 +13,69 @@ Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, d
 
 | Pfad | Inhalt |
 |---|---|
-| `src/marienkirche.html` | Arbeitsdatei: das ganze Programm in einer Datei; Daten (Umgebung, Uhrbilder, Glasmalereien) als eingebettete JSON-Blöcke |
-| `web/` | **Webfassung** zum Hochladen auf den Webserver (aus `src/` erzeugt, siehe `web/LIESMICH.txt`) |
-| `tools/build_web.py` | erzeugt `web/` – Code, Stil, Schriften, three.js, Daten und Bilder als eigene Dateien, keine externen Verbindungen |
-| `tools/build_offline.py` | erzeugt `dist/St-Marien-Licht-und-Schatten-offline.html` – eine einzige Datei, startet per Doppelklick ohne Server |
+| `index.html` | Seitengerüst: alle Bedienelemente (Markup) |
+| `src/app.js` | Render-Schleife und Start (lädt über die Aufbau-Reihenfolge alle anderen Module) |
+| `src/core/` | `loader.js` (Ladeanzeige), `util.js` (Helfer), `i18n.js` (Sprache, Zahlen- und Zeitformat), `prefs.js` (einfache/erweiterte Bedienung) |
+| `src/state.js` | gemeinsamer Zustand: Datum, Uhrzeit, Ansicht, Schalter; Sonnenstand und Lichtrichtung |
+| `src/scene/` | `renderer.js` (Renderer, Szene, „neu zeichnen“), `textures.js`, `shaders.js`, `materials.js`, `camera.js` (Ansichten, Steuerung), `labels.js` (Beschriftungen) |
+| `src/model/` | `measures.js` (Maße der Kirche), `geometry.js` (Bauteile, Fensterliste), `church.js`, `clock.js` (Astronomische Uhr), `environment.js` (Umgebung), `sundial.js` (Sonnenuhr) |
+| `src/ui/` | Bedienoberfläche: `readouts.js` (Tagesdiagramm, Kompass, Anzeigen), `controls.js` (Datum, Uhrzeit, besondere Tage, Regler), `year.js` (Jahr im Zeitraffer), `panels.js` (Schalter, Karten, Menüs, Glossar, Sprachwechsel), `clockcard.js` (Karte Astronomische Uhr), `tour.js` (Rundgang), `moontowers.js` (Mond zwischen den Türmen), `experiments.js`, `quiz.js`, `share.js` (Teilen, Bild speichern) |
+| `src/light/` | `sky.js` (Sonne, Mond, Himmel, Bahnen), `windows.js` (Licht durch die Fenster), `sun.js` (Licht anwenden, Finsternisse) |
+| `src/astro/` | Astronomie ohne 3D und ohne Seite: `time.js` (Ortszeit, Sommerzeit), `sun.js`, `moon.js`, `eclipses.js`, `common.js` (Ort Lübeck, Umrechnungen) |
+| `src/three-global.js` | three.js r128 aus npm, bereitgestellt als globales `THREE` |
+| `src/data.js` | lädt Glasmalereien, Uhrbilder, Uhrendaten und Umgebung |
+| `src/styles/` | `app.css` (Gestaltung), `fonts.css` (Schriften) |
+| `src/data/` | `uhr.json` (Kalender- und Finsternisdaten der Astronomischen Uhr), `umgebung.json` (LoD2-Gebäude, Gelände, Bäume) |
+| `src/assets/` | `glas/` Glasmalereien (Dateiname = Fenstertyp), `uhr/` Bilder der Astronomischen Uhr, `fonts/` Schriften mit Lizenz |
+| `public/` | wird unverändert in die Webfassung kopiert (`.htaccess`, `LIESMICH.txt`) |
+| `web/` | **Webfassung** zum Hochladen auf den Webserver (erzeugt mit `npm run build:web`, siehe `web/LIESMICH.txt`) |
+| `tests/` | Prüfungen: `unit/` Unit-Tests (Vitest), `e2e/` Browser-Tests (Playwright), `astro/` Vergleich mit Skyfield – siehe `tests/README.md` |
+| `vite.config.mjs` | Bauanleitung für Web-, Offline- und Testfassung |
 
-## Bauen
+### Aufbau-Reihenfolge der Module
+
+Die Module bauen das Modell beim Laden der Seite in einer festen Reihenfolge auf – derselben wie früher in der einen großen Datei:
+
+`core/loader → core/util → core/i18n → core/prefs → model/measures → state → scene/renderer → scene/textures → scene/shaders → scene/materials → model/geometry → model/church → model/clock → model/environment → model/sundial → light/sky → light/windows → light/sun → scene/camera → scene/labels → ui/readouts → ui/controls → ui/year → ui/panels → ui/clockcard → ui/tour → ui/moontowers → ui/experiments → ui/quiz → ui/share → app`
+
+Dafür importiert jedes Modul **als Erstes seinen Vorgänger** (Kommentar „Aufbau-Reihenfolge“), `app.js` als Erstes `ui/share.js`. Ein neues Modul fügt man an der passenden Stelle in diese Kette ein (Vorgänger als ersten Import, Nachfolger importiert das neue Modul als Erstes). Darüber hinaus dürfen sich Module gegenseitig importieren, auch „vorwärts“ (z. B. ruft `light/sun.js` die Kamera auf). Zwei Regeln:
+
+- **Beim Laden** nur benutzen, was weiter vorn in der Reihenfolge steht. Funktionen aus späteren Modulen erst aufrufen, wenn alles aufgebaut ist (in Ereignissen oder ab dem Start in `app.js`).
+- **Variablen eines anderen Moduls nicht neu zuweisen** (`LANG = …` geht dort nicht). Dafür gibt es Setter im Modul selbst, z. B. `setLang()`, `setExpert()`, `requestRender()` (statt früher `dirty = true`), `setMoonMag()`, `setExpReady()`.
+
+## Entwickeln
+
+Voraussetzung: Node.js 20.19 oder neuer (22 LTS empfohlen).
 
 ```bash
-npm install          # three.js r128 und die Schriften (nur zum Bauen nötig)
-npm run build        # web/ und dist/St-Marien-Licht-und-Schatten-offline.html
-npm run serve        # Webfassung lokal unter http://localhost:8000
+npm install            # einmalig: Vite und three.js
+npm run dev            # Entwicklungsserver unter http://localhost:5173 – lädt bei jeder gespeicherten Änderung neu
+npm run build          # web/ und dist/St-Marien-Licht-und-Schatten-offline.html
+npm run preview        # gebaute Webfassung lokal unter http://localhost:8000 ansehen
+npm test               # Unit-Tests (Astronomie, Zeitumstellung) – dauert etwa 2 Sekunden
+npm run test:e2e       # Browser-Tests (Playwright): baut alles, spielt die Bedienung unsichtbar durch, etwa 20 Minuten – lieber auf GitHub
+npm run lint           # ESLint: findet Fehler wie vertippte oder fehlende Namen
+npm run format         # Prettier: formatiert den Code einheitlich (npm run format:check prüft nur)
 ```
 
-`src/marienkirche.html` lädt three.js und die Schriften beim direkten Öffnen von CDNs; die beiden gebauten Fassungen kommen ohne fremde Server aus.
+In WebStorm stehen dieselben Befehle oben rechts in der Liste der Startkonfigurationen (Ordner `.run/`).
+
+WebStorm erkennt ESLint und Prettier an ihren Konfigurationsdateien (`eslint.config.mjs`, `.prettierrc.json`):
+
+- **ESLint:** Settings → Languages & Frameworks → JavaScript → Code Quality Tools → ESLint → „Automatic ESLint configuration“. Fehler werden dann direkt im Editor rot unterstrichen.
+- **Prettier:** Settings → Languages & Frameworks → JavaScript → Prettier → „Automatic Prettier configuration“ und „Run on save“. Dann formatiert WebStorm jede Datei beim Speichern.
+- Reine Formatierungs-Commits stehen in `.git-blame-ignore-revs`; GitHub blendet sie bei „Blame“ aus. Für die Kommandozeile einmalig `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
+
+- **Webfassung** (`web/`): Programm, Gestaltung, Schriften, Daten und Bilder als eigene Dateien, keine Verbindungen zu fremden Servern. Die Pfade sind relativ, die Fassung läuft daher in jedem Unterordner.
+- **Offline-Fassung** (`dist/…-offline.html`): alles in einer einzigen Datei, startet per Doppelklick ohne Server.
+- **Browser:** Chrome, Edge und Firefox ab Version 89, Safari ab 15 (alle seit 2021) – die Module laden mit `await` auf oberster Ebene.
+- `web/` wird mit eingecheckt, weil der Webserver (Vercel) diesen Ordner direkt ausliefert. Nach einer Änderung also `npm run build:web` ausführen und `web/` mit committen.
+
+## Zweige
+
+- `main` – **Produktion**: was hier liegt, ist öffentlich.
+- `entwicklung` – Testfassung; Vercel baut dafür eine Vorschau.
+- Änderungen entstehen auf eigenen Zweigen und kommen per Pull Request nach `entwicklung`. Nach `main` nur nach Freigabe.
 
 ## Einbetten in die Website der Kirche
 
