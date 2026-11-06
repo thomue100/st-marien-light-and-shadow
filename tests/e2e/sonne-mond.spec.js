@@ -76,13 +76,13 @@ test('Mondkarte: zum Mond blicken; steht er unter dem Horizont, nur ein Hinweis'
   await expect(page.locator('#mkMoon')).toBeHidden();
 });
 
-test('Handy: Randhinweise liegen frei, nicht unter Titelleiste, Symbolleiste oder Zeitleiste', async ({ page }) => {
+test('Handy: Randhinweise liegen frei, nicht unter Ansicht, Sprache, Freie Sicht oder Blatt', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openApp(page, { hash: START });
   for (const id of ['#mkSun', '#mkMoon']) {
     await expect(page.locator(id)).toBeVisible();
     const m = await page.locator(id).boundingBox();
-    for (const sel of ['.brand', '.rail', '.timebar', '#freeBtn']) {
+    for (const sel of ['.viewpick', '#langSeg', '#freeBtn', '#msheet']) {
       const o = await page.locator(sel).boundingBox();
       const overlap = m.x < o.x + o.width && m.x + m.width > o.x && m.y < o.y + o.height && m.y + m.height > o.y;
       expect(overlap, `${id} überdeckt ${sel}`).toBe(false);

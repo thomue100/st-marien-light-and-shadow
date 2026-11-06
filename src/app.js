@@ -62,19 +62,19 @@ new ResizeObserver(() => {
   }
 }).observe(stage);
 {
-  // Karten und Hinweise sitzen über der Zeitleiste; auf dem Handy liegt darüber noch die Symbolleiste
+  // Hinweise sitzen über der Zeitleiste, auf dem Handy über dem Blatt (im Querformat liegt es rechts)
   const tb = document.querySelector('.timebar'),
-    rail = document.querySelector('.rail'),
-    narrow = matchMedia('(max-width: 760px)');
+    sheet = document.querySelector('#msheet'),
+    land = matchMedia('(orientation: landscape)');
   const upd = () => {
-    const t = Math.ceil(tb.offsetHeight),
-      r = narrow.matches && rail.offsetHeight ? Math.ceil(rail.offsetHeight) + 6 : 0;
+    const mob = document.body.classList.contains('mobile'),
+      t = mob ? (land.matches ? 0 : Math.ceil(sheet.offsetHeight)) : Math.ceil(tb.offsetHeight);
     document.documentElement.style.setProperty('--tbh0', t + 'px');
-    document.documentElement.style.setProperty('--tbh', t + r + 'px');
+    document.documentElement.style.setProperty('--tbh', t + 'px');
   };
   new ResizeObserver(upd).observe(tb);
-  new ResizeObserver(upd).observe(rail);
-  narrow.addEventListener('change', upd);
+  new ResizeObserver(upd).observe(sheet);
+  land.addEventListener('change', upd);
 }
 new ResizeObserver(() => {
   if (Math.abs((chart.clientWidth || 0) - CHW) > 2) {

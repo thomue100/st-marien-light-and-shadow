@@ -26,8 +26,9 @@ test('Alle Ansichten und alle Karten', async ({ page }) => {
   // Karten: 6 über die Symbolleiste, 3 über die Menüs; immer genau eine offen
   await expect(page.locator('.rail .rbtn[data-card]')).toHaveCount(6);
   const cards = await page.locator('button[data-card]').evaluateAll(bs => bs.map(b => b.dataset.card));
-  expect(cards.sort()).toEqual(['clock', 'disp', 'exp', 'info', 'light', 'moon', 'sd', 'share', 'sun']);
-  for (const k of cards) {
+  const keys = [...new Set(cards)].sort(); // Teilen, Über das Modell, Experimente stehen auch im Handy-Blatt
+  expect(keys).toEqual(['clock', 'disp', 'exp', 'info', 'light', 'moon', 'sd', 'share', 'sun']);
+  for (const k of keys) {
     await showCard(page, k);
     await expect(page.locator('.card:not([hidden])')).toHaveCount(1);
     await page.locator(`#card-${k} .cx`).click();
@@ -111,10 +112,11 @@ test('Rundgang, Sprache, Ansichtstiefe und Teilen', async ({ page }) => {
 
   // Sprache
   await page.evaluate(() => window.__go('aussen', true));
-  await menuItem(page, '#moreBtn', '#langBtn');
+  await page.locator('#langSeg [data-lang="en"]').click();
+  await expect(page.locator('#langSeg [data-lang="en"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.locator('#viewTxt')).toHaveText('Outside');
-  await menuItem(page, '#moreBtn', '#langBtn');
+  await page.locator('#langSeg [data-lang="de"]').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'de');
   await expect(page.locator('#viewTxt')).toHaveText('Außen');
 
@@ -202,19 +204,16 @@ test('Zeitleiste: zweite Zeile aufklappen, Sonne und Mond antippen', async ({ pa
 
 test.describe('Handy', () => {
   test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
-  test('Freie Sicht: Doppeltipp ins Bild holt die Bedienelemente zurück; Karte über der Symbolleiste', async ({
-    page,
-  }) => {
+  test('Freie Sicht: Doppeltipp ins Bild holt die Bedienelemente zurück; Karte im Blatt', async ({ page }) => {
     await openApp(page, { hash: START });
     await page.locator('#freeBtn').tap();
     await expect(page.locator('.timebar')).toBeHidden();
     await page.touchscreen.tap(200, 450);
     await page.touchscreen.tap(200, 450);
     await expect(page.locator('.timebar')).toBeVisible();
-    // Karte liegt über Symbol- und Zeitleiste, nicht darunter
-    await page.locator('.rail .rbtn[data-card="sun"]').tap();
-    const card = await page.locator('#card-sun').boundingBox();
-    const rail = await page.locator('.rail').boundingBox();
-    expect(card.y + card.height).toBeLessThanOrEqual(rail.y);
+    // Karten liegen im Blatt: Reiter „Sonne“ zieht es halb auf
+    await page.locator('#mshTabs [data-tab="sun"]').tap();
+    await expect(page.locator('#msheet')).toHaveClass(/half/);
+    await expect(page.locator('#msheet #card-sun')).toBeVisible();
   });
 });

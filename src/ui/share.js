@@ -134,7 +134,7 @@ if (navigator.share && /^https?:$/.test(location.protocol)) {
   });
 }
 window.addEventListener('hashchange', () => applyCode(location.hash)); // geteilten Link in die Adresszeile einfügen: Ansicht wechselt ohne Neuladen
-document.querySelector('button[data-card="share"]').addEventListener('click', () => setTimeout(updateShare, 0));
+document.addEventListener('stm-card', e => e.detail === 'share' && updateShare());
 let dlNS = null;
 try {
   if (window.claude && window.claude.use)

@@ -137,14 +137,17 @@ function freeArea(W, H) {
     b = H - 12;
   const side = [],
     s = markLayer.getBoundingClientRect();
-  for (const el of document.querySelectorAll('.brand, .rail, .timebar, .card:not([hidden]), #freeBtn, #freeMini')) {
+  for (const el of document.querySelectorAll(
+    '.brand, .rail, .timebar, .card:not([hidden]), #freeBtn, #freeMini, #msheet',
+  )) {
     const o = el.getBoundingClientRect();
     if (!o.width || !o.height) continue;
     const ol = o.left - s.left,
       ot = o.top - s.top,
       ob = o.bottom - s.top;
     if (o.width > W * 0.6) {
-      if (ot > H / 2) b = Math.min(b, ot - 8);
+      if ((ot + ob) / 2 > H / 2)
+        b = Math.min(b, ot - 8); // unten (Zeitleiste, Blatt auf dem Handy)
       else t = Math.max(t, ob + 8);
     } else if (ol > W / 2) side.push([ot - 30, ob + 30, ol - 8]);
     else if (ob < H / 2) t = Math.max(t, ob + 8);
@@ -152,7 +155,12 @@ function freeArea(W, H) {
   return { box: [l + 24, t + 24, r - 24, b - 24], side };
 }
 export function placeSkyMarks() {
-  const on = !state.pano && !tween && state.mode === 'orbit' && MARK_VIEWS.has(state.view);
+  const on =
+    !state.pano &&
+    !tween &&
+    state.mode === 'orbit' &&
+    MARK_VIEWS.has(state.view) &&
+    !document.querySelector('#msheet.full:not([hidden])'); // Blatt ganz offen: kein Platz für Hinweise
   const W = markLayer.clientWidth,
     H = markLayer.clientHeight;
   let area = null;

@@ -51,9 +51,10 @@ test.describe('Handy', () => {
   test('Webfassung: lädt im Hochformat, Leisten überdecken sich nicht', async ({ page }) => {
     await page.goto(WEB + '#d=2026-06-21&t=780&v=aussen&l=de');
     await waitReady(page, false);
-    // Titelleiste, Knopf „Freie Sicht“, Symbolleiste (unten) und Zeitleiste überdecken sich nicht und liegen im Bild
+    // Ansicht, Sprache, Knopf „Freie Sicht“ und das Blatt unten überdecken sich nicht und liegen im Bild
     const boxes = {};
-    for (const sel of ['.brand', '#freeBtn', '.rail', '.timebar']) boxes[sel] = await page.locator(sel).boundingBox();
+    for (const sel of ['.viewpick', '#langSeg', '#freeBtn', '#msheet'])
+      boxes[sel] = await page.locator(sel).boundingBox();
     const sels = Object.keys(boxes);
     for (const [i, a] of sels.entries()) {
       const p = boxes[a];

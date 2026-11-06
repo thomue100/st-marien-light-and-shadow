@@ -15,6 +15,7 @@
 | `e2e/mond-tuerme.spec.js` | Mond zwischen den Türmen: Standort per Fingertipp, Terminsuche West/Ost, Blick vom Standort |
 | `e2e/experimente.spec.js` | Experimente 1–4 mit den berechneten Werten (Schattenlänge, Zeitgleichung, Lichtkalender, Uhr und Himmel) |
 | `e2e/bedienung.spec.js` | alle Ansichten und Karten (Symbolleiste und Menüs „Entdecken“, „⋯“), Knöpfe in den Karten, Tag vor/zurück, besondere Tage, Rundgang, Sprache, Ansichtstiefe, Teilen, Freie Sicht (F, Esc, Knopf, Doppeltipp), Zeitleiste mit zweiter Zeile und Sonne/Mond-Werten |
+| `e2e/handy.spec.js` | Handy: Startseite, Rundgang mit Fingertext und Wischen, Blatt in drei Stufen mit Reitern, „Mehr“ mit Teilen und Desktop-Hinweis, Sprache, Querformat |
 | `e2e/sonne-mond.spec.js` | Sonne und Mond finden: Randhinweise am Bildrand, „Blick zur Sonne“ / „Blick zum Mond“, Link, Mond unter dem Horizont, Handy |
 | `e2e/webfassung.spec.js` | die ausgelieferten Fassungen ohne Testhaken: Webfassung (Menü, Link, Handy, keine fremden Server) und Offline-Datei |
 | `e2e/helpers.js` | gemeinsame Hilfen: Öffnen, Warten auf den Aufbau und auf Kamerafahrten, Fingertipps ins Modell |

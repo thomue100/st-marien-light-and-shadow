@@ -8,8 +8,8 @@
       content="Interaktives 3D-Modell von St. Marien zu Lübeck: Sonne, Mond, Sonnenuhr und Astronomische Uhr zu jeder Stunde des Jahres."
     />
     <title>St. Marien – Licht und Schatten</title>
-    <script type="module" crossorigin src="./assets/index-DaxPcayG.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BuGqbGlm.css">
+    <script type="module" crossorigin src="./assets/index-ezX3t_pW.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CIizWoa8.css">
   </head>
   <body>
     <div id="app">
@@ -128,6 +128,10 @@
             </div>
           </div>
         </div>
+        <div class="langseg" id="langSeg" role="group" aria-label="Sprache · Language">
+          <button data-lang="de" lang="de" aria-pressed="true" aria-label="Deutsch" title="Deutsch">DE</button
+          ><button data-lang="en" lang="en" aria-pressed="false" aria-label="English" title="English">EN</button>
+        </div>
         <div class="mwrap">
           <button
             class="mbtn icon"
@@ -135,8 +139,8 @@
             aria-haspopup="menu"
             aria-expanded="false"
             aria-controls="moreMenu"
-            aria-label="Weitere: Sprache, Über das Modell, Teilen"
-            data-en-aria="More: language, about, share"
+            aria-label="Weitere: Über das Modell, Teilen, Freie Sicht"
+            data-en-aria="More: about, share, clear view"
             title="Weitere"
             data-en-title="More"
           >
@@ -147,7 +151,6 @@
             </svg>
           </button>
           <div class="dmenu dmore" id="moreMenu" role="menu" hidden>
-            <button id="langBtn" role="menuitem" lang="en">English</button>
             <button data-card="info" role="menuitem" aria-expanded="false" data-en="About the model">
               Über das Modell
             </button>
@@ -277,6 +280,46 @@
           <span class="rl" data-en="Display">Darstellung</span>
         </button>
       </nav>
+      <section
+        class="msheet"
+        id="msheet"
+        hidden
+        aria-label="Datum, Uhrzeit und Bereiche"
+        data-en-aria="Date, time and panels"
+      >
+        <button class="mshandle" id="mshHandle" aria-label="Blatt aufziehen" data-en-aria="Pull up the panel">
+          <span></span>
+        </button>
+        <div class="mshtime" id="mshTime"></div>
+        <div class="mshtabs" id="mshTabs" role="tablist">
+          <button role="tab" data-tab="sun" aria-selected="true" data-en="Sun">Sonne</button
+          ><button role="tab" data-tab="moon" aria-selected="false" data-en="Moon">Mond</button
+          ><button role="tab" data-tab="church" aria-selected="false" data-en="Church">Kirche</button
+          ><button role="tab" data-tab="more" aria-selected="false" data-en="More">Mehr</button>
+        </div>
+        <div class="mshbody" id="mshBody">
+          <div class="mshmore" id="mshMore" hidden>
+            <button class="mrow" data-card="share" aria-expanded="false">
+              <span data-en="Share and save">Teilen und speichern</span>
+            </button>
+            <button class="mrow" data-card="info" aria-expanded="false">
+              <span data-en="About the model">Über das Modell</span>
+            </button>
+            <p class="mgrp" data-en="On a larger screen">Am größeren Bildschirm</p>
+            <button class="mrow" data-card="exp" aria-expanded="false">
+              <span data-en="Experiments 1–4">Experimente 1–4</span><span class="badge">Desktop</span>
+            </button>
+            <p
+              class="small mnote"
+              data-en="Shadow lengths, equation of time, light calendar of the windows and “Moon between the towers” need room for charts and the model side by side – best on a computer or tablet."
+            >
+              Schattenlängen, Zeitgleichung, Lichtkalender der Fenster und „Mond zwischen den Türmen“ brauchen Platz für
+              Diagramm und Modell nebeneinander – am besten am Computer oder Tablet.
+            </p>
+            <button class="chip msend" id="sendLink" data-en="Send me the link">Link an mich senden</button>
+          </div>
+        </div>
+      </section>
 
       <section class="card" id="card-sun" hidden aria-label="Sonnenstand" data-en-aria="Sun">
         <div class="chead">
@@ -1439,7 +1482,7 @@
             <svg viewBox="0 0 24 24" aria-hidden="true" class="sc-moon">
               <path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z" />
             </svg>
-            <span id="moonChipTxt">–</span>
+            <span id="moonChipTxt">–</span><span class="mpct" id="moonChipPct"></span>
           </button>
           <div class="tb-clock">
             <output id="timeOut">12:00</output><span class="small" id="tzName" data-gl="tz">MEZ</span>

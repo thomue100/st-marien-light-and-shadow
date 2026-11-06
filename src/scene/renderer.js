@@ -34,7 +34,7 @@ try {
     '</div>';
   throw new Error('St. Marien: WebGL nicht verfügbar', { cause: e });
 }
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowEnd ? 1.5 : 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowEnd ? 1.25 : coarse ? 1.5 : 2)); // Handy: weniger Pixel, flüssiger
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 // Handy im Hintergrund o. Ä.: Browser entzieht den Grafikspeicher. Statt schwarzer Fläche Hinweis und Neuladen mit der aktuellen Ansicht

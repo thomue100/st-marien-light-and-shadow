@@ -9,7 +9,7 @@ import { cur, state, sunVec } from '../state.js';
 import { camera, coarse, lowEnd, renderer, requestRender, scene } from './renderer.js';
 import { CLK } from '../model/clock.js';
 import { SD, sdX, sdZ } from '../model/sundial.js';
-import { envGroup, envH, envHeightAt } from '../model/environment.js';
+import { envGroup, envH, envHeightAt, farBuildings } from '../model/environment.js';
 import { occluders } from '../model/geometry.js';
 import { curMoonPass, hourOf, setMoonMag } from '../light/sky.js';
 import { updateLabelsVisibility } from './labels.js';
@@ -584,6 +584,10 @@ export function busyHide() {
 export function goView(name, instant) {
   if (name === 'himmel') fitSky();
   if (name === 'zurSonne' || name === 'zumMond') bodyView(name);
+  // Handy: die ganze Altstadtinsel nur dort zeichnen, wo man sie sieht – spart Rechenzeit
+  farBuildings(
+    !document.body.classList.contains('mobile') || ['insel', 'luft', 'himmel', 'mtTop', 'mtCam'].includes(name),
+  );
   const v = VIEWS[name];
   if (!v) return;
   {

@@ -2225,36 +2225,6 @@ body.touring .yearnote {
   .freebtn kbd {
     display: none;
   }
-  /* Symbolleiste als beschriftete Leiste über der Zeitleiste */
-  .rail {
-    top: auto;
-    left: max(10px, env(safe-area-inset-left, 0px));
-    right: max(10px, env(safe-area-inset-right, 0px));
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px) + var(--tbh0) + 6px);
-    width: auto;
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 0;
-    padding: 3px 4px;
-  }
-  .rgrp,
-  .rsep {
-    display: none;
-  }
-  .rbtn {
-    height: 50px;
-  }
-  .rl {
-    font-size: 10.5px;
-  }
-  .card {
-    top: auto;
-    left: max(10px, env(safe-area-inset-left, 0px));
-    right: max(10px, env(safe-area-inset-right, 0px));
-    width: auto;
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px) + var(--tbh) + 8px);
-    max-height: min(56%, calc(100% - 80px - var(--tbh)));
-  }
   .hint {
     white-space: normal;
     text-align: center;
@@ -2274,12 +2244,6 @@ body.touring .yearnote {
     content: ' ▴';
   }
   .card.min .cbody {
-    display: none;
-  }
-  /* Rundgang: Zeitleiste und Leiste ausblenden, Karte als schmale Leiste unten, Text auf drei Zeilen gekürzt */
-  body.touring .timebar,
-  body.touring .rail,
-  body.touring .night {
     display: none;
   }
   .yearnote {
@@ -2330,89 +2294,6 @@ body.touring .yearnote {
   }
   .tbtns .btn {
     padding: 5px 12px;
-  }
-  /* Zeitleiste kompakt: Zeile 1 Datum, Abspielen, Uhrzeit, Aufklappen; Zeile 2 Schieber.
-     Aufgeklappt: Tempo, besondere Tage, Jetzt und das Tagesdiagramm */
-  .timebar {
-    left: max(10px, env(safe-area-inset-left, 0px));
-    right: max(10px, env(safe-area-inset-right, 0px));
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-    padding: 6px 8px 8px;
-    gap: 4px;
-  }
-  .tb-main {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .tb-more {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .tb-date {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-  #date {
-    flex: 1 1 8em;
-    min-width: 7.2em;
-    height: 40px;
-    box-sizing: border-box;
-    font-size: 14px;
-    padding: 4px 5px;
-  }
-  .dstep {
-    width: 34px;
-    height: 40px;
-    padding: 0;
-  }
-  #play {
-    height: 40px;
-    min-width: 44px;
-    justify-content: center;
-  }
-  #playTxt {
-    display: none;
-  }
-  .tb-clock {
-    flex-direction: row;
-    align-items: baseline;
-    gap: 5px;
-  }
-  .tb-clock output {
-    font-size: 19px;
-  }
-  .tbfold {
-    order: 10;
-    width: 40px;
-    height: 40px;
-  }
-  .tb-track {
-    order: 9;
-    flex: 1 1 calc(100% - 52px); /* eigene Zeile, daneben nur der Aufklapp-Knopf */
-    min-width: 0;
-    height: 24px;
-  }
-  .dstep {
-    width: 30px;
-  }
-  body:not(.tbopen) #chart {
-    display: none;
-  }
-  body.tbopen .tb-track {
-    height: 62px;
-  }
-  #speed,
-  #presetBtn,
-  #nowBtn {
-    min-height: 40px;
-  }
-  .tb-sum {
-    display: none;
-  }
-  .pmenu {
-    left: 0;
-    right: auto;
-    bottom: calc(100% + 8px);
   }
   .lbl {
     font-size: 9.5px;
@@ -2472,4 +2353,452 @@ body.touring .yearnote {
   * {
     scroll-behavior: auto;
   }
+}
+
+/* Sprachumschalter „DE | EN“: immer sichtbar in der Titelleiste */
+.langseg {
+  flex: none;
+  display: inline-flex;
+  height: 34px;
+  box-sizing: border-box;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 999px;
+  background: var(--chip);
+  border: 1px solid var(--line);
+}
+.langseg button {
+  min-width: 36px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.langseg button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--panel);
+}
+.langseg button[aria-pressed='false']:hover {
+  background: var(--chip);
+}
+
+/* ---------- Handy: Modell im Vollbild, ein Blatt unten statt Symbolleiste, Karten und Zeitleiste ---------- */
+.msheet[hidden],
+.mshmore[hidden] {
+  display: none !important;
+}
+body.mobile .rail {
+  display: none;
+}
+body.mobile .msheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  box-sizing: border-box;
+  max-height: calc(100% - 64px - env(safe-area-inset-top, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 12px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -8px 30px rgba(20, 16, 12, 0.22);
+}
+body.mobile .msheet.half {
+  height: 58%;
+}
+body.mobile .msheet.full {
+  height: calc(100% - 66px - env(safe-area-inset-top, 0px));
+}
+.mshandle {
+  align-self: center;
+  width: 96px;
+  height: 26px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  touch-action: none;
+}
+.mshandle span {
+  width: 44px;
+  height: 5px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--ink) 28%, transparent);
+}
+body.mobile .msheet:not(.half):not(.full) .mshbody {
+  display: none;
+}
+body.mobile .msheet:not(.half):not(.full) .mshtabs button[aria-selected='true'] {
+  background: none;
+  box-shadow: none;
+  font-weight: 400;
+} /* zugeklappt: Reiter nur als Einstieg, keiner gewählt */
+.mshtabs {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--chip);
+}
+.mshtabs button {
+  height: 40px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  font-size: 15px;
+}
+.mshtabs button[aria-selected='true'] {
+  background: var(--bg);
+  box-shadow: 0 1px 4px rgba(20, 16, 12, 0.15);
+  font-weight: 600;
+}
+.mshbody {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mshmore {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 8px;
+}
+.mrow {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 6px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  text-align: left;
+  font-size: 16px;
+}
+.mrow .badge {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+.mgrp {
+  margin: 14px 6px 2px;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.mnote {
+  margin: 4px 6px 8px;
+}
+.msend {
+  align-self: flex-start;
+  min-height: 44px;
+  margin-left: 6px;
+  padding: 0 16px;
+  font-size: 15px;
+}
+/* Karten im Blatt: ohne eigenen Rahmen */
+body.mobile .msheet .card {
+  position: static;
+  width: auto;
+  max-height: none;
+  box-shadow: none;
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: 0;
+  overflow: visible;
+  flex: none;
+}
+body.mobile .msheet .card .chead {
+  padding: 4px 2px 6px;
+}
+/* Zeitleiste im Blatt: Zeile 1 Datum und Abspielen, Zeile 2 Uhrzeit mit Sonne und Mond, Zeile 3 großer Schieber */
+body.mobile .msheet .timebar {
+  position: static;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  padding: 0;
+  gap: 6px;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: 0;
+}
+body.mobile .tb-main,
+body.mobile .tb-more {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+body.mobile .tb-date {
+  flex: 1 1 calc(100% - 64px);
+  min-width: 0;
+}
+body.mobile #date {
+  flex: 1 1 8em;
+  min-width: 7.2em;
+  height: 44px;
+  box-sizing: border-box;
+  font-size: 15px;
+  padding: 4px 6px;
+}
+body.mobile .dstep {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font-size: 18px;
+}
+body.mobile #play {
+  height: 44px;
+  min-width: 56px;
+  justify-content: center;
+  border-radius: 10px;
+}
+body.mobile #playTxt {
+  display: none;
+}
+body.mobile .tb-clock {
+  order: 3;
+  margin-right: auto;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
+}
+body.mobile .tb-clock output {
+  font-size: 26px;
+}
+body.mobile .skychip:not([hidden]) {
+  display: inline-flex;
+  order: 4;
+  min-height: 36px;
+}
+body.mobile .tb-track {
+  order: 9;
+  flex: 1 1 calc(100% - 56px);
+  min-width: 0;
+  height: 34px;
+}
+body.mobile:not(.tbopen) #chart {
+  display: none;
+}
+body.mobile.tbopen .tb-track {
+  height: 76px;
+}
+body.mobile #time {
+  height: 34px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+body.mobile #time::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--ink) 16%, transparent);
+}
+body.mobile #time::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 30px;
+  height: 30px;
+  margin-top: -12px;
+  border-radius: 50%;
+  background: var(--brick);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+body.mobile #time::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--ink) 16%, transparent);
+}
+body.mobile #time::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--brick);
+  border: 3px solid #fff;
+}
+body.mobile .tbfold {
+  order: 10;
+  width: 44px;
+  height: 44px;
+}
+body.mobile #speed,
+body.mobile #presetBtn,
+body.mobile #nowBtn {
+  min-height: 44px;
+}
+body.mobile .tb-sum {
+  display: none;
+}
+body.mobile .pmenu {
+  left: 0;
+  right: auto;
+  bottom: calc(100% + 8px);
+}
+body.mobile.touring .msheet,
+body.mobile.touring .night {
+  display: none !important;
+}
+/* obere Leiste: links Haus und Ansicht, rechts Sprache und Freie Sicht */
+body.mobile .brand {
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  left: max(10px, env(safe-area-inset-left, 0px));
+  right: calc(max(10px, env(safe-area-inset-right, 0px)) + 52px);
+  max-width: none;
+  padding: 0;
+  gap: 8px;
+  justify-content: space-between;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+body.mobile .brand h1,
+body.mobile .brand .mwrap {
+  display: none;
+}
+body.mobile .viewpick {
+  height: 44px;
+  min-width: 0;
+  background: var(--panel);
+  border-color: transparent;
+  box-shadow: var(--shadow);
+}
+body.mobile .homebtn {
+  width: 44px;
+}
+body.mobile .vbtn {
+  padding: 0 12px 0 10px;
+  font-size: 16px;
+}
+body.mobile .vbtn .vlab {
+  display: none;
+}
+body.mobile .langseg {
+  height: 44px;
+  background: var(--panel);
+  border-color: transparent;
+  box-shadow: var(--shadow);
+}
+body.mobile .langseg button {
+  min-width: 42px;
+  font-size: 14px;
+}
+body.mobile .vmenu {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: min(370px, calc(100vw - 20px));
+  max-height: calc(100vh - 80px);
+}
+body.mobile .vmenu button {
+  white-space: normal;
+  padding: 10px 8px;
+}
+body.mobile .freebtn {
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  right: max(10px, env(safe-area-inset-right, 0px));
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+}
+body.mobile .freebtn .fl,
+body.mobile .freebtn kbd {
+  display: none;
+}
+/* Startseite (Begrüßung) auf dem Handy: große Knöpfe, Rundgang zuerst */
+body.mobile #tour.welcome {
+  padding: 22px 18px 18px;
+  gap: 10px;
+  border-top: 0;
+  border-radius: 18px;
+  max-height: none;
+}
+body.mobile #tour.welcome h3 {
+  font-size: 26px;
+}
+body.mobile #tour.welcome #tourText {
+  display: block;
+  font-size: 16px;
+  line-height: 1.4;
+}
+body.mobile #tour.welcome .tchoice {
+  flex-direction: column;
+  gap: 10px;
+}
+body.mobile #tour.welcome .tchoice button {
+  min-height: 52px;
+  justify-content: center;
+  border-radius: 14px;
+  font-size: 17px;
+}
+body.mobile #tour .tbtns button {
+  min-height: 48px;
+  padding: 0 18px;
+}
+/* Querformat: Blatt als Seitenleiste rechts */
+@media (orientation: landscape) {
+  body.mobile .msheet,
+  body.mobile .msheet.half,
+  body.mobile .msheet.full {
+    top: 0;
+    left: auto;
+    width: min(340px, 46%);
+    height: auto;
+    max-height: none;
+    padding-top: calc(8px + env(safe-area-inset-top, 0px));
+    border-radius: 0;
+    box-shadow: -8px 0 30px rgba(20, 16, 12, 0.2);
+  }
+  body.mobile .mshandle {
+    display: none;
+  }
+  body.mobile .brand {
+    right: calc(min(340px, 46%) + 62px);
+  }
+  body.mobile .freebtn {
+    right: calc(min(340px, 46%) + 10px);
+  }
+  body.mobile .tourcard {
+    right: auto;
+    width: min(380px, 50%);
+  }
+}
+body.mobile .card .chead h2::after {
+  content: none;
+}
+body.mobile .mpct {
+  display: none;
+}
+body.mobile .skychip {
+  padding: 4px 9px;
+}
+body.mobile:has(#msheet.full) .hint {
+  display: none;
+}
+.mshmore {
+  order: -1; /* unter „Mehr“: Teilen, Über das Modell und die Desktop-Werkzeuge zuerst, dann Darstellung und Licht */
 }
