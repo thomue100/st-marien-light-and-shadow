@@ -1740,7 +1740,9 @@ body.free .card,
 body.free #labels,
 body.free .hint,
 body.free .tourcard,
-body.free .yearnote {
+body.free .yearnote,
+body.free .panonote,
+body.free .glpop {
   display: none !important;
 }
 /* Steuerkreis zum Gehen in Innenansichten (nur bei Fingerbedienung) */

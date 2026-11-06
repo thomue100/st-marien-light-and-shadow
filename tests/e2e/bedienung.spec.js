@@ -78,6 +78,7 @@ test('Tag vor und zurück, besondere Tage', async ({ page }) => {
   await page.locator('#dayPrev').click();
   await expect(date).toHaveValue('2026-06-20');
   const special = ['2026-03-20', '2026-06-21', '2026-08-15', '2026-09-22', '2026-12-21'];
+  await page.locator('#tbFold').click(); // „Besondere Tage“ liegen in der zweiten Zeile der Zeitleiste
   for (const [i, d] of special.entries()) {
     await page.locator('#presetBtn').click();
     await page.locator('#presets button').nth(i).click();

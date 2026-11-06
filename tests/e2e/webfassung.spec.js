@@ -21,7 +21,7 @@ test('Webfassung: lädt auf Deutsch, Ansichten über das Menü, keine fremden Se
   await expect(page).toHaveTitle(/St\. Marien/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'de');
   await page.locator('#tourChoice [data-go="free"]').click();
-  await expect(page.locator('#views button[data-view]')).toHaveCount(18);
+  await expect(page.locator('#views button[data-view]')).toHaveCount(20);
   // je eine Ansicht außen, Himmel (wird beim ersten Mal berechnet), innen und die Uhr; alle Ansichten prüft bedienung.spec.js
   for (const [v, label] of [
     ['luft', 'Luftbild'],
