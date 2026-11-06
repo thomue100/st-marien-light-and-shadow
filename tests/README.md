@@ -19,13 +19,15 @@
 | `e2e/helpers.js` | gemeinsame Hilfen: Öffnen, Warten auf den Aufbau und auf Kamerafahrten, Fingertipps ins Modell |
 | `hooks.mjs` | Testhaken: macht interne Namen aller Module als `window.__…` erreichbar (Liste `HOOKS`); `npm run build:test` baut damit `tests/test.html` (eine Datei, wie die Offline-Fassung). Fehlt ein Name, bricht der Testbau ab. |
 
-Nützlich: `npx playwright test quiz` (nur ein Test), `npm run test:e2e:ui` (Tests im Fenster ansehen, Schritt für Schritt), `npx playwright show-report tests/.report` (Bericht des letzten Laufs). In WebStorm: Startkonfiguration „Browser-Tests (npm run test:e2e)“ oder der grüne Pfeil neben einem Test (Playwright-Unterstützung ist eingebaut).
+Die Software-Grafik lastet den Prozessor stark aus. Auf dem eigenen Rechner laufen die Tests deshalb immer unsichtbar und nur ein Browser zur Zeit; sichtbare Läufe (`--headed`, `--ui`, `--debug`) sind abgeschaltet und brechen mit einer Meldung ab. Am schonendsten ist es, die Tests auf GitHub laufen zu lassen (siehe unten).
+
+Nützlich: `npx playwright test quiz` (nur ein Test, vorher einmal `npm run build && npm run build:test`), `npx playwright show-report tests/.report` (Bericht des letzten Laufs, mit Bildern zu jedem Schritt der fehlgeschlagenen Tests). In WebStorm: Startkonfiguration „Browser-Tests (npm run test:e2e)“.
 
 ## Auf GitHub
 
-Bei jedem Pull Request nach `entwicklung` oder `main` laufen automatisch (`.github/workflows/pruefungen.yml`):
+Alle Prüfungen sind ein Hinweis, keine Sperre: Ein rotes Kreuz verhindert weder das Übernehmen eines Pull Requests noch das Veröffentlichen über Vercel.
 
-1. **Code, Unit-Tests, Bau:** ESLint, Prettier, Unit-Tests, Bau; dazu die Prüfung, ob der eingecheckte Ordner `web/` zum Quelltext passt (Vercel liefert ihn direkt aus).
-2. **Browser-Tests (Playwright):** alle Tests aus `e2e/`; der Bericht liegt danach unter „Actions“ → Lauf → „Artifacts“.
+- **Code, Unit-Tests, Bau** (`.github/workflows/pruefungen.yml`) läuft automatisch bei jedem Pull Request nach `entwicklung` oder `main`, etwa 20 Sekunden: ESLint, Prettier, Unit-Tests, Bau; dazu die Prüfung, ob der eingecheckte Ordner `web/` zum Quelltext passt (Vercel liefert ihn direkt aus).
+- **Browser-Tests** (`.github/workflows/browsertests.yml`) laufen nur von Hand, etwa 16 Minuten: „Actions“ → „Browser-Tests“ → „Run workflow“ → Zweig wählen. Der Bericht liegt danach unter „Actions“ → Lauf → „Artifacts“.
 
 Die ausführliche Astronomie-Prüfung (`.github/workflows/astronomie.yml`) läuft montags, von Hand und bei Pull Requests, die `src/astro/` ändern.

@@ -1,0 +1,46 @@
+# Browser-Tests (Playwright) – nur von Hand: GitHub → „Actions“ → „Browser-Tests“ → „Run workflow“, Zweig wählen.
+# Dauer etwa 16 Minuten. Ein rotes Ergebnis sperrt nichts; Übernehmen und Veröffentlichen gehen trotzdem.
+name: Browser-Tests
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: browsertests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    name: Browser-Tests (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Chromium für Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Bauen (Web-, Offline- und Testfassung)
+        run: npm run build && npm run build:test
+      - name: Browser-Tests
+        run: npx playwright test
+      - name: Bericht sichern
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-bericht
+          path: tests/.report
+          retention-days: 14
+      - name: Spuren der fehlgeschlagenen Tests sichern
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-spuren
+          path: tests/.results
+          retention-days: 14

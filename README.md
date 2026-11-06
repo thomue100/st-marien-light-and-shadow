@@ -53,7 +53,7 @@ npm run dev            # Entwicklungsserver unter http://localhost:5173 – läd
 npm run build          # web/ und dist/St-Marien-Licht-und-Schatten-offline.html
 npm run preview        # gebaute Webfassung lokal unter http://localhost:8000 ansehen
 npm test               # Unit-Tests (Astronomie, Zeitumstellung) – dauert etwa 2 Sekunden
-npm run test:e2e       # Browser-Tests (Playwright): baut alles und spielt die Bedienung durch, einige Minuten
+npm run test:e2e       # Browser-Tests (Playwright): baut alles, spielt die Bedienung unsichtbar durch, etwa 20 Minuten – lieber auf GitHub
 npm run lint           # ESLint: findet Fehler wie vertippte oder fehlende Namen
 npm run format         # Prettier: formatiert den Code einheitlich (npm run format:check prüft nur)
 ```
