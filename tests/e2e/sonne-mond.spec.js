@@ -1,5 +1,5 @@
 // Sonne und Mond in den Außenansichten finden: Randhinweise und „Blick zur Sonne“ / „Blick zum Mond“.
-import { test, expect, openApp, waitCameraStill } from './helpers.js';
+import { test, expect, openApp, showCard, waitCameraStill } from './helpers.js';
 
 // 21. Juni 2026, 14:42 MESZ: Sonne 55,8° hoch im Südwesten, Mond 13,9° im Ostsüdosten – beide außerhalb der Ansicht „Außen“
 const START = '#d=2026-06-21&t=882&v=aussen&l=de';
@@ -42,7 +42,7 @@ test('Randhinweis führt zur Sonne, Kirche und Sonne im Bild, Link stellt den Bl
   expect(tower.y).toBeGreaterThan(-0.6);
 
   // Teilen und den Link neu öffnen
-  await page.locator('.rail .rbtn[data-card="share"]').click();
+  await showCard(page, 'share');
   const url = await page.locator('#shareUrl').inputValue();
   expect(url).toMatch(/v=zurSonne/);
   const page2 = await browser.newPage({ viewport: { width: 1400, height: 850 } });
@@ -82,7 +82,7 @@ test('Handy: Randhinweise liegen frei, nicht unter Titelleiste, Symbolleiste ode
   for (const id of ['#mkSun', '#mkMoon']) {
     await expect(page.locator(id)).toBeVisible();
     const m = await page.locator(id).boundingBox();
-    for (const sel of ['.brand', '.rail', '.timebar']) {
+    for (const sel of ['.brand', '.rail', '.timebar', '#freeBtn']) {
       const o = await page.locator(sel).boundingBox();
       const overlap = m.x < o.x + o.width && m.x + m.width > o.x && m.y < o.y + o.height && m.y + m.height > o.y;
       expect(overlap, `${id} überdeckt ${sel}`).toBe(false);

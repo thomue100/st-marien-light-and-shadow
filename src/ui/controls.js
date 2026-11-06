@@ -126,7 +126,7 @@ export function goEclipse(e) {
 }
 $('#goSolEcl').addEventListener('click', () => goEclipse(nextEclipses().s));
 $('#goLunEcl').addEventListener('click', () => goEclipse(nextEclipses().l));
-document.querySelector('.rbtn[data-card="moon"]').addEventListener('click', () => setTimeout(updateEclText, 0));
+document.querySelector('button[data-card="moon"]').addEventListener('click', () => setTimeout(updateEclText, 0));
 export function goNewMoon() {
   const nn = moonPhaseTime(localToUtc(state.y, state.m, state.d, state.minutes) + 3600000, 0, 1);
   if (nn !== null) gotoInstant(nn, 22 * 60);
@@ -282,6 +282,8 @@ export function setPlaying(p) {
       ? tr('Jahreslauf', 'Play year')
       : tr('Tagesverlauf', 'Play day');
   $('#playIcon').innerHTML = p ? '<path d="M2 1h3v10H2zM7 1h3v10H7z"/>' : '<path d="M2 1l9 5-9 5z"/>';
+  $('#freePlay svg').innerHTML = $('#playIcon').innerHTML;
+  $('#freePlay').setAttribute('aria-label', p ? tr('Anhalten', 'Pause') : tr('Tagesverlauf abspielen', 'Play the day'));
   if (!p) updateSun(true);
 }
 $('#play').addEventListener('click', () => setPlaying(!state.playing));

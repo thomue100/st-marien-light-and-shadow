@@ -61,10 +61,21 @@ new ResizeObserver(() => {
     requestRender();
   }
 }).observe(stage);
-new ResizeObserver(() => {
-  const tb = document.querySelector('.timebar');
-  document.documentElement.style.setProperty('--tbh', Math.ceil(tb.offsetHeight) + 'px');
-}).observe(document.querySelector('.timebar')); // Karten und Hinweise sitzen über der Zeitleiste
+{
+  // Karten und Hinweise sitzen über der Zeitleiste; auf dem Handy liegt darüber noch die Symbolleiste
+  const tb = document.querySelector('.timebar'),
+    rail = document.querySelector('.rail'),
+    narrow = matchMedia('(max-width: 760px)');
+  const upd = () => {
+    const t = Math.ceil(tb.offsetHeight),
+      r = narrow.matches && rail.offsetHeight ? Math.ceil(rail.offsetHeight) + 6 : 0;
+    document.documentElement.style.setProperty('--tbh0', t + 'px');
+    document.documentElement.style.setProperty('--tbh', t + r + 'px');
+  };
+  new ResizeObserver(upd).observe(tb);
+  new ResizeObserver(upd).observe(rail);
+  narrow.addEventListener('change', upd);
+}
 new ResizeObserver(() => {
   if (Math.abs((chart.clientWidth || 0) - CHW) > 2) {
     drawChart();

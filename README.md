@@ -7,7 +7,7 @@ Interaktives 3D-Modell der Marienkirche zu Lübeck (three.js r128). Es zeigt Son
 3. **die Astronomische Uhr** mit Kalenderscheibe und Finsternissen,
 4. **das Licht im Kirchenraum** – Lichtbahnen durch die Fenster und die farbigen Glasmalereien.
 
-Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, die im Modell gelöst werden, den Jahreslauf im Zeitraffer, eine Himmelsansicht mit Sonnen- und Mondbahn, „Blick zur Sonne“ und „Blick zum Mond“ (mit Hinweisen am Bildrand, wenn Sonne oder Mond außerhalb des Bildes stehen) sowie eine deutsche und eine englische Oberfläche.
+Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, die im Modell gelöst werden, den Jahreslauf im Zeitraffer, eine Himmelsansicht mit Sonnen- und Mondbahn, „Blick zur Sonne“ und „Blick zum Mond“ (mit Hinweisen am Bildrand, wenn Sonne oder Mond außerhalb des Bildes stehen), die „Freie Sicht“ ohne Bedienelemente (Taste F) sowie eine deutsche und eine englische Oberfläche.
 
 ## Aufbau
 

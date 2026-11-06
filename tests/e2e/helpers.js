@@ -105,3 +105,24 @@ export async function windowCenter(page, type) {
   }, type);
   return toScreen(page, ...c);
 }
+
+/**
+ * Karte öffnen wie ein Nutzer: über die Symbolleiste, sonst über das passende Menü
+ * (Experimente unter „Entdecken“, Über das Modell und Teilen unter „⋯“).
+ */
+export async function showCard(page, k) {
+  if (await page.locator(`#card-${k}`).isVisible()) return;
+  const rail = page.locator(`.rail .rbtn[data-card="${k}"]`);
+  if (await rail.count()) await rail.click();
+  else {
+    await page.locator(k === 'exp' ? '#discBtn' : '#moreBtn').click();
+    await page.locator(`.dmenu button[data-card="${k}"]`).click();
+  }
+  await expect(page.locator(`#card-${k}`)).toBeVisible();
+}
+
+/** Eintrag in einem Menü der Titelleiste wählen. */
+export async function menuItem(page, menuBtn, sel) {
+  await page.locator(menuBtn).click();
+  await page.locator(sel).click();
+}

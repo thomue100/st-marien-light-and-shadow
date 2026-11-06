@@ -1,5 +1,5 @@
 // Bedienung in der Testfassung: Ansichten, Karten, Knöpfe, Tage, Rundgang, Sprache, Ansichtstiefe, Teilen.
-import { test, expect, openApp, waitCameraStill } from './helpers.js';
+import { test, expect, menuItem, openApp, showCard, waitCameraStill } from './helpers.js';
 
 const START = '#d=2026-06-21&t=780&v=aussen&l=de';
 
@@ -23,21 +23,21 @@ test('Alle Ansichten und alle Karten', async ({ page }) => {
   await page.locator('#views button[data-view="sued"]').click();
   await waitCameraStill(page);
   await expect(page.locator('#viewTxt')).toHaveText('Südseite');
-  // Karten der Symbolleiste: immer genau eine offen
-  const cards = await page.locator('.rail .rbtn[data-card]').evaluateAll(bs => bs.map(b => b.dataset.card));
-  expect(cards).toHaveLength(9);
+  // Karten: 6 über die Symbolleiste, 3 über die Menüs; immer genau eine offen
+  await expect(page.locator('.rail .rbtn[data-card]')).toHaveCount(6);
+  const cards = await page.locator('button[data-card]').evaluateAll(bs => bs.map(b => b.dataset.card));
+  expect(cards.sort()).toEqual(['clock', 'disp', 'exp', 'info', 'light', 'moon', 'sd', 'share', 'sun']);
   for (const k of cards) {
-    await page.locator(`.rail .rbtn[data-card="${k}"]`).click();
-    await expect(page.locator(`#card-${k}`)).toBeVisible();
+    await showCard(page, k);
     await expect(page.locator('.card:not([hidden])')).toHaveCount(1);
-    await page.locator(`.rail .rbtn[data-card="${k}"]`).click();
+    await page.locator(`#card-${k} .cx`).click();
     await expect(page.locator(`#card-${k}`)).toBeHidden();
   }
 });
 
 /** Knopf in einer Karte drücken (Karte vorher öffnen) und die Kamerafahrt abwarten. */
 async function press(page, card, sel, wait = true) {
-  if (await page.locator(`#card-${card}`).isHidden()) await page.locator(`.rail .rbtn[data-card="${card}"]`).click();
+  await showCard(page, card);
   await page.locator(sel).click();
   if (wait) await waitCameraStill(page);
 }
@@ -78,6 +78,7 @@ test('Tag vor und zurück, besondere Tage', async ({ page }) => {
   await page.locator('#dayPrev').click();
   await expect(date).toHaveValue('2026-06-20');
   const special = ['2026-03-20', '2026-06-21', '2026-08-15', '2026-09-22', '2026-12-21'];
+  await page.locator('#tbFold').click(); // „Besondere Tage“ liegen in der zweiten Zeile der Zeitleiste
   for (const [i, d] of special.entries()) {
     await page.locator('#presetBtn').click();
     await page.locator('#presets button').nth(i).click();
@@ -98,7 +99,7 @@ test('Rundgang, Sprache, Ansichtstiefe und Teilen', async ({ page }) => {
     '2026-11-25',
     '2026-11-05',
   ];
-  await page.locator('#tourBtn').click();
+  await menuItem(page, '#discBtn', '#tourBtn');
   for (let k = 1; k <= 8; k++) {
     if (k > 1) await page.locator('#tourNext').click();
     await expect(page.locator('#tourStep')).toContainText(`Station ${k} von 8`);
@@ -110,10 +111,10 @@ test('Rundgang, Sprache, Ansichtstiefe und Teilen', async ({ page }) => {
 
   // Sprache
   await page.evaluate(() => window.__go('aussen', true));
-  await page.locator('#langBtn').click();
+  await menuItem(page, '#moreBtn', '#langBtn');
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.locator('#viewTxt')).toHaveText('Outside');
-  await page.locator('#langBtn').click();
+  await menuItem(page, '#moreBtn', '#langBtn');
   await expect(page.locator('html')).toHaveAttribute('lang', 'de');
   await expect(page.locator('#viewTxt')).toHaveText('Außen');
 
@@ -129,7 +130,7 @@ test('Rundgang, Sprache, Ansichtstiefe und Teilen', async ({ page }) => {
   await page.locator('.rail .rbtn[data-card="light"]').click();
 
   // Teilen: Link enthält Datum, Uhrzeit und Ansicht
-  await page.locator('.rail .rbtn[data-card="share"]').click();
+  await showCard(page, 'share');
   await expect(page.locator('#shareUrl')).toHaveValue(/#.*d=2026-11-05/);
   await expect(page.locator('#shareUrl')).toHaveValue(/v=aussen/);
 });
@@ -148,4 +149,72 @@ test('Himmelsansicht aus einer Innenansicht und zurück', async ({ page }) => {
   await waitCameraStill(page);
   await expect(page.locator('#viewTxt')).toHaveText('Mittelschiff');
   expect(await pos()).toEqual([-46, 2, 0]);
+});
+
+test('Freie Sicht: Taste F, Knopf und Menü; Esc holt die Bedienelemente zurück', async ({ page }) => {
+  await openApp(page, { hash: START });
+  const ui = ['.brand', '.rail', '.timebar'];
+  const visible = async v => {
+    for (const sel of ui) await (v ? expect(page.locator(sel)).toBeVisible() : expect(page.locator(sel)).toBeHidden());
+  };
+  await page.keyboard.press('f');
+  await visible(false);
+  await expect(page.locator('#freeMini')).toBeVisible();
+  await expect(page.locator('#freeTime')).toHaveText('21.06.2026 · 13:00');
+  await expect(page.locator('#freeBtn')).toHaveAttribute('aria-pressed', 'true');
+  // Abspielen in der Minileiste läuft weiter
+  await page.locator('#freePlay').click();
+  await expect(page.locator('#freeTime')).not.toHaveText('21.06.2026 · 13:00');
+  await page.locator('#freePlay').click();
+  await page.keyboard.press('Escape');
+  await visible(true);
+  await expect(page.locator('#freeMini')).toBeHidden();
+  // Knopf oben rechts, dann wieder zurück
+  await page.locator('#freeBtn').click();
+  await visible(false);
+  await page.locator('#freeBtn').click();
+  await visible(true);
+  // Menü „⋯“
+  await menuItem(page, '#moreBtn', '#freeItem');
+  await visible(false);
+  await page.keyboard.press('f');
+  await visible(true);
+});
+
+test('Zeitleiste: zweite Zeile aufklappen, Sonne und Mond antippen', async ({ page }) => {
+  await openApp(page, { hash: '#d=2026-06-21&t=882&v=aussen&l=de' });
+  await expect(page.locator('#tbMore')).toBeHidden();
+  await page.locator('#tbFold').click();
+  await expect(page.locator('#tbMore')).toBeVisible();
+  await expect(page.locator('#speed')).toBeVisible();
+  await expect(page.locator('#sumLine')).toHaveText(/besonnt \d+ \/ 73 Fenster/);
+  await page.locator('#tbFold').click();
+  await expect(page.locator('#tbMore')).toBeHidden();
+  await expect(page.locator('#sunChip')).toHaveText('55,8° SW');
+  await expect(page.locator('#moonChip')).toHaveText('13,9° OSO · 46 %');
+  await page.locator('#sunChip').click();
+  await waitCameraStill(page);
+  await expect(page.locator('#viewTxt')).toHaveText('Blick zur Sonne');
+  await page.locator('#moonChip').click();
+  await waitCameraStill(page);
+  await expect(page.locator('#viewTxt')).toHaveText('Blick zum Mond');
+});
+
+test.describe('Handy', () => {
+  test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  test('Freie Sicht: Doppeltipp ins Bild holt die Bedienelemente zurück; Karte über der Symbolleiste', async ({
+    page,
+  }) => {
+    await openApp(page, { hash: START });
+    await page.locator('#freeBtn').tap();
+    await expect(page.locator('.timebar')).toBeHidden();
+    await page.touchscreen.tap(200, 450);
+    await page.touchscreen.tap(200, 450);
+    await expect(page.locator('.timebar')).toBeVisible();
+    // Karte liegt über Symbol- und Zeitleiste, nicht darunter
+    await page.locator('.rail .rbtn[data-card="sun"]').tap();
+    const card = await page.locator('#card-sun').boundingBox();
+    const rail = await page.locator('.rail').boundingBox();
+    expect(card.y + card.height).toBeLessThanOrEqual(rail.y);
+  });
 });
