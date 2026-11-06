@@ -11,7 +11,7 @@ import { applyEnv } from '../model/environment.js';
 import { drawYearChart, sdOrient } from '../model/sundial.js';
 import { buildSunPath } from '../light/sky.js';
 import { updateSun } from '../light/sun.js';
-import { drawPanoGrid, goView, hintFor } from '../scene/camera.js';
+import { bodyViewName, drawPanoGrid, goView, hintFor, lookToBody } from '../scene/camera.js';
 import { relabel, updateLabelsVisibility } from '../scene/labels.js';
 import { drawChart, drawCompassStatic } from './readouts.js';
 import { buildPresets, goFullMoon, goNewMoon, setAmb, setAxis, setCut, setExp } from './controls.js';
@@ -60,6 +60,8 @@ $('#sdMoonGo').addEventListener('click', () => {
 });
 $('#goFull').addEventListener('click', goFullMoon);
 $('#skyGo').addEventListener('click', () => goView('himmel'));
+$('#sunLook').addEventListener('click', () => lookToBody('zurSonne'));
+$('#moonLook').addEventListener('click', () => lookToBody('zumMond'));
 $('#goNew').addEventListener('click', goNewMoon);
 $('#moonTog').addEventListener('change', e => {
   state.moon = e.target.checked;
@@ -279,7 +281,7 @@ export function refreshLang() {
       ? tr('Himmel: Sonnen- und Mondbahn', 'Sky: paths of sun and moon')
       : vb
         ? vb.textContent
-        : tr('eigene', 'custom');
+        : bodyViewName(state.view) || tr('eigene', 'custom');
   }
   $('#hint').textContent = hintFor();
   setCut(state.cut);

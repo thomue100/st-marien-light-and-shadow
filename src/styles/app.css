@@ -371,6 +371,9 @@ input[type='range'] {
   flex: 1 1 100%;
   margin-top: 0;
 }
+.sunblock .btnrow {
+  flex: 1 1 100%;
+}
 #compass {
   width: 108px;
   height: 108px;
@@ -847,6 +850,74 @@ dl.ckwide dd {
   inset: 0;
   pointer-events: none;
   overflow: hidden;
+}
+/* Randhinweise: Sonne oder Mond außerhalb des Bildes */
+#skyMarks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.skymk {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--lbl-bg);
+  color: var(--lbl-fg);
+  pointer-events: auto;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.skymk[hidden] {
+  display: none;
+}
+.skymk:hover,
+.skymk:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+.skymk .ic {
+  width: 20px;
+  height: 20px;
+  margin-top: -9px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.skymk.sun .ic {
+  stroke: #f2c14e;
+}
+.skymk.sun .ic circle {
+  fill: #f2c14e;
+}
+.skymk.moon .ic {
+  stroke: #dfe3ea;
+  fill: #dfe3ea;
+}
+.skymk .v {
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  right: 0;
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  line-height: 1;
+}
+.skymk .ar {
+  position: absolute;
+  inset: -10px;
+  width: 64px;
+  height: 64px;
+  fill: var(--lbl-bg);
+  pointer-events: none;
 }
 html[lang='de'] .l-en,
 html[lang='en'] .l-de {

@@ -36,7 +36,7 @@ import {
   stepTween,
   tween,
 } from './scene/camera.js';
-import { placeLabels } from './scene/labels.js';
+import { placeLabels, placeSkyMarks } from './scene/labels.js';
 import { chart, CHW, computeDay, drawChart, updateReadouts } from './ui/readouts.js';
 import { setAmb, setCut, setExp } from './ui/controls.js';
 import { yearTick, yr } from './ui/year.js';
@@ -131,6 +131,7 @@ export function renderFrame() {
     renderer.render(scene, camera);
     placeLabels();
   }
+  placeSkyMarks();
 }
 
 await step(tr('Sonnenstand und Verschattung werden berechnet', 'Computing sun position and shading'), 84);
