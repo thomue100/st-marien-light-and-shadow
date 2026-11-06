@@ -1,0 +1,84 @@
+# Prüfungen bei jedem Pull Request nach „entwicklung“ oder „main“ und bei jedem Hochladen nach „entwicklung“.
+# Ergebnisse: auf GitHub unter „Actions“ und direkt im Pull Request (grüner Haken oder rotes Kreuz).
+name: Prüfungen
+
+on:
+  pull_request:
+    branches: [entwicklung, main]
+  push:
+    branches: [entwicklung]
+  workflow_dispatch:
+
+concurrency:
+  group: pruefungen-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  code:
+    name: Code, Unit-Tests, Bau
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: ESLint
+        run: npm run lint
+      - name: Formatierung (Prettier)
+        run: npm run format:check
+      - name: Unit-Tests
+        run: npm test
+      - name: Bauen (Web- und Offline-Fassung)
+        run: npm run build
+      - name: Ist web/ aktuell?
+        # Vercel liefert den eingecheckten Ordner web/ aus. Er muss zum Quelltext passen.
+        run: |
+          git add -A web
+          if ! git diff --cached --quiet -- web; then
+            echo "::error::web/ passt nicht zum Quelltext. Bitte „npm run build:web“ ausführen und web/ mit committen."
+            git diff --cached --stat -- web
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: offline-fassung
+          path: dist/*.html
+          retention-days: 14
+
+  browser:
+    name: Browser-Tests (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Chromium für Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Bauen (Web-, Offline- und Testfassung)
+        run: npm run build && npm run build:test
+      - name: Browser-Tests
+        run: npx playwright test
+      - name: Bericht sichern
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-bericht
+          path: tests/.report
+          retention-days: 14
+      - name: Spuren der fehlgeschlagenen Tests sichern
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-spuren
+          path: tests/.results
+          retention-days: 14

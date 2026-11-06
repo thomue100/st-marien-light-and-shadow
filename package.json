@@ -16,10 +16,13 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "build:test": "vite build --mode uitest",
+    "test:e2e": "npm run build && npm run build:test && playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "test:astro": "node tests/astro/dump.mjs && python tests/astro/check.py"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "1.63.0",
     "acorn": "^8.19.0",
     "eslint": "^10.14.0",
     "globals": "^17.14.0",

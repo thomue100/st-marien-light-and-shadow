@@ -11,3 +11,6 @@ package-lock.json
 # Texte: Tabellen und Zeilenumbrüche bleiben, wie sie geschrieben sind
 *.md
 public/
+tests/.results/
+tests/.report/
+test-results/

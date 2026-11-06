@@ -1,0 +1,44 @@
+# Ausführliche Astronomie-Prüfung gegen Skyfield/JPL DE421 (tests/astro): wöchentlich, von Hand
+# und bei Pull Requests, die die Astronomie ändern. Dauert einige Minuten.
+name: Astronomie
+
+on:
+  schedule:
+    - cron: '17 3 * * 1' # montags früh
+  workflow_dispatch:
+  pull_request:
+    branches: [entwicklung, main]
+    paths:
+      - 'src/astro/**'
+      - 'tests/astro/**'
+
+permissions:
+  contents: read
+
+jobs:
+  skyfield:
+    name: Astronomie gegen Skyfield
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: pip install skyfield skyfield-data
+      - name: Prüfen
+        run: npm run test:astro
+      - name: Bericht sichern
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: astronomie-bericht
+          path: |
+            tests/astro/report.md
+            tests/astro/report.html
+          retention-days: 30

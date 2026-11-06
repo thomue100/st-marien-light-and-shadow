@@ -9,6 +9,7 @@ import { parse } from 'acorn';
 export const HOOKS = `
 window.__V=__T.VIEWS;
 window.__go=(n,i)=>__T.goView(n,i);
+window.__moving=()=>!!__T.tween;
 window.__mv=(f,s)=>{ __T.moveBy(f,s,0); const c=__T.camera.position; return [c.x,c.y,c.z]; };
 window.__dbg=()=>({int:__T.sun.intensity,col:__T.sun.color.toArray(),exp:__T.renderer.toneMappingExposure,hemi:__T.hemi.intensity,useMoon:__T.useMoon,moonStr:__T.moonStr,lightStr:__T.lightStr,LD:__T.LD.toArray()});
 window.__clk=__T.clk;
