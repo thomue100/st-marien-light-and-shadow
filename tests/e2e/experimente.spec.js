@@ -66,7 +66,8 @@ test('Experiment 3: Lichtkalender der Fenster', async ({ page }) => {
   const ready = () => page.waitForFunction(() => !window.__LK.busy && !!window.__LK.cur, null, { timeout: 180_000 });
   await ready();
   const sum = page.locator('#lkSum');
-  await expect(sum).toHaveText('Direktes Sonnenlicht an 24 von 24 Stichtagen, zusammen etwa 135 Stunden.');
+  // 134 statt 135 Stunden seit der Altstadtinsel: an einzelnen Wintertagen liegt das Westfenster im Schatten von St. Petri
+  await expect(sum).toHaveText('Direktes Sonnenlicht an 24 von 24 Stichtagen, zusammen etwa 134 Stunden.');
   await expect(page.locator('#lkWin option')).toHaveText([
     'Westfenster (Auferstehungsfenster)',
     'Briefkapelle, Südseite',

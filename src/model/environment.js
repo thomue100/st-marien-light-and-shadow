@@ -16,11 +16,16 @@ await step(
 /* ---------------- Umgebung: LoD2-Gebäude, Gelände und Bäume (LVermGeo SH) ---------------- */
 // Gebäude: LoD2 (CityGML, 2025). Gelände und Bäume: aus dem Oberflächenmodell bDOM20 (2023) abgeleitet.
 // Verschattung: Strahlverfolgung über ein 1-m-Höhenraster (Dächer aus bDOM20, Bäume abschaltbar).
+// Altstadtinsel (ENV.far): übrige LoD2-Gebäude der Insel als Kulisse, Gelände im 8-m-Raster, Bodenkarte aus
+// OpenStreetMap (Wasser, Grün, Plätze, Straßen) und ein 2-m-Fernraster der hohen Bauten (Kirchtürme) für die Verschattung.
 export const ENV = await DATA.env;
 export let envH = null,
   envCls = null,
   envG = null,
   envMax = -1e9;
+let farShade = null, // dichtes 2-m-Raster der hohen Bauten außerhalb des Nahbereichs
+  farMax = -1e9,
+  groundTex = null; // Bodenkarte (OSM)
 export const envGroup = new THREE.Group(),
   treeGroup = new THREE.Group();
 scene.add(envGroup);
@@ -43,6 +48,67 @@ function i16arr(s) {
   const b = b64(s);
   return new Int16Array(b.buffer, b.byteOffset, b.length / 2);
 }
+/** Base64 → gzip entpacken (Daten der Altstadtinsel). */
+async function gunzip(s) {
+  const ds = new DecompressionStream('gzip');
+  return new Uint8Array(await new Response(new Blob([b64(s)]).stream().pipeThrough(ds)).arrayBuffer());
+}
+const F = ENV && ENV.far;
+if (F) {
+  // Bodenkarte: Palettenindex je Pixel → Farbtextur (lineare Farben)
+  const T = F.tex,
+    ti = await gunzip(T.idx),
+    n = T.n,
+    P = T.pal.map(c => c.map(v => Math.round(Math.min(1, v) * 255))),
+    rgba = new Uint8Array(n * n * 4);
+  for (let k = 0; k < n * n; k++) {
+    const c = P[ti[k]];
+    rgba[4 * k] = c[0];
+    rgba[4 * k + 1] = c[1];
+    rgba[4 * k + 2] = c[2];
+    rgba[4 * k + 3] = 255;
+  }
+  groundTex = new THREE.DataTexture(rgba, n, n, THREE.RGBAFormat);
+  groundTex.magFilter = THREE.LinearFilter;
+  groundTex.minFilter = THREE.LinearMipmapLinearFilter;
+  groundTex.generateMipmaps = true;
+  groundTex.anisotropy = 8;
+  groundTex.needsUpdate = true;
+  // Fernraster für die Verschattung
+  const S = F.shade;
+  if (S) {
+    const I = new Int16Array((await gunzip(S.i)).buffer),
+      J = new Int16Array((await gunzip(S.j)).buffer),
+      Hh = new Uint16Array((await gunzip(S.h)).buffer);
+    let i0 = 1e9,
+      i1 = -1e9,
+      j0 = 1e9,
+      j1 = -1e9;
+    for (let k = 0; k < I.length; k++) {
+      i0 = Math.min(i0, I[k]);
+      i1 = Math.max(i1, I[k]);
+      j0 = Math.min(j0, J[k]);
+      j1 = Math.max(j1, J[k]);
+    }
+    const ni = i1 - i0 + 1,
+      nj = j1 - j0 + 1,
+      h = new Float32Array(ni * nj).fill(-1e9);
+    for (let k = 0; k < I.length; k++) h[(J[k] - j0) * ni + (I[k] - i0)] = S.base + Hh[k] / 100;
+    farShade = { step: S.step, i0, j0, ni, nj, h };
+    farMax = S.max;
+  }
+}
+/** Texturkoordinaten der Bodenkarte für eine Ebene aus x/z-Positionen. */
+function groundUV(pos) {
+  const T = F.tex,
+    nv = pos.length / 3,
+    uv = new Float32Array(nv * 2);
+  for (let i = 0; i < nv; i++) {
+    uv[2 * i] = (pos[3 * i] - T.x0) / T.size;
+    uv[2 * i + 1] = (pos[3 * i + 2] - T.z0) / T.size;
+  }
+  return new THREE.BufferAttribute(uv, 2);
+}
 if (ENV) {
   const n = ENV.n,
     st = ENV.step,
@@ -64,10 +130,11 @@ if (ENV) {
         pos[3 * k] = o + i * gs;
         pos[3 * k + 1] = envG[k];
         pos[3 * k + 2] = o + j * gs;
-        const t = 0.92 + r() * 0.1;
-        col[3 * k] = 0.235 * t;
-        col[3 * k + 1] = 0.228 * t;
-        col[3 * k + 2] = 0.215 * t;
+        const t = 0.92 + r() * 0.1,
+          c = groundTex ? [0.96, 0.96, 0.96] : [0.235, 0.228, 0.215]; // mit Bodenkarte nur leichte Streuung
+        col[3 * k] = c[0] * t;
+        col[3 * k + 1] = c[1] * t;
+        col[3 * k + 2] = c[2] * t;
       }
     const idx = new Uint32Array((gn - 1) * (gn - 1) * 6);
     let p = 0;
@@ -87,10 +154,12 @@ if (ENV) {
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    if (groundTex) g.setAttribute('uv', groundUV(pos));
     g.setIndex(new THREE.BufferAttribute(idx, 1));
     g.computeVertexNormals();
     const m = new THREE.MeshStandardMaterial({
       vertexColors: true,
+      map: groundTex,
       roughness: 0.95,
       polygonOffset: true,
       polygonOffsetFactor: 1,
@@ -166,6 +235,80 @@ if (ENV) {
     mesh.receiveShadow = true;
     treeGroup.add(mesh);
   }
+  // Altstadtinsel: Gelände außerhalb des Nahbereichs (8-m-Raster, Bodenkarte) und die übrigen Gebäude der Insel
+  if (F) {
+    const G = F.ground,
+      nx = G.nx,
+      nz = G.nz,
+      H = new Uint16Array((await gunzip(G.h)).buffer),
+      pos = new Float32Array(nx * nz * 3);
+    for (let j = 0; j < nz; j++)
+      for (let i = 0; i < nx; i++) {
+        const k = j * nx + i;
+        pos[3 * k] = G.x0 + i * G.step;
+        pos[3 * k + 1] = G.base + H[k] / 100;
+        pos[3 * k + 2] = G.z0 + j * G.step;
+      }
+    const near = k => Math.abs(pos[3 * k]) < -o + 1e-3 && Math.abs(pos[3 * k + 2]) < -o + 1e-3,
+      idx = [];
+    for (let j = 0; j < nz - 1; j++)
+      for (let i = 0; i < nx - 1; i++) {
+        const a = j * nx + i,
+          b = a + 1,
+          c = a + nx,
+          d = c + 1;
+        if (near(a) && near(b) && near(c) && near(d)) continue; // dort liegt das genaue Gelände
+        idx.push(a, c, b, b, c, d);
+      }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    g.setAttribute('uv', groundUV(pos));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    const mesh = new THREE.Mesh(
+      g,
+      new THREE.MeshStandardMaterial({
+        map: groundTex,
+        roughness: 0.95,
+        polygonOffset: true,
+        polygonOffsetFactor: 2,
+        polygonOffsetUnits: 4,
+      }),
+    );
+    mesh.receiveShadow = true;
+    mesh.userData.far = true;
+    envGroup.add(mesh);
+    // Gebäude: Wände, Steildächer, Flachdächer; die hohen werfen Schatten (bis zur Kirche), die übrigen nur Kulisse
+    const COL = { wall: [0.29, 0.26, 0.225], roof: [0.35, 0.125, 0.08], flat: [0.2, 0.2, 0.21] };
+    for (const grp of ['low', 'tall'])
+      for (const c of ['wall', 'roof', 'flat']) {
+        const D = F[grp + '_' + c];
+        if (!D) continue;
+        const P = new Int16Array((await gunzip(D.pos)).buffer),
+          ib = await gunzip(D.idx),
+          ix = D.i32 ? new Uint32Array(ib.buffer) : new Uint16Array(ib.buffer),
+          pos = new Float32Array(P.length);
+        for (let i = 0; i < P.length; i++) pos[i] = P[i] / F.scale;
+        const g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        g.setIndex(new THREE.BufferAttribute(ix, 1));
+        g.computeVertexNormals();
+        const mesh = new THREE.Mesh(
+          g,
+          new THREE.MeshStandardMaterial({
+            color: new THREE.Color().setRGB(...COL[c]),
+            roughness: 0.88,
+            metalness: 0,
+            flatShading: true,
+            side: THREE.DoubleSide,
+          }),
+        );
+        mesh.castShadow = grp === 'tall';
+        mesh.receiveShadow = true;
+        mesh.userData.far = true; // nicht für Sichtstrahlen (zu viele Dreiecke); Verschattung über das Fernraster
+        envGroup.add(mesh);
+      }
+  }
   // LoD2-Umriss der Kirche zum Vergleich mit dem Modell
   {
     const S = i16arr(ENV.church),
@@ -211,13 +354,27 @@ export function envBlocked(o) {
   const hz = Math.hypot(LD.x, LD.z);
   if (LD.y <= 0) return true;
   const dt = 0.5 / Math.max(hz, 1e-3),
-    lim = -ENV.origin;
+    lim = -ENV.origin,
+    top = Math.max(envMax, farMax);
   for (let t = dt; t < 3000; t += dt) {
     const y = o.y + LD.y * t;
-    if (y > envMax) return false;
+    if (y > top) return false;
     const x = o.x + LD.x * t,
       z = o.z + LD.z * t;
-    if (Math.abs(x) > lim || Math.abs(z) > lim) return false;
+    if (Math.abs(x) > lim || Math.abs(z) > lim) {
+      // jenseits des Nahbereichs: nur noch die hohen Bauten der Altstadtinsel (Kirchtürme)
+      if (!farShade) return false;
+      const S = farShade,
+        i = Math.floor(x / S.step) - S.i0,
+        j = Math.floor(z / S.step) - S.j0;
+      if (i < 0 || j < 0 || i >= S.ni || j >= S.nj) {
+        if ((x / S.step < S.i0 && LD.x < 0) || (x / S.step > S.i0 + S.ni && LD.x > 0)) return false;
+        if ((z / S.step < S.j0 && LD.z < 0) || (z / S.step > S.j0 + S.nj && LD.z > 0)) return false;
+        continue;
+      }
+      if (S.h[j * S.ni + i] > y) return true;
+      continue;
+    }
     if (envHeightAt(x, z) > y) return true;
   }
   return false;
@@ -226,6 +383,6 @@ export function applyEnv() {
   envGroup.visible = state.env;
   treeGroup.visible = state.env && state.trees;
   if (churchLines) churchLines.visible = state.lodChurch;
-  groundMesh.position.y = state.env && ENV ? ENV.base - 0.3 : 0;
+  groundMesh.position.y = state.env && ENV ? (F ? F.ground.base + 6.5 : ENV.base - 0.3) : 0; // unter dem Wasser der Insel
   requestRender();
 }

@@ -25,11 +25,12 @@ Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, d
 | `src/three-global.js` | three.js r128 aus npm, bereitgestellt als globales `THREE` |
 | `src/data.js` | lädt Glasmalereien, Uhrbilder, Uhrendaten und Umgebung |
 | `src/styles/` | `app.css` (Gestaltung), `fonts.css` (Schriften) |
-| `src/data/` | `uhr.json` (Kalender- und Finsternisdaten der Astronomischen Uhr), `umgebung.json` (LoD2-Gebäude, Gelände, Bäume) |
+| `src/data/` | `uhr.json` (Kalender- und Finsternisdaten der Astronomischen Uhr), `umgebung.json` (LoD2-Gebäude, Gelände, Bäume; Altstadtinsel mit Bodenkarte aus OpenStreetMap) |
 | `src/assets/` | `glas/` Glasmalereien (Dateiname = Fenstertyp), `uhr/` Bilder der Astronomischen Uhr, `fonts/` Schriften mit Lizenz |
 | `public/` | wird unverändert in die Webfassung kopiert (`.htaccess`, `LIESMICH.txt`) |
 | `web/` | **Webfassung** zum Hochladen auf den Webserver (erzeugt mit `npm run build:web`, siehe `web/LIESMICH.txt`) |
 | `tests/` | Prüfungen: `unit/` Unit-Tests (Vitest), `e2e/` Browser-Tests (Playwright), `astro/` Vergleich mit Skyfield – siehe `tests/README.md` |
+| `tools/` | Aufbereitung von Daten: `altstadtinsel/` (LoD2-Kacheln und OpenStreetMap → Umgebung der ganzen Altstadtinsel), `glas/` (Fotos der Glasfenster entzerren) |
 | `vite.config.mjs` | Bauanleitung für Web-, Offline- und Testfassung |
 
 ### Aufbau-Reihenfolge der Module
