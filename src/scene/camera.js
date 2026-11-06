@@ -36,6 +36,7 @@ export const VIEWS = {
   nord: { pos: [75, 120, -150], tgt: [-6, 30, 0], mode: 'orbit', cut: 60, exp: 0.85 },
   tuermeost: { pos: [-2, 57, 0.5], tgt: [-44, 73, 0], mode: 'orbit', cut: 60, exp: 0.85, minD: 1 },
   luft: { pos: [-120, 190, 150], tgt: [-4, 20, 0], mode: 'orbit', cut: 60, exp: 0.85 },
+  insel: { pos: [-520, 430, 1030], tgt: [170, -5, -40], mode: 'orbit', cut: 60, exp: 0.85 }, // ganze Altstadtinsel von Südwesten
   himmel: { pos: [0, 140, -170], dir: [0, 0, 1], mode: 'pano', cut: 60, exp: 1.0 },
   // Blick zur Sonne / zum Mond: Standpunkt und Blickziel berechnet bodyView() bei jedem Aufruf neu
   zurSonne: { pos: [-154, 20, 0], tgt: [-4, 47, 0], mode: 'orbit', cut: 60, exp: 0.85, tilt: true },
@@ -122,7 +123,8 @@ export function applyMode(mode, minD, walk) {
     Object.assign(controls, {
       enableZoom: true,
       minDistance: minD || 5,
-      maxDistance: state.view === 'mtTop' ? 20000 : yr.on || state.view === 'jahr' ? 1600 : 800,
+      maxDistance:
+        state.view === 'mtTop' ? 20000 : yr.on || state.view === 'jahr' || state.view === 'insel' ? 2400 : 800,
       minPolarAngle: 0.03,
       maxPolarAngle: VIEWS[state.view] && VIEWS[state.view].tilt ? Math.PI * 0.75 : Math.PI * 0.62, // tilt: steiler nach oben
       rotateSpeed: 0.55,
@@ -479,7 +481,7 @@ function clearSight(p) {
 const bodyRay = new THREE.Raycaster();
 /** Ist der Himmelskörper vom Standpunkt aus frei zu sehen, mit 2,5° Abstand zu Kirche und Häusern? */
 function bodyFree(p, el, az) {
-  const objs = envGroup.visible ? occluders.concat(envGroup.children) : occluders,
+  const objs = envGroup.visible ? occluders.concat(envGroup.children.filter(m => !m.userData.far)) : occluders,
     d = new V3();
   bodyRay.far = 3000;
   for (const [e, a] of [
@@ -585,7 +587,7 @@ export function goView(name, instant) {
   const v = VIEWS[name];
   if (!v) return;
   {
-    const far = name === 'jahr' || name === 'mtTop' || name === 'mtCam';
+    const far = name === 'jahr' || name === 'mtTop' || name === 'mtCam' || name === 'insel';
     scene.fog.near = far ? 2500 : 350;
     scene.fog.far = far ? 9000 : 1700;
     if (name === 'jahr') {
