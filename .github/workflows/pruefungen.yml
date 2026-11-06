@@ -1,5 +1,7 @@
 # Prüfungen bei jedem Pull Request nach „entwicklung“ oder „main“ und bei jedem Hochladen nach „entwicklung“.
 # Ergebnisse: auf GitHub unter „Actions“ und direkt im Pull Request (grüner Haken oder rotes Kreuz).
+# Die Prüfungen sind ein Hinweis, keine Sperre: Übernehmen und Veröffentlichen (Vercel) gehen auch bei rotem Kreuz.
+# Die Browser-Tests laufen nicht hier, sondern nur von Hand: .github/workflows/browsertests.yml
 name: Prüfungen
 
 on:
@@ -49,36 +51,4 @@ jobs:
         with:
           name: offline-fassung
           path: dist/*.html
-          retention-days: 14
-
-  browser:
-    name: Browser-Tests (Playwright)
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - name: Chromium für Playwright
-        run: npx playwright install --with-deps chromium
-      - name: Bauen (Web-, Offline- und Testfassung)
-        run: npm run build && npm run build:test
-      - name: Browser-Tests
-        run: npx playwright test
-      - name: Bericht sichern
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-bericht
-          path: tests/.report
-          retention-days: 14
-      - name: Spuren der fehlgeschlagenen Tests sichern
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-spuren
-          path: tests/.results
           retention-days: 14
