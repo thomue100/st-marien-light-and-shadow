@@ -1,8 +1,8 @@
 // Experimente 1–4: Kirche als Sonnenuhr, Sonnenuhr und Armbanduhr, Lichtkalender, Astronomische Uhr und Himmel.
-import { test, expect, openApp, setInput, waitCameraStill } from './helpers.js';
+import { test, expect, menuItem, openApp, setInput, showCard, waitCameraStill } from './helpers.js';
 
 async function openExp(page, k) {
-  if (await page.locator('#card-exp').isHidden()) await page.locator('.rbtn[data-card="exp"]').click();
+  await showCard(page, 'exp');
   for (const back of await page.locator('.exppanel:not([hidden]) .expback').all()) await back.click();
   await page.locator(`.explink[data-exp="${k}"]`).click();
 }
@@ -66,7 +66,8 @@ test('Experiment 3: Lichtkalender der Fenster', async ({ page }) => {
   const ready = () => page.waitForFunction(() => !window.__LK.busy && !!window.__LK.cur, null, { timeout: 180_000 });
   await ready();
   const sum = page.locator('#lkSum');
-  await expect(sum).toHaveText('Direktes Sonnenlicht an 24 von 24 Stichtagen, zusammen etwa 135 Stunden.');
+  // 134 statt 135 Stunden seit der Altstadtinsel: an einzelnen Wintertagen liegt das Westfenster im Schatten von St. Petri
+  await expect(sum).toHaveText('Direktes Sonnenlicht an 24 von 24 Stichtagen, zusammen etwa 134 Stunden.');
   await expect(page.locator('#lkWin option')).toHaveText([
     'Westfenster (Auferstehungsfenster)',
     'Briefkapelle, Südseite',
@@ -119,6 +120,6 @@ test('Experiment 4: Astronomische Uhr und Himmel', async ({ page }) => {
     await expect(page.locator('#date')).toHaveValue(date);
     await expect(note).not.toBeEmpty();
   }
-  await page.locator('#langBtn').click();
+  await menuItem(page, '#moreBtn', '#langBtn');
   await expect(page.locator('#exp-au h3')).toHaveText('Astronomical clock and sky');
 });

@@ -8,8 +8,8 @@
       content="Interaktives 3D-Modell von St. Marien zu Lübeck: Sonne, Mond, Sonnenuhr und Astronomische Uhr zu jeder Stunde des Jahres."
     />
     <title>St. Marien – Licht und Schatten</title>
-    <script type="module" crossorigin src="./assets/index-CVYcPbrb.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BHwIgQwy.css">
+    <script type="module" crossorigin src="./assets/index-DaxPcayG.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BuGqbGlm.css">
   </head>
   <body>
     <div id="app">
@@ -32,58 +32,156 @@
           <span class="h1a" data-en="St. Mary's">St. Marien</span>
           <span class="h1b" data-en="Light and Shadow">Licht und Schatten</span>
         </h1>
-        <span class="brandbtns"
-          ><button class="chip" id="tourBtn">
-            <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" /></svg>
-            <span data-en="Guided tour">Rundgang</span></button
-          ><button class="chip" id="quizBtn"><span aria-hidden="true">?</span> <span data-en="Quiz">Quiz</span></button
-          ><button
-            class="chip homebtn"
+        <div class="mwrap">
+          <button
+            class="mbtn"
+            id="discBtn"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="discMenu"
+            title="Entdecken: Rundgang, Quiz, Experimente"
+            data-en-title="Explore: tour, quiz, experiments"
+          >
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M15.5 8.5l-2 5-5 2 2-5z" />
+            </svg>
+            <span class="mlab" data-en="Explore">Entdecken</span>
+            <svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" /></svg>
+          </button>
+          <div class="dmenu" id="discMenu" role="menu" hidden>
+            <button id="tourBtn" role="menuitem">
+              <span class="dnum" aria-hidden="true">8</span
+              ><span class="dtxt"
+                ><b data-en="Guided tour">Rundgang</b
+                ><span data-en="8 stations through church and year">8 Stationen durch Kirche und Jahr</span></span
+              >
+            </button>
+            <button id="quizBtn" role="menuitem">
+              <span class="dnum" aria-hidden="true">5</span
+              ><span class="dtxt"
+                ><b data-en="Quiz">Quiz</b
+                ><span data-en="5 tasks, solved in the model">5 Aufgaben, im Modell zu lösen</span></span
+              >
+            </button>
+            <button data-card="exp" role="menuitem" aria-expanded="false">
+              <span class="dnum" aria-hidden="true">4</span
+              ><span class="dtxt"
+                ><b data-en="Experiments">Experimente</b
+                ><span data-en="Shadows, equation of time, light calendar, clock"
+                  >Schatten, Zeitgleichung, Lichtkalender, Uhr</span
+                ></span
+              >
+            </button>
+          </div>
+        </div>
+        <div class="viewpick">
+          <button
+            class="homebtn"
             id="homeBtn"
             aria-label="Zurück zum Start"
             data-en-aria="Back to start"
             title="Zurück zum Start"
             data-en-title="Back to start"
           >
-            <svg viewBox="0 0 12 12" aria-hidden="true">
-              <path d="M1.5 6L6 2l4.5 4M3 5v5h2.2V7.5h1.6V10H9V5" />
-            </svg></button
-          ><button class="chip" id="langBtn" aria-label="English" data-en-aria="Deutsch" lang="en">EN</button></span
-        >
-        <div class="viewpick">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 11l8-7 8 7" />
+              <path d="M6 10v9h12v-9" />
+            </svg>
+          </button>
           <button class="vbtn" id="viewBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="views">
             <span class="vlab" data-en="View">Ansicht</span> <span id="viewTxt">Aufgeschnitten</span>
-            <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" /></svg>
+            <svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" /></svg>
           </button>
           <div class="vmenu" id="views" role="menu" hidden>
-            <p class="vgroup" data-en="Outside">Außen</p>
-            <button data-view="aussen" role="menuitem" data-en="Outside">Außen</button>
-            <button data-view="westseite" role="menuitem" data-en="West front">Westseite</button>
-            <button data-view="sued" role="menuitem" data-en="South side">Südseite</button>
-            <button data-view="nord" role="menuitem" data-en="North side">Nordseite</button>
-            <button data-view="chorost" role="menuitem" data-en="Choir from the east">Chor von Osten</button>
-            <button data-view="tuermeost" role="menuitem" data-en="Towers from the east">Türme von Osten</button>
-            <button data-view="luft" role="menuitem" data-en="Aerial view">Luftbild</button>
-            <button data-view="puppe" role="menuitem" data-en="Cut-away">Aufgeschnitten</button>
-            <p class="vgroup" data-en="Viewpoints">Aussichtspunkt</p>
-            <button data-view="dachreiter" role="menuitem" data-en="On the ridge turret">Auf dem Dachreiter</button>
-            <button data-view="himmel" role="menuitem" data-en="Sky: paths of sun and moon">
-              Himmel: Sonnen- und Mondbahn
+            <div class="vcol">
+              <p class="vgroup" data-en="Outside">Außen</p>
+              <button data-view="aussen" role="menuitem" data-en="Outside">Außen</button>
+              <button data-view="westseite" role="menuitem" data-en="West front">Westseite</button>
+              <button data-view="sued" role="menuitem" data-en="South side">Südseite</button>
+              <button data-view="nord" role="menuitem" data-en="North side">Nordseite</button>
+              <button data-view="chorost" role="menuitem" data-en="Choir from the east">Chor von Osten</button>
+              <button data-view="tuermeost" role="menuitem" data-en="Towers from the east">Türme von Osten</button>
+              <button data-view="luft" role="menuitem" data-en="Aerial view">Luftbild</button>
+              <button data-view="insel" role="menuitem" data-en="Old town island">Altstadtinsel</button>
+            </div>
+            <div class="vcol">
+              <p class="vgroup" data-en="Inside">Innen</p>
+              <button data-view="schiff" role="menuitem" data-en="Nave">Mittelschiff</button>
+              <button data-view="chor" role="menuitem" data-en="Choir, looking east">Chor, Blick Ost</button>
+              <button data-view="westen" role="menuitem" data-en="West window">Westfenster</button>
+              <button data-view="brief" role="menuitem" data-en="Briefkapelle (Letter Chapel)">Briefkapelle</button>
+              <button data-view="totentanz" role="menuitem" data-en="Dance of Death">Totentanz</button>
+              <button data-view="uhr" role="menuitem" data-en="Astronomical clock">Astronomische Uhr</button>
+              <button data-view="gedenk" role="menuitem" data-en="Memorial Chapel">Gedenkkapelle</button>
+              <button data-view="gewoelbe" role="menuitem" data-en="Vaults">Gewölbe</button>
+              <button data-view="dachreiter" role="menuitem" data-en="On the ridge turret">Auf dem Dachreiter</button>
+            </div>
+            <div class="vcol">
+              <p class="vgroup" data-en="Sky and special">Himmel und Besonderes</p>
+              <button data-view="himmel" role="menuitem" data-en="Sky: paths of sun and moon">
+                Himmel: Sonnen- und Mondbahn
+              </button>
+              <button data-view="zurSonne" role="menuitem" data-en="Looking at the sun">Blick zur Sonne</button>
+              <button data-view="zumMond" role="menuitem" data-en="Looking at the moon">Blick zum Mond</button>
+              <button data-view="puppe" role="menuitem" data-en="Cut-away">Aufgeschnitten</button>
+            </div>
+          </div>
+        </div>
+        <div class="mwrap">
+          <button
+            class="mbtn icon"
+            id="moreBtn"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="moreMenu"
+            aria-label="Weitere: Sprache, Über das Modell, Teilen"
+            data-en-aria="More: language, about, share"
+            title="Weitere"
+            data-en-title="More"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="dots">
+              <circle cx="5" cy="12" r="1.8" />
+              <circle cx="12" cy="12" r="1.8" />
+              <circle cx="19" cy="12" r="1.8" />
+            </svg>
+          </button>
+          <div class="dmenu dmore" id="moreMenu" role="menu" hidden>
+            <button id="langBtn" role="menuitem" lang="en">English</button>
+            <button data-card="info" role="menuitem" aria-expanded="false" data-en="About the model">
+              Über das Modell
             </button>
-            <p class="vgroup" data-en="Inside">Innen</p>
-            <button data-view="schiff" role="menuitem" data-en="Nave">Mittelschiff</button>
-            <button data-view="chor" role="menuitem" data-en="Choir, looking east">Chor, Blick Ost</button>
-            <button data-view="westen" role="menuitem" data-en="West window">Westfenster</button>
-            <button data-view="brief" role="menuitem" data-en="Briefkapelle (Letter Chapel)">Briefkapelle</button>
-            <button data-view="totentanz" role="menuitem" data-en="Dance of Death">Totentanz</button>
-            <button data-view="uhr" role="menuitem" data-en="Astronomical clock">Astronomische Uhr</button>
-            <button data-view="gedenk" role="menuitem" data-en="Memorial Chapel">Gedenkkapelle</button>
-            <button data-view="gewoelbe" role="menuitem" data-en="Vaults">Gewölbe</button>
+            <button data-card="share" role="menuitem" aria-expanded="false" data-en="Share and save">
+              Teilen und speichern
+            </button>
+            <button id="freeItem" role="menuitem"><span data-en="Clear view">Freie Sicht</span><kbd>F</kbd></button>
           </div>
         </div>
       </header>
+      <button
+        class="freebtn"
+        id="freeBtn"
+        aria-pressed="false"
+        aria-label="Freie Sicht: alle Bedienelemente ausblenden (Taste F)"
+        data-en-aria="Clear view: hide all controls (key F)"
+        title="Freie Sicht (F)"
+        data-en-title="Clear view (F)"
+      >
+        <svg class="fon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg
+        ><svg class="foff" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" /></svg
+        ><span class="fl" data-en="Clear view">Freie Sicht</span><kbd>F</kbd>
+      </button>
+      <div class="freemini" id="freeMini" hidden>
+        <button id="freePlay" aria-label="Tagesverlauf abspielen" data-en-aria="Play the day">
+          <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" /></svg>
+        </button>
+        <span id="freeTime">–</span>
+      </div>
+      <p class="freetoast" id="freeToast" role="status" hidden></p>
 
       <nav class="rail" aria-label="Bereiche" data-en-aria="Panels">
+        <p class="rgrp" data-en="Sky">Himmel</p>
         <button
           class="rbtn"
           data-card="sun"
@@ -99,6 +197,7 @@
               d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"
             />
           </svg>
+          <span class="rl" data-en="Sun">Sonne</span>
         </button>
         <button
           class="rbtn"
@@ -110,7 +209,24 @@
           aria-expanded="false"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z" /></svg>
+          <span class="rl" data-en="Moon">Mond</span>
         </button>
+        <button
+          class="rbtn"
+          data-card="light"
+          title="Licht"
+          aria-label="Licht"
+          data-en-title="Light"
+          data-en-aria="Light"
+          aria-expanded="false"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 18h6M10 21h4" />
+            <path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" />
+          </svg>
+          <span class="rl" data-en="Light">Licht</span>
+        </button>
+        <p class="rgrp" data-en="Church">Kirche</p>
         <button
           class="rbtn"
           data-card="sd"
@@ -125,6 +241,7 @@
             <path d="M12 17L8.5 9.5" />
             <path d="M12 5v2M5.6 7.6l1.4 1.4M18.4 7.6L17 9" />
           </svg>
+          <span class="rl" data-en="Sundial">Sonnenuhr</span>
         </button>
         <button
           class="rbtn"
@@ -141,21 +258,9 @@
             <path d="M12 3.5v1.8M12 18.7v1.8M3.5 12h1.8M18.7 12h1.8" />
             <path d="M13.9 10.2l3.6-3.4" />
           </svg>
+          <span class="rl" data-en="Clock">Uhr</span>
         </button>
-        <button
-          class="rbtn"
-          data-card="exp"
-          title="Experimente"
-          aria-label="Experimente"
-          data-en-title="Experiments"
-          data-en-aria="Experiments"
-          aria-expanded="false"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9 3h6M10 3v6.2L4.8 18.4A1.8 1.8 0 0 0 6.4 21h11.2a1.8 1.8 0 0 0 1.6-2.6L14 9.2V3" />
-            <path d="M7.4 15h9.2" />
-          </svg>
-        </button>
+        <span class="rsep" aria-hidden="true"></span>
         <button
           class="rbtn"
           data-card="disp"
@@ -169,50 +274,7 @@
             <path d="M12 3l9 5-9 5-9-5 9-5z" />
             <path d="M3 13l9 5 9-5" />
           </svg>
-        </button>
-        <button
-          class="rbtn"
-          data-card="light"
-          title="Licht"
-          aria-label="Licht"
-          data-en-title="Light"
-          data-en-aria="Light"
-          aria-expanded="false"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9 18h6M10 21h4" />
-            <path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" />
-          </svg>
-        </button>
-        <button
-          class="rbtn"
-          data-card="info"
-          title="Über das Modell"
-          aria-label="Über das Modell"
-          data-en-title="About the model"
-          data-en-aria="About the model"
-          aria-expanded="false"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M12 11v6M12 7.5v.5" />
-          </svg>
-        </button>
-        <button
-          class="rbtn"
-          data-card="share"
-          title="Teilen und speichern"
-          aria-label="Teilen und speichern"
-          data-en-title="Share and save"
-          data-en-aria="Share and save"
-          aria-expanded="false"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="18" cy="5.5" r="2.5" />
-            <circle cx="6" cy="12" r="2.5" />
-            <circle cx="18" cy="18.5" r="2.5" />
-            <path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1" />
-          </svg>
+          <span class="rl" data-en="Display">Darstellung</span>
         </button>
       </nav>
 
@@ -911,7 +973,13 @@
               Wählbar sind die Jahre 1911 bis 2080 – der Zeitraum, den die Kalenderscheibe der Astronomischen Uhr
               abdeckt.
             </p>
-            <p>Geobasisdaten: © GeoBasis-DE/LVermGeo SH, bDOM20 und LoD2.</p>
+            <p>
+              Geobasisdaten: © GeoBasis-DE/LVermGeo SH, bDOM20 und LoD2. Kartendaten: ©
+              <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener"
+                >OpenStreetMap-Mitwirkende</a
+              >
+              (ODbL).
+            </p>
             <div class="adv wrap">
               <p>
                 Vereinfachtes Volumenmodell. Lage, Achse und Hauptmaße sind am amtlichen LoD2-Gebäudemodell (2025) und
@@ -1060,9 +1128,12 @@
                   die Darstellung zeigt die LoD2-Gebäude.
                 </li>
                 <li>
-                  Verwendet sind die Kacheln 32_610_5970 und 32_610_5969. Östlich von etwa 200 m hinter dem Chor endet
-                  der Kachelbereich, dort ist nur Gelände angenommen.
+                  Altstadtinsel: die übrigen 3 844 LoD2-Gebäude der Insel als Kulisse, Gelände aus den Grundflächen der
+                  Gebäude (8-m-Raster). Wasser, Grünflächen, Plätze und Straßen am Boden stammen aus OpenStreetMap. Von
+                  den Gebäuden außerhalb von 200 m gehen nur die hohen Bauten (über rund 25 m NHN, vor allem die
+                  Kirchtürme) in die Verschattung ein, in einem 2-m-Raster.
                 </li>
+                <li>Verwendet sind die LoD2-Kacheln 32_610_5969, 32_610_5970, 32_611_5969 und 32_611_5970.</li>
                 <li>
                   Höhen beziehen sich auf 13,0 m über NHN (DHHN2016) als Fußboden der Kirche. Der tatsächliche Fußboden
                   ist nicht vermessen; die Unterlage zu den Turmmaßen nennt für den Westzugang rund 13,5 m über NN. Der
@@ -1089,7 +1160,10 @@
                 Schatten und Lichtflecke sichtbar bleiben. Der Mond am Himmel ist 2,2-fach vergrößert. Sterne: die 66
                 hellsten.
               </p>
-              <p>Geobasisdaten: © GeoBasis-DE/LVermGeo SH, bDOM20 und LoD2, Kacheln 32_610_5970 und 32_610_5969.</p>
+              <p>
+                Geobasisdaten: © GeoBasis-DE/LVermGeo SH, bDOM20 und LoD2, Kacheln 32_610_5969, 32_610_5970, 32_611_5969
+                und 32_611_5970. Kartendaten (Wasser, Grün, Plätze, Straßen): © OpenStreetMap-Mitwirkende, ODbL.
+              </p>
               <p>
                 Der fotografische 3D-Rundgang von cp360pano ist ein gehosteter Rundgang ohne exportierbares Modell. Er
                 eignet sich gut zum Vergleich:
@@ -1130,7 +1204,13 @@
             <p>
               Dates can be chosen from 1911 to 2080 – the years covered by the calendar disk of the astronomical clock.
             </p>
-            <p>Geodata: © GeoBasis-DE/LVermGeo SH, bDOM20 and LoD2.</p>
+            <p>
+              Geodata: © GeoBasis-DE/LVermGeo SH, bDOM20 and LoD2. Map data: ©
+              <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener"
+                >OpenStreetMap contributors</a
+              >
+              (ODbL).
+            </p>
             <div class="adv wrap">
               <p>
                 Position, axis and main dimensions are matched to the official LoD2 building model (2025) and the bDOM20
@@ -1172,6 +1252,11 @@
                 <li>
                   Surroundings within 200 m: 273 buildings from LoD2; terrain and trees derived from the surface model.
                   Trees are solid bodies there and cast more shade than in reality; they can be switched off.
+                </li>
+                <li>
+                  Old town island: the other 3,844 LoD2 buildings of the island as a backdrop; water, green spaces,
+                  squares and streets on the ground from OpenStreetMap. Beyond 200 m only tall structures (mainly the
+                  church towers) are included in the shading.
                 </li>
                 <li>Heights refer to 13.0 m above sea level (DHHN2016) as the church floor.</li>
                 <li>
@@ -1296,48 +1381,44 @@
       </div>
 
       <footer class="timebar" aria-label="Datum und Uhrzeit" data-en-aria="Date and time">
-        <div class="tb-ctrl">
-          <button class="chip dstep" id="dayPrev" aria-label="Einen Tag zurück" data-en-aria="One day back">‹</button>
-          <input
-            type="date"
-            id="date"
-            min="1911-01-01"
-            max="2080-12-31"
-            aria-label="Datum (1911–2080)"
-            data-en-aria="Date (1911–2080)"
-          />
-          <button class="chip dstep" id="dayNext" aria-label="Einen Tag vor" data-en-aria="One day forward">›</button>
-          <button class="chip" id="nowBtn" data-en="Now">Jetzt</button>
+        <div class="tb-more" id="tbMore">
+          <label class="tb-speed"
+            ><span data-en="Speed">Tempo</span>
+            <select id="speed" aria-label="Geschwindigkeit" data-en-aria="Speed">
+              <option value="10">10 min/s</option>
+              <option value="30" selected>30 min/s</option>
+              <option value="60">1 h/s</option>
+              <option value="120">2 h/s</option>
+              <option value="y2" data-en="Year: 2 days/s">Jahr: 2 Tage/s</option>
+              <option value="y7" data-en="Year: 1 week/s">Jahr: 1 Woche/s</option>
+            </select></label
+          >
           <div class="pp">
             <button class="chip" id="presetBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="presets">
               <span class="pl" data-en="Special ">Besondere </span><span data-en="days ▾">Tage ▾</span>
             </button>
             <div class="pmenu" id="presets" role="menu" hidden></div>
           </div>
+          <button class="chip" id="nowBtn" data-en="Now">Jetzt</button>
+          <p class="tb-sum" id="sumLine">–</p>
+        </div>
+        <div class="tb-main">
+          <div class="tb-date">
+            <button class="chip dstep" id="dayPrev" aria-label="Einen Tag zurück" data-en-aria="One day back">‹</button>
+            <input
+              type="date"
+              id="date"
+              min="1911-01-01"
+              max="2080-12-31"
+              aria-label="Datum (1911–2080)"
+              data-en-aria="Date (1911–2080)"
+            />
+            <button class="chip dstep" id="dayNext" aria-label="Einen Tag vor" data-en-aria="One day forward">›</button>
+          </div>
           <button class="btn" id="play" aria-label="Tagesverlauf abspielen" data-en-aria="Play the day">
             <svg viewBox="0 0 12 12" id="playIcon"><path d="M2 1l9 5-9 5z" /></svg
             ><span id="playTxt" data-en="Play day">Tagesverlauf</span>
           </button>
-          <select id="speed" aria-label="Geschwindigkeit" data-en-aria="Speed">
-            <option value="10">10 min/s</option>
-            <option value="30" selected>30 min/s</option>
-            <option value="60">1 h/s</option>
-            <option value="120">2 h/s</option>
-            <option value="y2" data-en="Year: 2 days/s">Jahr: 2 Tage/s</option>
-            <option value="y7" data-en="Year: 1 week/s">Jahr: 1 Woche/s</option>
-          </select>
-          <p class="tb-sum" id="sumLine">–</p>
-          <button
-            class="chip tbfold"
-            id="tbFold"
-            aria-expanded="false"
-            aria-label="Tagesdiagramm zeigen"
-            data-en-aria="Show day chart"
-          >
-            <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 7.5L6 4l3.5 3.5" /></svg>
-          </button>
-        </div>
-        <div class="tb-time">
           <div class="tb-track">
             <svg
               id="chart"
@@ -1347,9 +1428,32 @@
             ></svg>
             <input type="range" id="time" min="0" max="1439" step="1" aria-label="Uhrzeit" data-en-aria="Time" />
           </div>
+          <button class="chip skychip" id="sunChip">
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="sc-sun">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5" />
+            </svg>
+            <span id="sunChipTxt">–</span>
+          </button>
+          <button class="chip skychip" id="moonChip">
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="sc-moon">
+              <path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z" />
+            </svg>
+            <span id="moonChipTxt">–</span>
+          </button>
           <div class="tb-clock">
             <output id="timeOut">12:00</output><span class="small" id="tzName" data-gl="tz">MEZ</span>
           </div>
+          <button
+            class="chip tbfold"
+            id="tbFold"
+            aria-expanded="false"
+            aria-controls="tbMore"
+            aria-label="Weitere Zeiteinstellungen: Tempo, besondere Tage, Jetzt"
+            data-en-aria="More time settings: speed, special days, now"
+          >
+            <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 7.5L6 4l3.5 3.5" /></svg>
+          </button>
         </div>
       </footer>
     </div>

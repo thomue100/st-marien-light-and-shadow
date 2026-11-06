@@ -27,7 +27,7 @@ export function applyStaticLang() {
   });
   const lb = document.getElementById('langBtn');
   if (lb) {
-    lb.textContent = LANG === 'en' ? 'DE' : 'EN';
+    lb.textContent = LANG === 'en' ? 'Deutsch' : 'English';
     lb.setAttribute('lang', LANG === 'en' ? 'de' : 'en');
   }
   document.title = tr('St. Marien – Licht und Schatten', "St. Mary's – Light and Shadow");

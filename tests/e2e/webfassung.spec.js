@@ -21,7 +21,7 @@ test('Webfassung: lädt auf Deutsch, Ansichten über das Menü, keine fremden Se
   await expect(page).toHaveTitle(/St\. Marien/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'de');
   await page.locator('#tourChoice [data-go="free"]').click();
-  await expect(page.locator('#views button[data-view]')).toHaveCount(18);
+  await expect(page.locator('#views button[data-view]')).toHaveCount(21);
   // je eine Ansicht außen, Himmel (wird beim ersten Mal berechnet), innen und die Uhr; alle Ansichten prüft bedienung.spec.js
   for (const [v, label] of [
     ['luft', 'Luftbild'],
@@ -48,12 +48,24 @@ test('Webfassung: Link mit Datum, Ansicht und Sprache', async ({ page }) => {
 
 test.describe('Handy', () => {
   test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
-  test('Webfassung: lädt im Hochformat, Titelleiste und Symbolleiste überdecken sich nicht', async ({ page }) => {
+  test('Webfassung: lädt im Hochformat, Leisten überdecken sich nicht', async ({ page }) => {
     await page.goto(WEB + '#d=2026-06-21&t=780&v=aussen&l=de');
     await waitReady(page, false);
-    const brand = await page.locator('.brand').boundingBox();
-    const rail = await page.locator('.rail').boundingBox();
-    expect(brand.x + brand.width <= rail.x || rail.y >= brand.y + brand.height).toBe(true);
+    // Titelleiste, Knopf „Freie Sicht“, Symbolleiste (unten) und Zeitleiste überdecken sich nicht und liegen im Bild
+    const boxes = {};
+    for (const sel of ['.brand', '#freeBtn', '.rail', '.timebar']) boxes[sel] = await page.locator(sel).boundingBox();
+    const sels = Object.keys(boxes);
+    for (const [i, a] of sels.entries()) {
+      const p = boxes[a];
+      expect(p.x, a).toBeGreaterThanOrEqual(0);
+      expect(p.x + p.width, a).toBeLessThanOrEqual(390);
+      expect(p.y + p.height, a).toBeLessThanOrEqual(844);
+      for (const b of sels.slice(i + 1)) {
+        const q = boxes[b];
+        const overlap = p.x < q.x + q.width && p.x + p.width > q.x && p.y < q.y + q.height && p.y + p.height > q.y;
+        expect(overlap, `${a} überdeckt ${b}`).toBe(false);
+      }
+    }
     await page.locator('#viewBtn').tap();
     const menu = await page.locator('#views').boundingBox();
     expect(menu.x).toBeGreaterThanOrEqual(0);

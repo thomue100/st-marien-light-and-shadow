@@ -1,12 +1,12 @@
 // Experiment „Mond zwischen den Türmen“: Standort per Fingertipp, Terminsuche von Westen und Osten, Kameraansicht.
-import { test, expect, openApp, setInput, toScreen, waitCameraStill } from './helpers.js';
+import { test, expect, openApp, setInput, showCard, toScreen, waitCameraStill } from './helpers.js';
 
 const waitSearch = page =>
   page.waitForFunction(() => !window.__MZT.busy && !!window.__MZT.res, null, { timeout: 180_000 });
 
 test('Mond zwischen den Türmen: Standort wählen und Termine suchen', async ({ page }) => {
   await openApp(page);
-  await page.locator('.rbtn[data-card="exp"]').click();
+  await showCard(page, 'exp');
   await page.locator('.explink[data-exp="mt"]').click();
   await waitCameraStill(page);
   await expect(page.locator('#viewTxt')).toHaveText('Draufsicht: Standort wählen');
@@ -34,7 +34,7 @@ test('Mond zwischen den Türmen: Standort wählen und Termine suchen', async ({ 
   await expect(page.locator('#date')).toHaveValue('2026-11-05');
 
   // Von Osten, 500 m
-  if (await page.locator('#card-exp').isHidden()) await page.locator('.rbtn[data-card="exp"]').click();
+  await showCard(page, 'exp');
   await page.locator('#mtSide [data-side="e"]').click();
   await setInput(page, '#mtDist', 500, 'input');
   await page.evaluate(() => (window.__MZT.res = null));
