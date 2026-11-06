@@ -21,7 +21,7 @@ export let envH = null,
   envCls = null,
   envG = null,
   envMax = -1e9;
-const envGroup = new THREE.Group(),
+export const envGroup = new THREE.Group(),
   treeGroup = new THREE.Group();
 scene.add(envGroup);
 scene.add(treeGroup);

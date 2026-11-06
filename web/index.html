@@ -8,13 +8,14 @@
       content="Interaktives 3D-Modell von St. Marien zu Lübeck: Sonne, Mond, Sonnenuhr und Astronomische Uhr zu jeder Stunde des Jahres."
     />
     <title>St. Marien – Licht und Schatten</title>
-    <script type="module" crossorigin src="./assets/index-AkADQzeI.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-Cp2mH3f3.css">
+    <script type="module" crossorigin src="./assets/index-CVYcPbrb.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BHwIgQwy.css">
   </head>
   <body>
     <div id="app">
       <div id="stage"></div>
       <div id="labels"></div>
+      <div id="skyMarks"></div>
       <svg id="panoGrid" aria-hidden="true" hidden></svg>
       <div class="glpop" id="glPop" role="tooltip" hidden></div>
       <p
@@ -254,6 +255,9 @@
               <dd id="rLit">–</dd>
             </div>
           </dl>
+          <div class="btnrow">
+            <button class="chip" id="sunLook" data-en="Look at the sun">Zur Sonne blicken</button>
+          </div>
           <p
             class="small note sunnote"
             data-en="Rise and set: the upper edge of the sun touches a free horizon (standard definition: centre of the sun about 0.8° below the geometric horizon, average refraction). Houses, trees and the weather shift the visible moment by a few minutes."
@@ -317,6 +321,9 @@
             der Mond 2,2-fach vergrößert und sein Licht verstärkt, damit Phase und Lage gut zu erkennen sind; echtes
             Mondlicht ist rund 400 000-mal schwächer als Sonnenlicht.
           </p>
+          <div class="btnrow">
+            <button class="chip" id="moonLook" data-en="Look at the moon">Zum Mond blicken</button>
+          </div>
           <div class="btnrow">
             <button class="chip" id="goSolEcl" data-en="Next solar eclipse">Nächste Sonnenfinsternis</button
             ><button class="chip" id="goLunEcl" data-en="Next lunar eclipse">Nächste Mondfinsternis</button>

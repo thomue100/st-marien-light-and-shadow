@@ -20,6 +20,7 @@ window.__win=__T.windows; window.__cam=__T.camera; window.__sd=__T.sd;
 window.__A={sunPos:__T.sunPos,moonPos:__T.moonPos,moonRiseSet:__T.moonRiseSet,moonPhaseTime:__T.moonPhaseTime,localToUtc:__T.localToUtc,
   berlinOffsetMin:__T.berlinOffsetMin,dstInfo:__T.dstInfo,day:()=>__T.day,setDate:__T.setDate,setMinutes:__T.setMinutes};
 window.__MZT=__T.MZT; window.__LK=__T.LK;
+window.__L=__T.L; window.__LM=__T.LM; window.__tilt=()=>__T.controls.maxPolarAngle;
 `;
 const NEEDED = new Set([...HOOKS.matchAll(/__T\.(\w+)/g)].map(m => m[1]));
 
