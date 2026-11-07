@@ -317,7 +317,8 @@
       <div class="mviews" id="mviews" role="group" aria-label="Blickwinkel" data-en-aria="Viewpoint" hidden>
         <button data-mv="sonnenuhr" aria-pressed="true" data-en="Dial">Zifferblatt</button
         ><button data-mv="sued" aria-pressed="false" data-en="Church">Kirche</button
-        ><button data-mv="himmel" aria-pressed="false" data-en="Sky">Himmel</button>
+        ><button data-mv="himmel" aria-pressed="false" data-en="Sky">Himmel</button
+        ><button data-mv="" aria-pressed="false" id="mvExtra" hidden></button>
       </div>
       <section class="mpanel" id="mpanel" hidden aria-label="Sonnenuhr ablesen" data-en-aria="Reading the sundial">
         <div class="mpmain" id="mpMain">
@@ -345,8 +346,8 @@
             <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
               <rect x="3" y="4" width="18" height="12" rx="1.5" />
               <path d="M8 20h8M12 16v4" /></svg
-            ><span data-en="More on a computer: windows, clock, experiments"
-              >Mehr am Computer: Fenster, Uhr, Experimente</span
+            ><span data-en="Discover more: ridge turret, clock, computer"
+              >Mehr entdecken: Dachreiter, Uhr, Computer</span
             ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
           </button>
         </div>
@@ -375,8 +376,8 @@
           <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
             <rect x="3" y="4" width="18" height="12" rx="1.5" />
             <path d="M8 20h8M12 16v4" /></svg
-          ><span data-en="Church, windows, astronomical clock and experiments: on a computer"
-            >Kirche, Fenster, Astronomische Uhr und Experimente: am Computer</span
+          ><span data-en="Discover more: ridge turret, astronomical clock and everything on a computer"
+            >Mehr entdecken: Dachreiter, Astronomische Uhr und alles am Computer</span
           ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
         </button>
       </section>
@@ -385,7 +386,25 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg
           ><span data-en="Back to the sundial">Zur Sonnenuhr</span>
         </button>
-        <h2 id="mdH" data-en="More on a computer">Mehr am Computer</h2>
+        <h2 id="mdH" data-en="Discover more">Mehr entdecken</h2>
+        <p class="mdgrp" data-en="Also on the phone">Auch auf dem Handy</p>
+        <button class="mdgo" data-go="dachreiter">
+          <span
+            ><b data-en="On the ridge turret">Auf dem Dachreiter</b
+            ><span data-en="View from the lantern over the roof to the towers – compare it on the tower tour"
+              >Blick aus der Laterne über das Dach zu den Türmen – zum Vergleich bei der Turmführung</span
+            ></span
+          ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+        </button>
+        <button class="mdgo" data-go="uhr">
+          <span
+            ><b data-en="Astronomical clock">Astronomische Uhr</b
+            ><span data-en="The clock in the model, running with the time you set"
+              >Die Uhr im Modell, sie läuft mit der eingestellten Zeit</span
+            ></span
+          ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+        </button>
+        <p class="mdgrp" data-en="On a computer">Am Computer</p>
         <p data-en="On a large screen the model shows the whole church – inside and out, by day and by night.">
           Auf dem großen Bildschirm zeigt das Modell die ganze Kirche – innen und außen, bei Tag und Nacht.
         </p>
@@ -397,8 +416,8 @@
             >
           </li>
           <li>
-            <b data-en="Astronomical clock">Astronomische Uhr</b
-            ><span data-en="Sun, moon and zodiac in motion">Sonne, Mond und Tierkreis im Gang</span>
+            <b data-en="Astronomical clock in detail">Astronomische Uhr im Detail</b
+            ><span data-en="Dials, hands and moon phase explained">Zifferblätter, Zeiger und Mondphase erklärt</span>
           </li>
           <li>
             <b data-en="4 experiments and a quiz">4 Experimente und ein Quiz</b

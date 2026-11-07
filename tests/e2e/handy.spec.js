@@ -101,16 +101,24 @@ test('In 3 Schritten erklärt: Schatten, Zeitunterschied vorgerechnet, Sommer un
   await expect(page.locator('#mpMain')).toBeVisible();
 });
 
-test('Mehr am Computer: was es dort gibt, Link senden; kein Weg in die volle Fassung', async ({ page }) => {
+test('Mehr entdecken: Dachreiter und Uhr auf dem Handy, was es am Computer gibt, Link senden', async ({ page }) => {
   await openApp(page, { hash: MAI });
   await page.locator('#mpMore').tap();
   await expect(page.locator('#mdesk')).toBeVisible();
   await expect(page.locator('#mdesk .mdlist li')).toHaveCount(4);
   await expect(page.locator('#sendLink')).toBeVisible();
-  await expect(page.locator('#mdesk button')).toHaveCount(2); // Zurück und Link senden
+  await expect(page.locator('#mdesk button')).toHaveCount(4); // Zurück, Dachreiter, Uhr, Link senden
+  await expect(page.locator('#mvExtra')).toBeHidden();
   await page.locator('#mdBack').tap();
   await expect(page.locator('#mdesk')).toBeHidden();
   await expect(page.locator('body')).toHaveClass(/mobile/);
+  // Dachreiter: vierter Blickwinkel erscheint, zurück über „Zifferblatt“
+  await page.locator('#mpMore').tap();
+  await page.locator('.mdgo[data-go="dachreiter"]').tap();
+  await expect(page.locator('#mvExtra')).toHaveText('Dachreiter');
+  await expect(page.locator('#mvExtra')).toHaveAttribute('aria-pressed', 'true');
+  await page.locator('#mviews [data-mv="sonnenuhr"]').tap();
+  await expect(page.locator('#mviews [data-mv="sonnenuhr"]')).toHaveAttribute('aria-pressed', 'true');
 });
 
 test.describe('Querformat', () => {
