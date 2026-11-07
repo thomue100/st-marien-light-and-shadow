@@ -2385,6 +2385,42 @@ body.mobile.mv-sd .lsd {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+.mfs {
+  margin-left: auto;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(20, 16, 12, 0.18);
+  color: var(--ink);
+}
+.mfs[hidden] {
+  display: none;
+}
+.mfs svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mfs .foff,
+.mfs.on .fon {
+  display: none;
+}
+.mfs.on .foff {
+  display: block;
+}
 .mtop .langseg button {
   min-width: 42px;
   font-size: 14px;
