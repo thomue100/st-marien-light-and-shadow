@@ -4,13 +4,13 @@
 // ständig, was die Sonnenuhr gerade zeigt.
 import './share.js'; // Aufbau-Reihenfolge: nach ui/share
 import { dstInfo, localToUtc, LON, sunPos, trueNoon } from '../astro/index.js';
-import { $ } from '../core/util.js';
+import { $, lsGet, lsSet } from '../core/util.js';
 import { fmtT, LANG, tr, tzN } from '../core/i18n.js';
 import { cur, state } from '../state.js';
-import { requestRender } from '../scene/renderer.js';
+import { camera, renderer, requestRender } from '../scene/renderer.js';
 import { sd, setSdHook } from '../model/sundial.js';
 import { useMoon } from '../light/sun.js';
-import { goView } from '../scene/camera.js';
+import { controls, goView, tween, VIEWS } from '../scene/camera.js';
 import { setDate, setMinutes, setPlaying } from './controls.js';
 import { openCard, setFree } from './panels.js';
 import { tour, tourEnd } from './tour.js';
@@ -91,10 +91,68 @@ function syncViews() {
 for (const b of document.querySelectorAll('#mviews button'))
   b.addEventListener('click', () => {
     goView(b.dataset.mv);
+    gesture(b.dataset.mv);
     // die Himmelsansicht wird beim ersten Mal erst vorbereitet: Auswahl sofort zeigen, danach am Zustand abgleichen
     for (const x of document.querySelectorAll('#mviews button')) x.setAttribute('aria-pressed', String(x === b));
     setTimeout(syncViews, 500);
   });
+
+/* ---------------- Drehen zeigen: kurzer Schwenk und eingeblendete Fingergeste ---------------- */
+
+// Beim ersten Mal je Art des Blickwinkels erscheint mitten im Bild ein wischender Finger mit kurzem Text; er verschwindet
+// bei der ersten Berührung oder nach 4 s. Bei „Selbst ausprobieren“ schwenkt das Modell zudem einmal kurz hin und zurück.
+const GEST = {
+  orbit: ['Mit einem Finger drehen · mit zwei zoomen', 'One finger: turn · two fingers: zoom'],
+  pano: ['Ziehen: Himmel drehen · zwei Finger: zoomen', 'Drag: turn the sky · two fingers: zoom'],
+  walk: ['Ziehen: umsehen · Steuerkreis: gehen', 'Drag: look around · circle: walk'],
+};
+const gestKind = v => (v === 'himmel' ? 'pano' : VIEWS[v] && VIEWS[v].mode === 'inside' ? 'walk' : 'orbit');
+let gestTimer = 0,
+  nudgeOn = false;
+function gestHide() {
+  clearTimeout(gestTimer);
+  $('#mgest').hidden = true;
+}
+export function gesture(v, nudge) {
+  const k = gestKind(v);
+  if (lsGet('stm-gest-' + k) !== '1') {
+    lsSet('stm-gest-' + k, '1');
+    $('#mgestTxt').textContent = tr(...GEST[k]).replace(' · ', '\n'); // zwei Zeilen
+    $('#mgest').hidden = false;
+    clearTimeout(gestTimer);
+    gestTimer = setTimeout(gestHide, 4000);
+  }
+  if (nudge && k === 'orbit' && !matchMedia('(prefers-reduced-motion: reduce)').matches) swing();
+}
+/** einmal sanft um die Hochachse hin und zurück schwenken (±15°, 1,6 s), sobald die Kamerafahrt beendet ist */
+function swing() {
+  const A = (15 * Math.PI) / 180,
+    T = 1600,
+    up = new THREE.Vector3(0, 1, 0);
+  let t0 = null,
+    prev = 0;
+  nudgeOn = true;
+  const step = now => {
+    if (!nudgeOn) return;
+    if (tween) return requestAnimationFrame(step); // erst nach der Kamerafahrt
+    if (t0 === null) t0 = now;
+    const t = Math.min(1, (now - t0) / T),
+      a = A * Math.sin(Math.PI * t),
+      off = camera.position.clone().sub(controls.target);
+    off.applyAxisAngle(up, a - prev);
+    prev = a;
+    camera.position.copy(controls.target).add(off);
+    controls.update();
+    requestRender();
+    if (t < 1) requestAnimationFrame(step);
+    else nudgeOn = false;
+  };
+  requestAnimationFrame(step);
+}
+renderer.domElement.addEventListener('pointerdown', () => {
+  nudgeOn = false; // wer selbst dreht, braucht keinen Schwenk und keinen Hinweis mehr
+  gestHide();
+});
 
 /* ---------------- Schnellwahl ---------------- */
 
@@ -280,6 +338,7 @@ $('#msGo').addEventListener('click', () => {
   showStart(false);
   goView('sonnenuhr');
   syncViews();
+  gesture('sonnenuhr', true);
 });
 $('#msSteps').addEventListener('click', () => stepsGo(0));
 const openDesk = on => {
@@ -297,6 +356,7 @@ for (const b of document.querySelectorAll('.mdgo'))
     setPlaying(false);
     $('#nowBtn').click(); // heute, jetzt – zum Vergleich mit dem Blick vor Ort
     goView(v);
+    gesture(v);
     xb.dataset.mv = v;
     xb.hidden = false;
     syncViews();
