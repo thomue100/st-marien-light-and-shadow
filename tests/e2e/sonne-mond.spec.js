@@ -43,8 +43,8 @@ test('Randhinweis führt zur Sonne, Kirche und Sonne im Bild, Link stellt den Bl
 
   // Teilen und den Link neu öffnen
   await showCard(page, 'share');
+  await expect(page.locator('#shareUrl')).toHaveValue(/v=zurSonne/); // die Karte füllt den Link gleich nach dem Öffnen
   const url = await page.locator('#shareUrl').inputValue();
-  expect(url).toMatch(/v=zurSonne/);
   const page2 = await browser.newPage({ viewport: { width: 1400, height: 850 } });
   await openApp(page2, { hash: url.slice(url.indexOf('#')) });
   await expect(page2.locator('#viewTxt')).toHaveText('Blick zur Sonne');
