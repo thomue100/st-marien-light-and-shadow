@@ -316,9 +316,8 @@ $('#ckCal').addEventListener('click', () => {
   ckMiniSet('cal');
   goView('uhrkalender');
 });
-document.querySelector('button[data-card="clock"]').addEventListener('click', () =>
-  setTimeout(() => {
-    clockUpdate(null, true);
-    updateClockCard();
-  }, 0),
-);
+document.addEventListener('stm-card', e => {
+  if (e.detail !== 'clock') return;
+  clockUpdate(null, true);
+  updateClockCard();
+});

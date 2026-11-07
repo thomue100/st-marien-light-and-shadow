@@ -25,11 +25,9 @@ export function applyStaticLang() {
     if (el.dataset.deTitle === undefined) el.dataset.deTitle = el.getAttribute('title') || '';
     el.setAttribute('title', LANG === 'en' ? el.dataset.enTitle : el.dataset.deTitle);
   });
-  const lb = document.getElementById('langBtn');
-  if (lb) {
-    lb.textContent = LANG === 'en' ? 'Deutsch' : 'English';
-    lb.setAttribute('lang', LANG === 'en' ? 'de' : 'en');
-  }
+  document
+    .querySelectorAll('#langSeg button')
+    .forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === LANG)));
   document.title = tr('St. Marien – Licht und Schatten', "St. Mary's – Light and Shadow");
 }
 applyStaticLang();

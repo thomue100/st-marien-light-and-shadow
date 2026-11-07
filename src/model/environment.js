@@ -306,6 +306,7 @@ if (ENV) {
         mesh.castShadow = grp === 'tall';
         mesh.receiveShadow = true;
         mesh.userData.far = true; // nicht für Sichtstrahlen (zu viele Dreiecke); Verschattung über das Fernraster
+        mesh.userData.farBld = true;
         envGroup.add(mesh);
       }
   }
@@ -378,6 +379,10 @@ export function envBlocked(o) {
     if (envHeightAt(x, z) > y) return true;
   }
   return false;
+}
+/** Inselgebäude zeigen oder verbergen (Handy: nur in den Ansichten, die die ganze Insel zeigen). */
+export function farBuildings(v) {
+  for (const m of envGroup.children) if (m.userData.farBld && m.visible !== v) m.visible = v;
 }
 export function applyEnv() {
   envGroup.visible = state.env;

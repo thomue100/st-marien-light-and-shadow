@@ -2,10 +2,11 @@
 //
 // Das Programm ist auf Module verteilt (src/core, src/model, src/scene, src/light, src/ui). Sie bauen sich in einer festen
 // Reihenfolge auf – derselben wie früher in einer einzigen großen Datei: Jedes Modul importiert als Erstes seinen Vorgänger,
-// app.js als Erstes das letzte Modul (ui/share.js). Module dürfen sich gegenseitig importieren; eine Variable eines anderen
+// app.js als Erstes das letzte Modul (ui/phone.js). Module dürfen sich gegenseitig importieren; eine Variable eines anderen
 // Moduls neu zuweisen geht aber nicht – dafür gibt es Setter wie setLang() oder requestRender(). Siehe README, „Aufbau-Reihenfolge“.
-// Reihenfolge: core/loader → core/util → core/i18n → core/prefs → model/measures → state → scene/renderer → scene/textures → scene/shaders → scene/materials → model/geometry → model/church → model/clock → model/environment → model/sundial → light/sky → light/windows → light/sun → scene/camera → scene/labels → ui/readouts → ui/controls → ui/year → ui/panels → ui/clockcard → ui/tour → ui/moontowers → ui/experiments → ui/quiz → ui/share → app.
-import { applyCode } from './ui/share.js'; // Aufbau-Reihenfolge: nach ui/share
+// Reihenfolge: core/loader → core/util → core/i18n → core/prefs → model/measures → state → scene/renderer → scene/textures → scene/shaders → scene/materials → model/geometry → model/church → model/clock → model/environment → model/sundial → light/sky → light/windows → light/sun → scene/camera → scene/labels → ui/readouts → ui/controls → ui/year → ui/panels → ui/clockcard → ui/tour → ui/moontowers → ui/experiments → ui/quiz → ui/share → ui/phone → app.
+import { isPhone, showStart } from './ui/phone.js'; // Aufbau-Reihenfolge: nach ui/phone
+import { applyCode } from './ui/share.js';
 import { berlinNow, localToUtc, sunPos } from './astro/index.js';
 import { ldBar, ldDone, ldT0, step } from './core/loader.js';
 import { $, lsGet } from './core/util.js';
@@ -62,19 +63,14 @@ new ResizeObserver(() => {
   }
 }).observe(stage);
 {
-  // Karten und Hinweise sitzen über der Zeitleiste; auf dem Handy liegt darüber noch die Symbolleiste
-  const tb = document.querySelector('.timebar'),
-    rail = document.querySelector('.rail'),
-    narrow = matchMedia('(max-width: 760px)');
+  // Hinweise sitzen über der Zeitleiste; auf dem Handy endet die Bühne über der Anzeige (ui/phone.js)
+  const tb = document.querySelector('.timebar');
   const upd = () => {
-    const t = Math.ceil(tb.offsetHeight),
-      r = narrow.matches && rail.offsetHeight ? Math.ceil(rail.offsetHeight) + 6 : 0;
+    const t = isPhone() ? 0 : Math.ceil(tb.offsetHeight);
     document.documentElement.style.setProperty('--tbh0', t + 'px');
-    document.documentElement.style.setProperty('--tbh', t + r + 'px');
+    document.documentElement.style.setProperty('--tbh', t + 'px');
   };
   new ResizeObserver(upd).observe(tb);
-  new ResizeObserver(upd).observe(rail);
-  narrow.addEventListener('change', upd);
 }
 new ResizeObserver(() => {
   if (Math.abs((chart.clientWidth || 0) - CHW) > 2) {
@@ -170,7 +166,7 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => sdDr
 resize();
 computeDay();
 updateSun(true);
-goView('sued', true);
+goView('sonnenuhr', true); // Start an der Sonnenuhr
 const fromLink = applyCode(location.hash);
 await step(tr('Darstellung wird vorbereitet', 'Preparing the display'), 94);
 setExpReady(true);
@@ -184,7 +180,9 @@ requestAnimationFrame(loop);
 requestAnimationFrame(() => {
   if (ldBar) ldBar.style.width = '100%';
   ldDone();
-  if (!fromLink && lsGet('stm-welcomed') !== '1') {
+  if (isPhone()) {
+    if (!fromLink) showStart(true); // Handy: Startseite statt Rundgang
+  } else if (!fromLink && lsGet('stm-welcomed') !== '1') {
     tour.i = -1;
     showTour();
   }

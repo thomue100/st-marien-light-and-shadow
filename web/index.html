@@ -8,8 +8,14 @@
       content="Interaktives 3D-Modell von St. Marien zu Lübeck: Sonne, Mond, Sonnenuhr und Astronomische Uhr zu jeder Stunde des Jahres."
     />
     <title>St. Marien – Licht und Schatten</title>
-    <script type="module" crossorigin src="./assets/index-DaxPcayG.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BuGqbGlm.css">
+    <script type="module" crossorigin src="./assets/index-CA-9bwVV.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-C35qvHO8.css">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#9b3a26">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="St. Marien">
   </head>
   <body>
     <div id="app">
@@ -128,6 +134,10 @@
             </div>
           </div>
         </div>
+        <div class="langseg" id="langSeg" role="group" aria-label="Sprache · Language">
+          <button data-lang="de" lang="de" aria-pressed="true" aria-label="Deutsch" title="Deutsch">DE</button
+          ><button data-lang="en" lang="en" aria-pressed="false" aria-label="English" title="English">EN</button>
+        </div>
         <div class="mwrap">
           <button
             class="mbtn icon"
@@ -135,8 +145,8 @@
             aria-haspopup="menu"
             aria-expanded="false"
             aria-controls="moreMenu"
-            aria-label="Weitere: Sprache, Über das Modell, Teilen"
-            data-en-aria="More: language, about, share"
+            aria-label="Weitere: Über das Modell, Teilen, Freie Sicht"
+            data-en-aria="More: about, share, clear view"
             title="Weitere"
             data-en-title="More"
           >
@@ -147,7 +157,6 @@
             </svg>
           </button>
           <div class="dmenu dmore" id="moreMenu" role="menu" hidden>
-            <button id="langBtn" role="menuitem" lang="en">English</button>
             <button data-card="info" role="menuitem" aria-expanded="false" data-en="About the model">
               Über das Modell
             </button>
@@ -157,6 +166,15 @@
             <button id="freeItem" role="menuitem"><span data-en="Clear view">Freie Sicht</span><kbd>F</kbd></button>
           </div>
         </div>
+        <button
+          class="sdpill"
+          id="sdPill"
+          aria-label="Sonnenuhr am Südpfeiler"
+          data-en-aria="Sundial on the south buttress"
+        >
+          <span class="spk" id="sdPillLbl">Sonnenuhr zeigt</span><b id="sdPillShow">–</b
+          ><span class="spk" data-en="your clock">Ihre Uhr</span><b id="sdPillClock">–</b>
+        </button>
       </header>
       <button
         class="freebtn"
@@ -277,6 +295,154 @@
           <span class="rl" data-en="Display">Darstellung</span>
         </button>
       </nav>
+      <!-- Handy: nur die Sonnenuhr. Oben das Bild, unten die Anzeige; alles Weitere am Computer (src/ui/phone.js) -->
+      <div class="mtop" id="mtop" hidden>
+        <button class="mhome" id="mHome" aria-label="Zur Startseite" data-en-aria="To the start page">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 11l8-7 8 7" />
+            <path d="M6 10v9h12v-9" /></svg
+          ><span data-en="The Sundial">Die Sonnenuhr</span>
+        </button>
+        <button
+          class="mfs"
+          id="mFs"
+          hidden
+          aria-pressed="false"
+          aria-label="Vollbild"
+          data-en-aria="Full screen"
+          title="Vollbild"
+          data-en-title="Full screen"
+        >
+          <svg class="fon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg
+          ><svg class="foff" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" />
+          </svg>
+        </button>
+      </div>
+      <div class="mviews" id="mviews" role="group" aria-label="Blickwinkel" data-en-aria="Viewpoint" hidden>
+        <button data-mv="sonnenuhr" aria-pressed="true" data-en="Dial">Zifferblatt</button
+        ><button data-mv="sued" aria-pressed="false" data-en="Church">Kirche</button
+        ><button data-mv="himmel" aria-pressed="false" data-en="Sky">Himmel</button
+        ><button data-mv="" aria-pressed="false" id="mvExtra" hidden></button>
+      </div>
+      <section class="mpanel" id="mpanel" hidden aria-label="Sonnenuhr ablesen" data-en-aria="Reading the sundial">
+        <div class="mpmain" id="mpMain">
+          <div class="mpread">
+            <div>
+              <p class="mplbl" id="mpShowLbl">Sonnenuhr zeigt</p>
+              <p class="mpval mpsd" id="mpShow">–</p>
+            </div>
+            <div>
+              <p class="mplbl" data-en="Your clock">Ihre Uhr</p>
+              <p class="mpval"><span id="mpClock">–</span> <span class="mptz" id="mpTz">MEZ</span></p>
+            </div>
+          </div>
+          <p class="mpdiff">
+            <span id="mpDiff">–</span><button class="mplink" id="mpWhy" data-en="Why?">Warum?</button>
+          </p>
+          <div class="mptime" id="mpTime"></div>
+          <div class="mpquick" role="group" aria-label="Schnellwahl" data-en-aria="Quick pick">
+            <button class="chip" data-q="now" data-en="Today">Heute</button
+            ><button class="chip" data-q="jun" data-en="21 June">21. Juni</button
+            ><button class="chip" data-q="dec" data-en="21 Dec">21. Dez.</button
+            ><button class="chip" data-q="full" data-en="Full moon">Vollmond</button>
+          </div>
+          <button class="mpmore" id="mpMore">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="12" rx="1.5" />
+              <path d="M8 20h8M12 16v4" /></svg
+            ><span data-en="Discover more: ridge turret, clock, computer"
+              >Mehr entdecken: Dachreiter, Uhr, Computer</span
+            ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+          </button>
+        </div>
+        <div class="msteps" id="msteps" hidden>
+          <p class="mshead">
+            <span class="msdots" id="msDots" aria-hidden="true"><i></i><i></i><i></i></span><span id="msNum"></span>
+          </p>
+          <h2 id="msTitle"></h2>
+          <div class="msbody" id="msBody"></div>
+          <div class="msbtns"><button class="chip" id="msPrev"></button><button class="btn" id="msNext"></button></div>
+        </div>
+      </section>
+      <section class="mstart" id="mstart" hidden aria-labelledby="msH">
+        <p class="mskick" data-en="St. Mary's, Lübeck · Light and Shadow">St. Marien zu Lübeck · Licht und Schatten</p>
+        <h2 id="msH" data-en="The Sundial">Die Sonnenuhr</h2>
+        <p
+          class="msintro"
+          data-en="Watch the shadow of the rod move across the hours – on any day of the year. And find out why the sundial differs from your clock."
+        >
+          Sehen Sie, wie der Schatten des Stabes über die Stunden wandert – an jedem Tag des Jahres. Und warum die
+          Sonnenuhr anders geht als Ihre Uhr.
+        </p>
+        <button class="btn msgo" id="msGo" data-en="Try it yourself">Selbst ausprobieren</button>
+        <button class="chip msgo2" id="msSteps" data-en="Explained in 3 steps">In 3 Schritten erklärt</button>
+        <button class="mpmore" id="msDesk">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="12" rx="1.5" />
+            <path d="M8 20h8M12 16v4" /></svg
+          ><span data-en="Discover more: ridge turret, astronomical clock and everything on a computer"
+            >Mehr entdecken: Dachreiter, Astronomische Uhr und alles am Computer</span
+          ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+        </button>
+      </section>
+      <section class="mdesk" id="mdesk" hidden role="dialog" aria-modal="true" aria-labelledby="mdH">
+        <button class="mback" id="mdBack">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg
+          ><span data-en="Back to the sundial">Zur Sonnenuhr</span>
+        </button>
+        <h2 id="mdH" data-en="Discover more">Mehr entdecken</h2>
+        <p class="mdgrp" data-en="Also on the phone">Auch auf dem Handy</p>
+        <button class="mdgo" data-go="dachreiter">
+          <span
+            ><b data-en="On the ridge turret">Auf dem Dachreiter</b
+            ><span data-en="View from the lantern over the roof to the towers – compare it on the tower tour"
+              >Blick aus der Laterne über das Dach zu den Türmen – zum Vergleich bei der Turmführung</span
+            ></span
+          ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+        </button>
+        <button class="mdgo" data-go="uhr">
+          <span
+            ><b data-en="Astronomical clock">Astronomische Uhr</b
+            ><span data-en="The clock in the model, running with the time you set"
+              >Die Uhr im Modell, sie läuft mit der eingestellten Zeit</span
+            ></span
+          ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+        </button>
+        <p class="mdgrp" data-en="On a computer">Am Computer</p>
+        <p data-en="On a large screen the model shows the whole church – inside and out, by day and by night.">
+          Auf dem großen Bildschirm zeigt das Modell die ganze Kirche – innen und außen, bei Tag und Nacht.
+        </p>
+        <ul class="mdlist">
+          <li>
+            <b data-en="Interiors and windows">Innenräume und Fenster</b
+            ><span data-en="When does sunlight fall through which window?"
+              >Wann fällt Sonnenlicht durch welches Fenster?</span
+            >
+          </li>
+          <li>
+            <b data-en="Astronomical clock in detail">Astronomische Uhr im Detail</b
+            ><span data-en="Dials, hands and moon phase explained">Zifferblätter, Zeiger und Mondphase erklärt</span>
+          </li>
+          <li>
+            <b data-en="4 experiments and a quiz">4 Experimente und ein Quiz</b
+            ><span data-en="Shadow lengths, equation of time, light calendar"
+              >Schattenlängen, Zeitgleichung, Lichtkalender</span
+            >
+          </li>
+          <li>
+            <b data-en="Tour with 8 stops">Rundgang mit 8 Stationen</b
+            ><span data-en="plus 21 views, up to the whole old town island"
+              >dazu 21 Ansichten bis zur ganzen Altstadtinsel</span
+            >
+          </li>
+        </ul>
+        <button class="btn msend" id="sendLink" data-en="Send me the link">Link an mich senden</button>
+        <p class="small" data-en="The link opens the same day and time on the computer.">
+          Der Link öffnet am Computer denselben Tag und dieselbe Uhrzeit.
+        </p>
+      </section>
 
       <section class="card" id="card-sun" hidden aria-label="Sonnenstand" data-en-aria="Sun">
         <div class="chead">
@@ -1439,7 +1605,7 @@
             <svg viewBox="0 0 24 24" aria-hidden="true" class="sc-moon">
               <path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z" />
             </svg>
-            <span id="moonChipTxt">–</span>
+            <span id="moonChipTxt">–</span><span class="mpct" id="moonChipPct"></span>
           </button>
           <div class="tb-clock">
             <output id="timeOut">12:00</output><span class="small" id="tzName" data-gl="tz">MEZ</span>

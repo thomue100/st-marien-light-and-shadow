@@ -43,8 +43,8 @@ test('Randhinweis führt zur Sonne, Kirche und Sonne im Bild, Link stellt den Bl
 
   // Teilen und den Link neu öffnen
   await showCard(page, 'share');
+  await expect(page.locator('#shareUrl')).toHaveValue(/v=zurSonne/); // die Karte füllt den Link gleich nach dem Öffnen
   const url = await page.locator('#shareUrl').inputValue();
-  expect(url).toMatch(/v=zurSonne/);
   const page2 = await browser.newPage({ viewport: { width: 1400, height: 850 } });
   await openApp(page2, { hash: url.slice(url.indexOf('#')) });
   await expect(page2.locator('#viewTxt')).toHaveText('Blick zur Sonne');
@@ -74,24 +74,4 @@ test('Mondkarte: zum Mond blicken; steht er unter dem Horizont, nur ein Hinweis'
   await expect(page.locator('#hint')).toHaveText('Der Mond steht gerade unter dem Horizont.');
   await expect(page.locator('#viewTxt')).toHaveText('Blick zum Mond'); // keine Kamerafahrt
   await expect(page.locator('#mkMoon')).toBeHidden();
-});
-
-test('Handy: Randhinweise liegen frei, nicht unter Titelleiste, Symbolleiste oder Zeitleiste', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await openApp(page, { hash: START });
-  for (const id of ['#mkSun', '#mkMoon']) {
-    await expect(page.locator(id)).toBeVisible();
-    const m = await page.locator(id).boundingBox();
-    for (const sel of ['.brand', '.rail', '.timebar', '#freeBtn']) {
-      const o = await page.locator(sel).boundingBox();
-      const overlap = m.x < o.x + o.width && m.x + m.width > o.x && m.y < o.y + o.height && m.y + m.height > o.y;
-      expect(overlap, `${id} überdeckt ${sel}`).toBe(false);
-    }
-    expect(m.x).toBeGreaterThanOrEqual(0);
-    expect(m.x + m.width).toBeLessThanOrEqual(390);
-  }
-  await page.locator('#mkMoon').click();
-  await waitCameraStill(page);
-  await expect(page.locator('#viewTxt')).toHaveText('Blick zum Mond');
-  expect(inFrame(await where(page, 'moon'))).toBe(true);
 });

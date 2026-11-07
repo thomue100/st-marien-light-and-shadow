@@ -36,6 +36,21 @@ function fontDisplayBlock() {
   };
 }
 
+/** Webfassung: als App auf den Startbildschirm legbar (Manifest, Symbol); die Einzeldatei-Fassungen bleiben ohne Verweise. */
+function webApp() {
+  return {
+    name: 'st-marien-web-app',
+    transformIndexHtml: () => [
+      { tag: 'link', attrs: { rel: 'manifest', href: 'manifest.webmanifest' }, injectTo: 'head' },
+      { tag: 'link', attrs: { rel: 'apple-touch-icon', href: 'apple-touch-icon.png' }, injectTo: 'head' },
+      { tag: 'meta', attrs: { name: 'theme-color', content: '#9b3a26' }, injectTo: 'head' },
+      { tag: 'meta', attrs: { name: 'mobile-web-app-capable', content: 'yes' }, injectTo: 'head' },
+      { tag: 'meta', attrs: { name: 'apple-mobile-web-app-capable', content: 'yes' }, injectTo: 'head' },
+      { tag: 'meta', attrs: { name: 'apple-mobile-web-app-title', content: 'St. Marien' }, injectTo: 'head' },
+    ],
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const single = mode === 'offline' || mode === 'uitest';
   const outDir = mode === 'offline' ? 'dist' : mode === 'uitest' ? 'tests/.build' : 'web';
@@ -55,6 +70,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       mode === 'uitest' && testHooks(),
+      !single && webApp(),
       single && fontDisplayBlock(),
       single && viteSingleFile(),
       mode === 'offline' && renameOutput('dist', 'dist/' + OFFLINE_NAME),

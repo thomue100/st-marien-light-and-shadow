@@ -1,5 +1,5 @@
 // Experimente 1–4: Kirche als Sonnenuhr, Sonnenuhr und Armbanduhr, Lichtkalender, Astronomische Uhr und Himmel.
-import { test, expect, menuItem, openApp, setInput, showCard, waitCameraStill } from './helpers.js';
+import { test, expect, openApp, setInput, showCard, waitCameraStill } from './helpers.js';
 
 async function openExp(page, k) {
   await showCard(page, 'exp');
@@ -120,6 +120,6 @@ test('Experiment 4: Astronomische Uhr und Himmel', async ({ page }) => {
     await expect(page.locator('#date')).toHaveValue(date);
     await expect(note).not.toBeEmpty();
   }
-  await menuItem(page, '#moreBtn', '#langBtn');
+  await page.locator('#langSeg [data-lang="en"]').click();
   await expect(page.locator('#exp-au h3')).toHaveText('Astronomical clock and sky');
 });
