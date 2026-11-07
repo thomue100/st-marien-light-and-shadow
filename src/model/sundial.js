@@ -59,20 +59,11 @@ sdTex.anisotropy = maxAniso;
   rim(W, 0.04, 0.09, 0, -SD.size / 2 - 0.04, 0.04);
   rim(0.04, SD.size + 0.04, 0.09, -SD.size / 2 - 0.04, 0, 0.04);
   rim(0.04, SD.size + 0.04, 0.09, SD.size / 2 + 0.04, 0, 0.04);
-  const metal = new THREE.MeshStandardMaterial({ color: lin(0x9ea3a6), roughness: 0.5, metalness: 0.6 });
-  metal.clippingPlanes = [cutPlane];
-  for (const sx of [-1, 1]) {
-    const st = new THREE.Mesh(new THREE.BoxGeometry(0.075, W * 0.92, 0.015), metal);
-    st.position.set(sx * (W / 2 + 0.035), 0, -0.09);
-    sdGroup.add(st);
-    for (let k = 0; k < 4; k++) {
-      const b = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, 0.02, 8), darkMat);
-      b.rotation.x = Math.PI / 2;
-      b.position.set(sx * (W / 2 + 0.04), (k - 1.5) * W * 0.26, -0.075);
-      sdGroup.add(b);
-    }
-  }
 }
+// Halteleisten liegen flach auf der Backsteinwand neben dem Kasten (auch links, wo der Keil den Kasten vorstehen lässt)
+const sdMetal = new THREE.MeshStandardMaterial({ color: lin(0x9ea3a6), roughness: 0.5, metalness: 0.6 });
+sdMetal.clippingPlanes = [cutPlane];
+let sdStrips = null;
 const sdLocal = (px, py) => new V3((px - 0.5) * SD.size, (0.5 - py) * SD.size, 0);
 const sdFootL = sdLocal(SD.foot[0], SD.foot[1]),
   sdStrutL = sdLocal(SD.strut[0], SD.strut[1]);
@@ -115,9 +106,31 @@ export function sdOrient() {
     sdWedgeMesh.geometry.dispose();
     sdWedgeMesh = null;
   }
+  const w = (x, y) => new V3(x, y, -0.105).applyMatrix4(sdGroup.matrixWorld),
+    wp = v => new V3(v.x, v.y, wallZ);
+  if (sdStrips) {
+    scene.remove(sdStrips);
+    sdStrips.traverse(o => o.geometry && o.geometry.dispose());
+  }
+  sdStrips = new THREE.Group();
+  {
+    const H = (SD.size + 0.12) * 0.92;
+    for (const sx of [-1, 1]) {
+      const ex = w(sx * half, 0).x + sx * 0.0375;
+      const st = new THREE.Mesh(new THREE.BoxGeometry(0.075, H, 0.015), sdMetal);
+      st.position.set(ex, SD.y, wallZ + 0.0075);
+      st.castShadow = true;
+      sdStrips.add(st);
+      for (let k = 0; k < 4; k++) {
+        const bo = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, 0.02, 8), darkMat);
+        bo.rotation.x = Math.PI / 2;
+        bo.position.set(ex + sx * 0.005, SD.y + (k - 1.5) * (SD.size + 0.12) * 0.26, wallZ + 0.02);
+        sdStrips.add(bo);
+      }
+    }
+    scene.add(sdStrips);
+  }
   if (psi > 0.001) {
-    const w = (x, y) => new V3(x, y, -0.105).applyMatrix4(sdGroup.matrixWorld),
-      wp = v => new V3(v.x, v.y, wallZ);
     const bl = w(-half, -half),
       tl = w(-half, half),
       br = w(half, -half),
