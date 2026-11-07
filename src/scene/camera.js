@@ -89,7 +89,10 @@ export const VIEWS = {
 export function hintFor() {
   if (state.pano)
     return coarse
-      ? tr('Ziehen: Himmel drehen und kippen', 'Drag: turn and tilt the sky')
+      ? tr(
+          'Ein Finger: Himmel drehen und kippen · zwei Finger: zoomen',
+          'One finger: turn and tilt the sky · two fingers: zoom',
+        )
       : tr(
           'Ziehen: Himmel drehen und kippen · Mausrad: Ausschnitt vergrößern oder verkleinern',
           'Drag: turn and tilt the sky · Wheel: zoom in or out',
@@ -419,14 +422,33 @@ export function panoMarks() {
   }
   gEl.innerHTML = s;
 }
-let panoDrag = null;
+// Himmelsansicht: ein Finger bzw. die Maus zieht den Ausschnitt, zwei Finger zoomen (spreizen/zusammenziehen)
+let panoDrag = null,
+  panoPinch = null;
+const panoPts = new Map();
+const pinchDist = () => {
+  const [a, b] = [...panoPts.values()];
+  return Math.hypot(a.x - b.x, a.y - b.y);
+};
 renderer.domElement.addEventListener('pointerdown', e => {
   if (!state.pano) return;
-  panoDrag = { x: e.clientX, y: e.clientY };
+  panoPts.set(e.pointerId, { x: e.clientX, y: e.clientY });
   renderer.domElement.setPointerCapture(e.pointerId);
+  if (panoPts.size === 2) {
+    panoDrag = null;
+    panoPinch = pinchDist();
+  } else if (panoPts.size === 1) panoDrag = { x: e.clientX, y: e.clientY };
 });
 renderer.domElement.addEventListener('pointermove', e => {
-  if (!state.pano || !panoDrag) return;
+  if (!state.pano || !panoPts.has(e.pointerId)) return;
+  panoPts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (panoPinch && panoPts.size === 2) {
+    const d = pinchDist();
+    if (d > 0 && panoPinch > 0) panoZoom(d / panoPinch);
+    panoPinch = d;
+    return;
+  }
+  if (!panoDrag) return;
   const dx = e.clientX - panoDrag.x,
     dy = e.clientY - panoDrag.y;
   panoDrag = { x: e.clientX, y: e.clientY };
@@ -435,9 +457,15 @@ renderer.domElement.addEventListener('pointermove', e => {
   panoUniforms();
   requestRender();
 });
-renderer.domElement.addEventListener('pointerup', () => {
-  panoDrag = null;
-});
+const panoUp = e => {
+  panoPts.delete(e.pointerId);
+  if (panoPts.size < 2) panoPinch = null;
+  // nach dem Zoomen mit dem verbliebenen Finger nahtlos weiterziehen
+  const rest = [...panoPts.values()][0];
+  panoDrag = rest ? { x: rest.x, y: rest.y } : null;
+};
+renderer.domElement.addEventListener('pointerup', panoUp);
+renderer.domElement.addEventListener('pointercancel', panoUp);
 function panoZoom(f) {
   const g = panoGeom();
   PANO.kx = Math.max(g.W / 360, Math.min(40, PANO.kx * f));
