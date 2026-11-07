@@ -1871,20 +1871,9 @@ for (const zz of [TW.n, TW.s]) {
   building.add(m);
 }
 // Chorhaupt nach Drohnenfotos von Osten und Norden: Umgang mit Pultdach je Joch zwischen den Strebepfeilern,
-// schlanke Fialen auf den Umgangspfeilern; Schmuckgiebel mit Blendnischen und Fialen an den Ostgiebeln der Chorkapellen
+// Schmuckgiebel mit Blendnischen an den Giebeln der nördlichen Chorkapellen; keine Fialen (Luftbild von Osten)
 {
-  for (const s of [-1, 1])
-    for (const k of [1, 2, 3]) {
-      const v = AMB_N[k],
-        C = [v[0] + AMB_BN[k][0] * 2.6, -s * (v[1] + AMB_BN[k][1] * 2.6)];
-      const g = new THREE.ConeGeometry(0.55, 5.2, 8);
-      g.translate(C[0], HCS + 1.4 + 2.6, C[1]);
-      addMesh(g, roofMat);
-      const b = boxGeo(1.1, 1.6, 1.1);
-      b.translate(C[0], HCS + 0.6, C[1]);
-      addMesh(b, wallMat);
-    }
-  // Ostgiebel der nördlichen Chorkapellen: abgestufte Blendnischen und drei Fialen
+  // Ostgiebel der nördlichen Chorkapellen: abgestufte Blendnischen
   const gd = [];
   for (const c of [CHAPELS[2]]) {
     const s3 = c.s,
@@ -1903,9 +1892,6 @@ for (const zz of [TW.n, TW.s]) {
       if (ytop - ybot < 1.5) continue;
       gd.push(facePoly(x, s3 * z, 1, 0, lanc(0, 0.42, ybot, ytop), 0.02));
     }
-    pinnacle(c.x1, c.ridge, s3 * zr);
-    pinnacle(c.x1, c.h, s3 * (zo + 0.4));
-    pinnacle(c.x1, c.hin, s3 * (zi + 0.2));
   }
   // Westgiebel der nördlichen Chorkapellen über dem Dach der Totentanzkapelle (Luftbild von Norden; war offen)
   {
@@ -1935,8 +1921,6 @@ for (const zz of [TW.n, TW.s]) {
       if (ytop - ybot < 1.5) continue;
       gd.push(facePoly(x - 0.02, s3 * z, -1, 0, lanc(0, 0.42, ybot, ytop), 0.04));
     }
-    pinnacle(x, c.ridge, s3 * zr);
-    pinnacle(x, c.h, s3 * (zo + 0.4));
   }
   if (gd.length) building.add(new THREE.Mesh(mergeGeos(gd), darkMat));
 }
@@ -2276,12 +2260,6 @@ function pierCap(x, s, dIn, dOut, y) {
     wallMat,
   );
 }
-function pinnacle(x, y, z) {
-  const g = new THREE.ConeGeometry(0.6, 3.4, 4);
-  g.rotateY(Math.PI / 4);
-  g.translate(x, y + 1.7, z);
-  addMesh(g, roofMat);
-} // Fialen nur noch an den Giebeln der Chorkapellen
 // Bei XT stoßen das steilere Pultdach der westlichen Seitenschiffjoche und die flachere gemeinsame Fläche über Südervorhalle
 // und Chorseitenschiff aneinander: Giebeldreieck dazwischen
 profileMesh(
@@ -2347,9 +2325,9 @@ for (let i = 1; i < NB; i++) {
   }
 }
 // Treppentürme an den Anschlüssen des Umgangs (Grundriss; Drohnenfoto: dunkles Kegeldach)
-// Nord: (28,5 / −18,8) über die Dächer geführt, dunkles Kegeldach (Luftbilder von Osten); Süd: (26,4 / 17,6) mit spitzem Kupferhelm
+// Nord: (28,5 / −18,8) über die Dächer geführt, dunkles Kegeldach (Luftbilder von Osten); Süd: (26,4 / 17,6) endet unter den Dächern
 stairTurret(28.5, -18.8, 1.35, 27.0, 5.0, darkRoofMat);
-stairTurret(26.4, 17.6, 1.35, 26.5, 10.5); // Süd: schlanker Kupferhelm über den Dächern (Luftbilder von Südwesten)
+stairTurret(26.4, 17.6, 1.35, 21.2, 1.2, darkRoofMat);
 
 // Ausstattung: Gestühl, Altar
 {
