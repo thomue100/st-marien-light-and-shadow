@@ -1760,6 +1760,9 @@ for (const zz of [TW.n, TW.s]) {
     zR = TW.s[0],
     cx = TW.x0;
   facadeAcc.dark.push(facePoly(cx, 0, -1, 0, lanc(0, 0.42, 42.6, 45.4), 0.08));
+  // kleines Spitzbogenfenster zwischen Bogenfries und Westfenster (Foto von Westen)
+  facadeAcc.reveal.push(facePoly(cx, 0, -1, 0, lanc(0, 0.85, 23.4, 26.9), 0.05));
+  facadeAcc.dark.push(facePoly(cx, 0, -1, 0, lanc(0, 0.6, 23.6, 26.6), 0.08));
   for (const u of [-3.3, 3.3]) {
     facadeAcc.reveal.push(facePoly(cx, 0, -1, 0, lanc(u, 1.45, 35.4, 42.4), 0.05));
     facadeAcc.dark.push(facePoly(cx, 0, -1, 0, lanc(u, 0.5, 35.6, 38.8), 0.08));
