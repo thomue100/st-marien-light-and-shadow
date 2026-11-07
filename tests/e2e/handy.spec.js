@@ -1,5 +1,5 @@
 // Handy: nur die Sonnenuhr – Startseite, Ablesen, drei Blickwinkel, Schnellwahl, „In 3 Schritten erklärt“,
-// „Mehr am Computer“ mit Ausweg in die volle Fassung, Querformat.
+// „Mehr am Computer“, Querformat.
 import { test, expect, openApp, setToday, TEST_HTML, waitReady } from './helpers.js';
 
 test.use({ viewport: { width: 360, height: 640 }, isMobile: true, hasTouch: true });
@@ -101,24 +101,16 @@ test('In 3 Schritten erklärt: Schatten, Zeitunterschied vorgerechnet, Sommer un
   await expect(page.locator('#mpMain')).toBeVisible();
 });
 
-test('Mehr am Computer: Link senden; volle Fassung öffnen und über „⋯“ zurück zur Handy-Fassung', async ({ page }) => {
+test('Mehr am Computer: was es dort gibt, Link senden; kein Weg in die volle Fassung', async ({ page }) => {
   await openApp(page, { hash: MAI });
   await page.locator('#mpMore').tap();
   await expect(page.locator('#mdesk')).toBeVisible();
   await expect(page.locator('#mdesk .mdlist li')).toHaveCount(4);
   await expect(page.locator('#sendLink')).toBeVisible();
+  await expect(page.locator('#mdesk button')).toHaveCount(2); // Zurück und Link senden
   await page.locator('#mdBack').tap();
   await expect(page.locator('#mdesk')).toBeHidden();
-
-  await page.locator('#mpMore').tap();
-  await page.locator('#mdFull').tap();
-  await expect(page.locator('body')).not.toHaveClass(/mobile/);
-  await expect(page.locator('.rail')).toBeVisible();
-  await expect(page.locator('#mpanel')).toBeHidden();
-  await page.locator('#moreBtn').tap();
-  await page.locator('#phoneItem').tap();
   await expect(page.locator('body')).toHaveClass(/mobile/);
-  await expect(page.locator('#mstart')).toBeVisible();
 });
 
 test.describe('Querformat', () => {

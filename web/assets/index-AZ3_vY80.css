@@ -2928,10 +2928,6 @@ body.mobile #time::-moz-range-thumb {
   text-align: center;
   color: var(--muted);
 }
-.mdfull {
-  margin: auto auto 0;
-  font-size: 14px;
-}
 /* Querformat: Anzeige als Seitenleiste rechts, das Bild links */
 @media (orientation: landscape) {
   .mpanel,

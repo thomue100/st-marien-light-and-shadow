@@ -1,10 +1,10 @@
 // Handy: nur die Sonnenuhr. Oben das Bild, unten eine feste Anzeige (ablesen, Uhrzeit, Datum, Schnellwahl); drei
 // Blickwinkel, eine Startseite, „In 3 Schritten erklärt“ und eine Seite „Mehr am Computer“. Alles andere bleibt dem
-// Desktop vorbehalten; wer will, öffnet trotzdem die volle Fassung. Am Desktop zeigt eine Anzeige unter der Titelleiste
+// Desktop vorbehalten („Link an mich senden“ öffnet denselben Moment am Computer). Am Desktop zeigt eine Anzeige unter der Titelleiste
 // ständig, was die Sonnenuhr gerade zeigt.
 import './share.js'; // Aufbau-Reihenfolge: nach ui/share
 import { dstInfo, localToUtc, LON, sunPos, trueNoon } from '../astro/index.js';
-import { $, lsGet, lsSet } from '../core/util.js';
+import { $ } from '../core/util.js';
 import { fmtT, LANG, tr, tzN } from '../core/i18n.js';
 import { cur, state } from '../state.js';
 import { requestRender } from '../scene/renderer.js';
@@ -296,25 +296,11 @@ $('#sendLink').addEventListener('click', async () => {
     setTimeout(() => ($('#sendLink').textContent = tr('Link an mich senden', 'Send me the link')), 2500);
   } catch (e) {}
 });
-// Volle Fassung auf dem Handy (z. B. für große Tablets); zurück über das Menü „⋯“ → „Handy-Fassung“
-$('#mdFull').addEventListener('click', () => {
-  lsSet('stm-full', '1');
-  openDesk(false);
-  applyPhone();
-});
-$('#phoneItem').addEventListener('click', () => {
-  lsSet('stm-full', '0');
-  applyPhone();
-  showStart(true);
-});
-
 /* ---------------- Umschalten zwischen Handy und Desktop ---------------- */
 
 const homes = [];
 export function applyPhone() {
-  const want = PHONE.matches,
-    m = want && lsGet('stm-full') !== '1';
-  $('#phoneItem').hidden = !(want && !m);
+  const m = PHONE.matches;
   if (m === isPhone() && homes.length > 0 === m) return;
   body.classList.toggle('mobile', m);
   $('#mtop').hidden = $('#mviews').hidden = !m;
