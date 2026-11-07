@@ -2266,42 +2266,6 @@ body.touring .yearnote {
   background: var(--chip);
 }
 
-/* ---------- Desktop: was die Sonnenuhr gerade zeigt, ständig unter der Titelleiste ---------- */
-.sdpill {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  padding: 6px 14px;
-  border: 0;
-  border-radius: 8px;
-  background: var(--ink);
-  color: var(--panel);
-  box-shadow: var(--shadow);
-  font-family: var(--f-body);
-  font-size: 13px;
-  white-space: nowrap;
-  cursor: pointer;
-}
-.sdpill b {
-  font-family: var(--f-mono);
-  font-size: 17px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-.sdpill b:first-of-type {
-  color: #f0c860;
-  margin-right: 10px;
-}
-.sdpill .spk {
-  opacity: 0.8;
-}
-body.free .sdpill {
-  display: none;
-}
-
 /* ---------- Handy: nur die Sonnenuhr. Oben das Bild, unten eine feste Anzeige (src/ui/phone.js) ---------- */
 .mtop[hidden],
 .mviews[hidden],

@@ -1,7 +1,6 @@
 // Handy: nur die Sonnenuhr. Oben das Bild, unten eine feste Anzeige (ablesen, Uhrzeit, Datum, Schnellwahl); drei
 // Blickwinkel, eine Startseite, „In 3 Schritten erklärt“ und eine Seite „Mehr am Computer“. Alles andere bleibt dem
-// Desktop vorbehalten („Link an mich senden“ öffnet denselben Moment am Computer). Am Desktop zeigt eine Anzeige unter der Titelleiste
-// ständig, was die Sonnenuhr gerade zeigt.
+// Desktop vorbehalten („Link an mich senden“ öffnet denselben Moment am Computer).
 import './share.js'; // Aufbau-Reihenfolge: nach ui/share
 import { dstInfo, localToUtc, LON, sunPos, trueNoon } from '../astro/index.js';
 import { $, lsGet, lsSet } from '../core/util.js';
@@ -36,17 +35,12 @@ function fmtDur(min) {
   if (LANG === 'en') return (h ? h + ' h ' : '') + (m || !h ? m + ' min' : '');
   return (h ? h + ' Std. ' : '') + (m || !h ? m + ' Min.' : '');
 }
-function sdRead(ok, stateText) {
+function sdRead(ok) {
+  if (!isPhone()) return;
   const di = dstInfo(state.y, state.m, state.d, state.minutes),
     clock = fmtT(di.loc),
     show = ok ? fmtT(sd.show * 60) : '–',
     lbl = useMoon ? tr('Mondschatten zeigt', 'Moon shadow shows') : tr('Sonnenuhr zeigt', 'Sundial shows');
-  // Desktop: Anzeige unter der Titelleiste
-  $('#sdPillLbl').textContent = lbl;
-  $('#sdPillShow').textContent = show;
-  $('#sdPillClock').textContent = clock + ' ' + tzN(di.off);
-  $('#sdPill').title = stateText;
-  if (!isPhone()) return;
   $('#mpShowLbl').textContent = lbl;
   $('#mpShow').textContent = show;
   $('#mpClock').textContent = clock;
@@ -72,7 +66,6 @@ function sdRead(ok, stateText) {
   syncViews();
 }
 setSdHook(sdRead);
-$('#sdPill').addEventListener('click', () => openCard($('#card-sd').hidden ? 'sd' : null));
 
 /* ---------------- Blickwinkel: Zifferblatt · Kirche · Himmel ---------------- */
 

@@ -138,7 +138,7 @@ function freeArea(W, H) {
   const side = [],
     s = markLayer.getBoundingClientRect();
   for (const el of document.querySelectorAll(
-    '.brand, #sdPill, .rail, .timebar, .card:not([hidden]), #freeBtn, #freeMini',
+    '.brand, .rail, .timebar, .card:not([hidden]), #freeBtn, #freeMini',
   )) {
     const o = el.getBoundingClientRect();
     if (!o.width || !o.height) continue;
