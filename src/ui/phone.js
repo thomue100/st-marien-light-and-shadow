@@ -324,6 +324,11 @@ export function showStart(on) {
   sizeVars();
   if (on) {
     if (ms.i !== null) stepsEnd();
+    // zurück auf der Startseite: der zusätzliche Blickwinkel (Dachreiter, Uhr) verschwindet wieder
+    const xb = $('#mvExtra');
+    xb.hidden = true;
+    xb.dataset.mv = '';
+    xb.textContent = '';
     // Startseite immer mit besonntem Zifferblatt: 21. Juni, 12:00 (sonst ist das Bild abends und im Winter dunkel)
     setPlaying(false);
     setDate(state.y, 5, 21);
