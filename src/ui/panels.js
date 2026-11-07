@@ -113,6 +113,14 @@ export function openCard(k) {
     .forEach(b => b.setAttribute('aria-expanded', String(b.dataset.card === k)));
   if (typeof mtSync === 'function') mtSync();
   requestRender(); // Randhinweise für Sonne und Mond weichen der Karte aus
+  cardShown();
+}
+/** Meldet die gerade sichtbaren Karten (Ereignis „stm-card“), damit sie ihren Inhalt auffrischen. */
+function cardShown() {
+  setTimeout(() => {
+    for (const c of document.querySelectorAll('.card:not([hidden])'))
+      document.dispatchEvent(new CustomEvent('stm-card', { detail: c.id.slice(5) }));
+  }, 0);
 }
 // Symbolleiste und Menüeinträge (Experimente, Über das Modell, Teilen) öffnen Karten
 document
@@ -388,8 +396,12 @@ export function refreshLang() {
   updateShare();
   updateSun(true);
 }
-$('#langBtn').addEventListener('click', () => {
-  setLang(LANG === 'en' ? 'de' : 'en');
-  lsSet('stm-lang', LANG);
-  refreshLang();
-});
+// Sprache: Umschalter „DE | EN“, immer sichtbar in der Titelleiste
+document.querySelectorAll('#langSeg button').forEach(b =>
+  b.addEventListener('click', () => {
+    if (b.dataset.lang === LANG) return;
+    setLang(b.dataset.lang);
+    lsSet('stm-lang', LANG);
+    refreshLang();
+  }),
+);

@@ -126,7 +126,7 @@ export function goEclipse(e) {
 }
 $('#goSolEcl').addEventListener('click', () => goEclipse(nextEclipses().s));
 $('#goLunEcl').addEventListener('click', () => goEclipse(nextEclipses().l));
-document.querySelector('button[data-card="moon"]').addEventListener('click', () => setTimeout(updateEclText, 0));
+document.addEventListener('stm-card', e => e.detail === 'moon' && updateEclText());
 export function goNewMoon() {
   const nn = moonPhaseTime(localToUtc(state.y, state.m, state.d, state.minutes) + 3600000, 0, 1);
   if (nn !== null) gotoInstant(nn, 22 * 60);

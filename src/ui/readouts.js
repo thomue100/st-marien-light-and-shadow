@@ -200,17 +200,16 @@ export function updateReadouts() {
           ? tr('Sonne ', 'Sun ') + fmtDeg(cur.el) + ' ' + dirName(cur.az)
           : tr('Sonne unter dem Horizont', 'Sun below the horizon');
     // Sonne und Mond als antippbare Werte (führen zum Blick dorthin), die Fensterzahl in der zweiten Zeile
-    const mt =
-      state.moon && m
-        ? fmtDeg(m.el) + (m.el > 0 ? ' ' + dirName(m.az) : '') + ' · ' + Math.round(m.k * 100) + ' %'
-        : '';
+    const mt = state.moon && m ? fmtDeg(m.el) + (m.el > 0 ? ' ' + dirName(m.az) : '') : '',
+      mp = state.moon && m ? ' · ' + Math.round(m.k * 100) + ' %' : '';
     $('#sunChipTxt').textContent =
       cur.el > -0.3 ? fmtDeg(cur.el) + ' ' + dirName(cur.az) : tr('unter dem Horizont', 'below horizon');
     $('#sunChip').title = sp + (cur.el > -1 ? tr(' – zur Sonne blicken', ' – look at the sun') : '');
     $('#moonChip').hidden = !mt;
     $('#moonChipTxt').textContent = mt;
+    $('#moonChipPct').textContent = mp;
     $('#moonChip').title =
-      tr('Mond ', 'Moon ') + mt + (m && m.el > -1 ? tr(' – zum Mond blicken', ' – look at the moon') : '');
+      tr('Mond ', 'Moon ') + mt + mp + (m && m.el > -1 ? tr(' – zum Mond blicken', ' – look at the moon') : '');
     $('#sumLine').textContent =
       (useMoon ? tr('im Mondlicht ', 'in moonlight ') : tr('besonnt ', 'sunlit ')) +
       (cur.el > 0 || useMoon ? litCount : 0) +

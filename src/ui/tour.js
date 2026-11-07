@@ -28,6 +28,9 @@ const TOUR = [
       "St. Mary's, Lübeck",
       "Welcome! The model shows St. Mary's Church and how sun and moon light it at any hour of the year. Drag with the mouse to turn the church, use the wheel to zoom. Set date and time in the bar at the bottom.",
     ],
+    // Handy: Fingergesten statt Maus
+    deT: 'Willkommen! Das Modell zeigt die Marienkirche und wie Sonne und Mond sie zu jeder Stunde des Jahres beleuchten. Ziehen Sie mit einem Finger, um die Kirche zu drehen, mit zwei Fingern verschieben und zoomen Sie. Unten stellen Sie Datum und Uhrzeit ein.',
+    enT: "Welcome! The model shows St. Mary's Church and how sun and moon light it at any hour of the year. Drag with one finger to turn the church, use two fingers to move and zoom. Set date and time in the panel at the bottom.",
   },
   {
     m: 4,
@@ -87,6 +90,8 @@ const TOUR = [
       'On the ridge turret',
       'A view you can otherwise only enjoy on the breathtaking tower and vault tours: from the lantern of the ridge turret, over 50 metres up, across the copper roof to the towers. Drag to look around; W/A/S/D or the arrow keys walk you around the lantern.',
     ],
+    deT: 'Ein Blick, wie man ihn sonst nur bei den atemberaubenden Turm- und Gewölbeführungen genießen kann: aus der Laterne des Dachreiters, gut 50 Meter hoch, über das Kupferdach zu den Türmen. Ziehen Sie zum Umsehen; mit dem Steuerkreis unten links gehen Sie in der Laterne umher.',
+    enT: 'A view you can otherwise only enjoy on the breathtaking tower and vault tours: from the lantern of the ridge turret, over 50 metres up, across the copper roof to the towers. Drag to look around; the control pad at the bottom left walks you around the lantern.',
   },
   {
     m: 5,
@@ -120,12 +125,14 @@ const TOUR = [
     choice: true,
     de: [
       'Wie geht es weiter?',
-      'Das Modell zeigt wieder den heutigen Tag. Testen Sie Ihr Wissen in einem Quiz mit fünf Aufgaben, die Sie im Modell lösen, probieren Sie Experimente zu Sonne, Sonnenuhr, Licht und Mond aus – oder erkunden Sie selbst: Rechts finden Sie alle Bereiche (die Experimente unter dem Kolben), oben weitere Ansichten.',
+      'Das Modell zeigt wieder den heutigen Tag. Testen Sie Ihr Wissen in einem Quiz mit fünf Aufgaben, die Sie im Modell lösen, probieren Sie Experimente zu Sonne, Sonnenuhr, Licht und Mond aus – oder erkunden Sie selbst: Rechts finden Sie die Bereiche, oben unter „Entdecken“ Quiz und Experimente und daneben weitere Ansichten.',
     ],
     en: [
       'What next?',
-      'The model is back at today. Test yourself in a quiz with five tasks you solve in the model, try experiments on sun, sundial, light and moon – or explore on your own: on the right you find all panels (the experiments under the flask), at the top more views.',
+      'The model is back at today. Test yourself in a quiz with five tasks you solve in the model, try experiments on sun, sundial, light and moon – or explore on your own: on the right you find the panels, at the top “Explore” holds the quiz and experiments, next to it more views.',
     ],
+    deT: 'Das Modell zeigt wieder den heutigen Tag. Testen Sie Ihr Wissen in einem Quiz mit fünf Aufgaben, die Sie im Modell lösen – oder erkunden Sie selbst: Unten im Blatt finden Sie Sonne, Mond, Kirche und mehr, oben weitere Ansichten. Die Experimente machen am Computer oder Tablet am meisten Freude.',
+    enT: 'The model is back at today. Test yourself in a quiz with five tasks you solve in the model – or explore on your own: the panel at the bottom holds sun, moon, church and more, at the top you choose more views. The experiments work best on a computer or tablet.',
   },
 ];
 export const tour = { i: null };
@@ -175,6 +182,7 @@ export function showTour() {
   const el = $('#tour'),
     i = tour.i;
   el.hidden = false;
+  el.classList.toggle('welcome', i < 0); // Begrüßung: auf dem Handy als Startseite
   document.body.classList.add('touring');
   if (i < 0) {
     $('#tourStep').textContent = tr('Rundgang', 'Guided tour');
@@ -194,10 +202,11 @@ export function showTour() {
     return;
   }
   const s = TOUR[i],
-    txt = LANG === 'en' ? s.en : s.de;
+    txt = LANG === 'en' ? s.en : s.de,
+    touch = document.body.classList.contains('mobile');
   $('#tourStep').textContent = tr('Station ', 'Stop ') + (i + 1) + tr(' von ', ' of ') + TOUR.length;
   $('#tourTitle').textContent = txt[0];
-  $('#tourText').textContent = txt[1];
+  $('#tourText').textContent = (touch && (LANG === 'en' ? s.enT : s.deT)) || txt[1];
   $('#tourEnd').textContent = tr('Beenden', 'End');
   $('#tourPrev').hidden = i === 0;
   $('#tourPrev').textContent = tr('Zurück', 'Back');
@@ -328,7 +337,27 @@ $('#homeBtn').addEventListener('click', () => {
   state.minutes = sp.el > 3 ? n.minutes : 12 * 60 + 30;
   setDate(n.y, n.m, n.d);
   goView('sued');
+  if (document.body.classList.contains('mobile')) tourGo(-1); // Handy: zurück zur Startseite
 });
+{
+  // Handy: Stationen seitlich wischen
+  const card = $('#tour');
+  let x0 = null,
+    y0 = 0;
+  card.addEventListener('pointerdown', e => {
+    x0 = e.clientX;
+    y0 = e.clientY;
+  });
+  card.addEventListener('pointerup', e => {
+    if (x0 === null) return;
+    const dx = e.clientX - x0,
+      dy = e.clientY - y0;
+    x0 = null;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < 2 * Math.abs(dy) || tour.i === null || tour.i < 0) return;
+    if (dx < 0 && !$('#tourNext').hidden) $('#tourNext').click();
+    else if (dx > 0 && !$('#tourPrev').hidden) $('#tourPrev').click();
+  });
+}
 // Zeitleiste: Tagesdiagramm auf kleinen Bildschirmen auf- und zuklappen
 function setTbOpen(o) {
   document.body.classList.toggle('tbopen', o);

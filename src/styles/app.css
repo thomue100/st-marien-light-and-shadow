@@ -2105,36 +2105,6 @@ body.touring .yearnote {
   .freebtn kbd {
     display: none;
   }
-  /* Symbolleiste als beschriftete Leiste über der Zeitleiste */
-  .rail {
-    top: auto;
-    left: max(10px, env(safe-area-inset-left, 0px));
-    right: max(10px, env(safe-area-inset-right, 0px));
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px) + var(--tbh0) + 6px);
-    width: auto;
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 0;
-    padding: 3px 4px;
-  }
-  .rgrp,
-  .rsep {
-    display: none;
-  }
-  .rbtn {
-    height: 50px;
-  }
-  .rl {
-    font-size: 10.5px;
-  }
-  .card {
-    top: auto;
-    left: max(10px, env(safe-area-inset-left, 0px));
-    right: max(10px, env(safe-area-inset-right, 0px));
-    width: auto;
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px) + var(--tbh) + 8px);
-    max-height: min(56%, calc(100% - 80px - var(--tbh)));
-  }
   .hint {
     white-space: normal;
     text-align: center;
@@ -2154,12 +2124,6 @@ body.touring .yearnote {
     content: ' ▴';
   }
   .card.min .cbody {
-    display: none;
-  }
-  /* Rundgang: Zeitleiste und Leiste ausblenden, Karte als schmale Leiste unten, Text auf drei Zeilen gekürzt */
-  body.touring .timebar,
-  body.touring .rail,
-  body.touring .night {
     display: none;
   }
   .yearnote {
@@ -2210,89 +2174,6 @@ body.touring .yearnote {
   }
   .tbtns .btn {
     padding: 5px 12px;
-  }
-  /* Zeitleiste kompakt: Zeile 1 Datum, Abspielen, Uhrzeit, Aufklappen; Zeile 2 Schieber.
-     Aufgeklappt: Tempo, besondere Tage, Jetzt und das Tagesdiagramm */
-  .timebar {
-    left: max(10px, env(safe-area-inset-left, 0px));
-    right: max(10px, env(safe-area-inset-right, 0px));
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-    padding: 6px 8px 8px;
-    gap: 4px;
-  }
-  .tb-main {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .tb-more {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .tb-date {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-  #date {
-    flex: 1 1 8em;
-    min-width: 7.2em;
-    height: 40px;
-    box-sizing: border-box;
-    font-size: 14px;
-    padding: 4px 5px;
-  }
-  .dstep {
-    width: 34px;
-    height: 40px;
-    padding: 0;
-  }
-  #play {
-    height: 40px;
-    min-width: 44px;
-    justify-content: center;
-  }
-  #playTxt {
-    display: none;
-  }
-  .tb-clock {
-    flex-direction: row;
-    align-items: baseline;
-    gap: 5px;
-  }
-  .tb-clock output {
-    font-size: 19px;
-  }
-  .tbfold {
-    order: 10;
-    width: 40px;
-    height: 40px;
-  }
-  .tb-track {
-    order: 9;
-    flex: 1 1 calc(100% - 52px); /* eigene Zeile, daneben nur der Aufklapp-Knopf */
-    min-width: 0;
-    height: 24px;
-  }
-  .dstep {
-    width: 30px;
-  }
-  body:not(.tbopen) #chart {
-    display: none;
-  }
-  body.tbopen .tb-track {
-    height: 62px;
-  }
-  #speed,
-  #presetBtn,
-  #nowBtn {
-    min-height: 40px;
-  }
-  .tb-sum {
-    display: none;
-  }
-  .pmenu {
-    left: 0;
-    right: auto;
-    bottom: calc(100% + 8px);
   }
   .lbl {
     font-size: 9.5px;
@@ -2351,5 +2232,594 @@ body.touring .yearnote {
 @media (prefers-reduced-motion: reduce) {
   * {
     scroll-behavior: auto;
+  }
+}
+
+/* Sprachumschalter „DE | EN“: immer sichtbar in der Titelleiste */
+.langseg {
+  flex: none;
+  display: inline-flex;
+  height: 34px;
+  box-sizing: border-box;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 999px;
+  background: var(--chip);
+  border: 1px solid var(--line);
+}
+.langseg button {
+  min-width: 36px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.langseg button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--panel);
+}
+.langseg button[aria-pressed='false']:hover {
+  background: var(--chip);
+}
+
+/* ---------- Desktop: was die Sonnenuhr gerade zeigt, ständig unter der Titelleiste ---------- */
+.sdpill {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--panel);
+  box-shadow: var(--shadow);
+  font-family: var(--f-body);
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.sdpill b {
+  font-family: var(--f-mono);
+  font-size: 17px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.sdpill b:first-of-type {
+  color: #f0c860;
+  margin-right: 10px;
+}
+.sdpill .spk {
+  opacity: 0.8;
+}
+body.free .sdpill {
+  display: none;
+}
+
+/* ---------- Handy: nur die Sonnenuhr. Oben das Bild, unten eine feste Anzeige (src/ui/phone.js) ---------- */
+.mtop[hidden],
+.mviews[hidden],
+body:has(.mstart:not([hidden])) .mviews,
+.mpanel[hidden],
+.mstart[hidden],
+.mdesk[hidden],
+.msteps[hidden],
+.mpmain[hidden] {
+  display: none !important;
+}
+/* Bühne, Beschriftungen und Himmelsraster enden über der Anzeige (Hochformat) bzw. links von ihr (Querformat) */
+body.mobile #stage,
+body.mobile #labels,
+body.mobile #skyMarks,
+body.mobile #panoGrid {
+  bottom: var(--mph, 0px);
+  right: var(--mpw, 0px);
+  width: auto;
+  height: auto;
+}
+body.mobile .brand,
+body.mobile .rail,
+body.mobile .card,
+body.mobile .freebtn,
+body.mobile .freemini,
+body.mobile .freetoast,
+body.mobile .hint,
+body.mobile .night,
+body.mobile .panonote,
+body.mobile .tourcard,
+body.mobile .yearnote,
+body.mobile .skymk,
+body.mobile .lbl:not(.lsd),
+body.mobile.mv-sd .lsd {
+  display: none !important;
+}
+.mtop {
+  position: absolute;
+  z-index: 4;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  left: 10px;
+  right: calc(var(--mpw, 0px) + 10px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+}
+.mtop > * {
+  pointer-events: auto;
+}
+.mhome,
+.mviews,
+.mtop .langseg {
+  height: 44px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(20, 16, 12, 0.18);
+  border: 0;
+}
+.mhome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px 0 11px;
+  color: var(--ink);
+  font-family: var(--f-display);
+  font-size: 17px;
+  font-weight: 700;
+}
+.mhome svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mtop .langseg button {
+  min-width: 42px;
+  font-size: 14px;
+}
+.mviews {
+  position: absolute;
+  z-index: 4;
+  left: calc((100% - var(--mpw, 0px)) / 2);
+  bottom: calc(var(--mph, 0px) + 12px);
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  white-space: nowrap;
+}
+.mviews button {
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 15px;
+}
+.mviews button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--panel);
+  font-weight: 500;
+}
+/* Anzeige unten (im Querformat rechts) */
+.mpanel,
+.mstart {
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  box-sizing: border-box;
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px))
+    max(16px, env(safe-area-inset-left, 0px));
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 -6px 24px rgba(20, 16, 12, 0.16);
+  overflow-y: auto;
+  max-height: 62%;
+}
+.mpmain,
+.msteps,
+.mstart {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mpread {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.mpread p {
+  margin: 0;
+}
+.mplbl {
+  font-size: 14px;
+  color: var(--muted);
+}
+.mpval {
+  font-family: var(--f-mono);
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.mpval.mpsd {
+  color: var(--brick);
+}
+.mptz {
+  font-size: 12px;
+  color: var(--muted);
+}
+.mpdiff {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 15px;
+  line-height: 1.3;
+}
+.mplink {
+  margin-left: auto;
+  flex: none;
+  min-height: 32px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--verd);
+  font-family: var(--f-body);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* Zeitleiste in der Anzeige: oben Tagesbogen mit großem Schieber, darunter Datum und Abspielen */
+body.mobile .timebar {
+  position: static;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: 0;
+}
+body.mobile .tb-more,
+body.mobile .tbfold,
+body.mobile .skychip,
+body.mobile .tb-clock,
+body.mobile #playTxt {
+  display: none !important;
+}
+body.mobile .tb-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'track track' 'date play';
+  gap: 8px 6px;
+}
+body.mobile .tb-track {
+  grid-area: track;
+  height: 68px;
+}
+body.mobile #chart {
+  display: block !important;
+}
+body.mobile .tb-date {
+  grid-area: date;
+  min-width: 0;
+}
+body.mobile #play {
+  grid-area: play;
+  height: 44px;
+  min-width: 56px;
+  justify-content: center;
+  border-radius: 10px;
+}
+body.mobile #date {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 44px;
+  box-sizing: border-box;
+  font-size: 16px;
+  padding: 4px 8px;
+}
+body.mobile .dstep {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font-size: 18px;
+}
+body.mobile #time {
+  height: 30px;
+  bottom: -4px;
+}
+body.mobile #time::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+}
+body.mobile #time::-webkit-slider-thumb {
+  width: 30px;
+  height: 30px;
+  margin-top: -12px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--brick);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  -webkit-appearance: none;
+  appearance: none;
+}
+body.mobile #time::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+}
+body.mobile #time::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--brick);
+}
+.mpquick {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.mpquick .chip,
+.msbtnrow .chip {
+  height: 36px;
+  padding: 0 12px;
+  font-size: 15px;
+}
+.msbtnrow .chip[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--panel);
+}
+.mpmore {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-family: var(--f-body);
+  font-size: 14px;
+  text-align: left;
+}
+.mpmore .ico {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mpmore .chv {
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+/* In 3 Schritten erklärt: ersetzt die Anzeige, liegt nie über dem Bild */
+.mshead {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.msdots {
+  display: flex;
+  gap: 5px;
+}
+.msdots i {
+  width: 22px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--line);
+}
+.msdots i.on {
+  background: var(--brick);
+}
+.msteps h2,
+.mstart h2,
+.mdesk h2 {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.msbody p {
+  margin: 0 0 8px;
+  font-size: 15.5px;
+  line-height: 1.4;
+}
+.mstab {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
+  gap: 5px 10px;
+  font-size: 15px;
+  line-height: 1.3;
+}
+.mstab span:nth-child(odd) {
+  font-family: var(--f-mono);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.mstab .mu {
+  color: var(--muted);
+}
+.mstab .sum {
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+  font-weight: 500;
+}
+.mstab span.sum:nth-child(odd) {
+  color: var(--brick);
+}
+.msbody .msnote {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.msbtns {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.msbtns .chip,
+.msbtns .btn {
+  height: 46px;
+  padding: 0 16px;
+  font-size: 16px;
+}
+.msbtns .btn {
+  flex: 1 1 auto;
+  justify-content: center;
+}
+/* Startseite */
+.mstart {
+  gap: 10px;
+  padding-top: 18px;
+}
+.mskick {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brick);
+}
+.mstart h2 {
+  margin-top: -4px;
+  font-size: 30px;
+}
+.msintro {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.msgo,
+.msgo2 {
+  height: 50px;
+  justify-content: center;
+  border-radius: 14px;
+  font-size: 18px;
+}
+.msgo2 {
+  height: 46px;
+  font-size: 17px;
+}
+/* Mehr am Computer */
+.mdesk {
+  position: absolute;
+  z-index: 9;
+  inset: 0;
+  box-sizing: border-box;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 20px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.mdesk > p {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.4;
+}
+.mback {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 14px 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--panel);
+  box-shadow: 0 4px 14px rgba(20, 16, 12, 0.14);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  font-weight: 500;
+}
+.mback svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+.mdlist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mdlist li {
+  display: flex;
+  flex-direction: column;
+  padding-left: 14px;
+  border-left: 3px solid var(--brick);
+  font-size: 15px;
+  line-height: 1.3;
+}
+.mdlist li span {
+  color: var(--muted);
+}
+.mdesk .msend {
+  height: 50px;
+  justify-content: center;
+  border-radius: 14px;
+  background: var(--brick);
+  font-size: 17px;
+}
+.mdesk .small {
+  margin-top: -6px;
+  text-align: center;
+  color: var(--muted);
+}
+/* Querformat: Anzeige als Seitenleiste rechts, das Bild links */
+@media (orientation: landscape) {
+  .mpanel,
+  .mstart {
+    top: 0;
+    left: auto;
+    width: min(350px, 46%);
+    max-height: none;
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+    box-shadow: -6px 0 24px rgba(20, 16, 12, 0.16);
+  }
+  .mpval {
+    font-size: 28px;
   }
 }
