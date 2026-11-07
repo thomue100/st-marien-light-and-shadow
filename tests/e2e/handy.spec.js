@@ -5,7 +5,7 @@ import { test, expect, openApp, setToday, TEST_HTML, waitReady } from './helpers
 test.use({ viewport: { width: 360, height: 640 }, isMobile: true, hasTouch: true });
 const MAI = '#d=2026-05-10&t=649&v=sonnenuhr&l=de'; // 10. Mai 2026, 10:49 MESZ: Zifferblatt besonnt
 
-test('Startseite: Sonnenuhr im Mittelpunkt, Sprache sichtbar, „Sonnenuhr ansehen“ führt zum Ablesen', async ({
+test('Startseite: Sonnenuhr im Mittelpunkt, Sprache sichtbar, „Selbst ausprobieren“ führt zum Ablesen', async ({
   page,
 }) => {
   await setToday(page);
@@ -21,7 +21,7 @@ test('Startseite: Sonnenuhr im Mittelpunkt, Sprache sichtbar, „Sonnenuhr anseh
 
   await page.locator('#langSeg [data-lang="en"]').tap();
   await expect(page.locator('#msH')).toHaveText('The Sundial');
-  await expect(page.locator('#msGo')).toHaveText('View the sundial');
+  await expect(page.locator('#msGo')).toHaveText('Try it yourself');
   await page.locator('#langSeg [data-lang="de"]').tap();
 
   await page.locator('#msGo').tap();
