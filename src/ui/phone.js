@@ -296,6 +296,27 @@ $('#sendLink').addEventListener('click', async () => {
     setTimeout(() => ($('#sendLink').textContent = tr('Link an mich senden', 'Send me the link')), 2500);
   } catch (e) {}
 });
+/* ---------------- Vollbild (ohne Adress- und Navigationsleiste des Browsers) ---------------- */
+
+// Android-Browser erlauben das für Webseiten, Safari auf dem iPhone nicht – dort bleibt der Knopf ausgeblendet
+// (als App vom Startbildschirm geöffnet, fehlen die Leisten ohnehin).
+{
+  const fs = $('#mFs'),
+    de = document.documentElement,
+    can = !!(document.fullscreenEnabled && de.requestFullscreen),
+    sync = () => {
+      const on = !!document.fullscreenElement;
+      fs.setAttribute('aria-pressed', String(on));
+      fs.classList.toggle('on', on);
+    };
+  fs.hidden = !can;
+  fs.addEventListener('click', () => {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else de.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+  });
+  document.addEventListener('fullscreenchange', sync);
+}
+
 /* ---------------- Umschalten zwischen Handy und Desktop ---------------- */
 
 const homes = [];
