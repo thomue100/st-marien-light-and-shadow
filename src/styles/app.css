@@ -2266,184 +2266,275 @@ body.touring .yearnote {
   background: var(--chip);
 }
 
-/* ---------- Handy: Modell im Vollbild, ein Blatt unten statt Symbolleiste, Karten und Zeitleiste ---------- */
-.msheet[hidden],
-.mshmore[hidden] {
-  display: none !important;
+/* ---------- Desktop: was die Sonnenuhr gerade zeigt, ständig unter der Titelleiste ---------- */
+.sdpill {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--panel);
+  box-shadow: var(--shadow);
+  font-family: var(--f-body);
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
 }
-body.mobile .rail {
+.sdpill b {
+  font-family: var(--f-mono);
+  font-size: 17px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.sdpill b:first-of-type {
+  color: #f0c860;
+  margin-right: 10px;
+}
+.sdpill .spk {
+  opacity: 0.8;
+}
+body.free .sdpill {
   display: none;
 }
-body.mobile .msheet {
+
+/* ---------- Handy: nur die Sonnenuhr. Oben das Bild, unten eine feste Anzeige (src/ui/phone.js) ---------- */
+.mtop[hidden],
+.mviews[hidden],
+body:has(.mstart:not([hidden])) .mviews,
+.mpanel[hidden],
+.mstart[hidden],
+.mdesk[hidden],
+.msteps[hidden],
+.mpmain[hidden] {
+  display: none !important;
+}
+/* Bühne, Beschriftungen und Himmelsraster enden über der Anzeige (Hochformat) bzw. links von ihr (Querformat) */
+body.mobile #stage,
+body.mobile #labels,
+body.mobile #skyMarks,
+body.mobile #panoGrid {
+  bottom: var(--mph, 0px);
+  right: var(--mpw, 0px);
+  width: auto;
+  height: auto;
+}
+body.mobile .brand,
+body.mobile .rail,
+body.mobile .card,
+body.mobile .freebtn,
+body.mobile .freemini,
+body.mobile .freetoast,
+body.mobile .hint,
+body.mobile .night,
+body.mobile .panonote,
+body.mobile .tourcard,
+body.mobile .yearnote,
+body.mobile .skymk,
+body.mobile .lbl:not(.lsd),
+body.mobile.mv-sd .lsd {
+  display: none !important;
+}
+.mtop {
   position: absolute;
+  z-index: 4;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  left: 10px;
+  right: calc(var(--mpw, 0px) + 10px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+}
+.mtop > * {
+  pointer-events: auto;
+}
+.mhome,
+.mviews,
+.mtop .langseg {
+  height: 44px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(20, 16, 12, 0.18);
+  border: 0;
+}
+.mhome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px 0 11px;
+  color: var(--ink);
+  font-family: var(--f-display);
+  font-size: 17px;
+  font-weight: 700;
+}
+.mhome svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mtop .langseg button {
+  min-width: 42px;
+  font-size: 14px;
+}
+.mviews {
+  position: absolute;
+  z-index: 4;
+  left: calc((100% - var(--mpw, 0px)) / 2);
+  bottom: calc(var(--mph, 0px) + 12px);
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  white-space: nowrap;
+}
+.mviews button {
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 15px;
+}
+.mviews button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--panel);
+  font-weight: 500;
+}
+/* Anzeige unten (im Querformat rechts) */
+.mpanel,
+.mstart {
+  position: absolute;
+  z-index: 5;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 5;
   box-sizing: border-box;
-  max-height: calc(100% - 64px - env(safe-area-inset-top, 0px));
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px))
+    max(16px, env(safe-area-inset-left, 0px));
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 -6px 24px rgba(20, 16, 12, 0.16);
+  overflow-y: auto;
+  max-height: 62%;
+}
+.mpmain,
+.msteps,
+.mstart {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 0 12px calc(12px + env(safe-area-inset-bottom, 0px));
-  background: var(--panel);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 18px 18px 0 0;
-  box-shadow: 0 -8px 30px rgba(20, 16, 12, 0.22);
 }
-body.mobile .msheet.half {
-  height: 58%;
-}
-body.mobile .msheet.full {
-  height: calc(100% - 66px - env(safe-area-inset-top, 0px));
-}
-.mshandle {
-  align-self: center;
-  width: 96px;
-  height: 26px;
-  flex: none;
+.mpread {
   display: grid;
-  place-items: center;
-  padding: 0;
-  border: 0;
-  background: none;
-  touch-action: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
-.mshandle span {
-  width: 44px;
-  height: 5px;
-  border-radius: 3px;
-  background: color-mix(in srgb, var(--ink) 28%, transparent);
+.mpread p {
+  margin: 0;
 }
-body.mobile .msheet:not(.half):not(.full) .mshbody {
-  display: none;
+.mplbl {
+  font-size: 14px;
+  color: var(--muted);
 }
-body.mobile .msheet:not(.half):not(.full) .mshtabs button[aria-selected='true'] {
-  background: none;
-  box-shadow: none;
-  font-weight: 400;
-} /* zugeklappt: Reiter nur als Einstieg, keiner gewählt */
-.mshtabs {
-  flex: none;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 4px;
-  padding: 4px;
-  border-radius: 12px;
-  background: var(--chip);
+.mpval {
+  font-family: var(--f-mono);
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
-.mshtabs button {
-  height: 40px;
-  border: 0;
-  border-radius: 9px;
-  background: none;
-  font-size: 15px;
+.mpval.mpsd {
+  color: var(--brick);
 }
-.mshtabs button[aria-selected='true'] {
-  background: var(--bg);
-  box-shadow: 0 1px 4px rgba(20, 16, 12, 0.15);
-  font-weight: 600;
-}
-.mshbody {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.mshmore {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding-bottom: 8px;
-}
-.mrow {
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 6px;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  background: none;
-  text-align: left;
-  font-size: 16px;
-}
-.mrow .badge {
-  margin-left: auto;
+.mptz {
   font-size: 12px;
   color: var(--muted);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 1px 8px;
 }
-.mgrp {
-  margin: 14px 6px 2px;
-  font-family: var(--f-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.mnote {
-  margin: 4px 6px 8px;
-}
-.msend {
-  align-self: flex-start;
-  min-height: 44px;
-  margin-left: 6px;
-  padding: 0 16px;
+.mpdiff {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
   font-size: 15px;
+  line-height: 1.3;
 }
-/* Karten im Blatt: ohne eigenen Rahmen */
-body.mobile .msheet .card {
-  position: static;
-  width: auto;
-  max-height: none;
-  box-shadow: none;
-  background: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border-radius: 0;
-  overflow: visible;
+.mplink {
+  margin-left: auto;
   flex: none;
+  min-height: 32px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--verd);
+  font-family: var(--f-body);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
-body.mobile .msheet .card .chead {
-  padding: 4px 2px 6px;
-}
-/* Zeitleiste im Blatt: Zeile 1 Datum und Abspielen, Zeile 2 Uhrzeit mit Sonne und Mond, Zeile 3 großer Schieber */
-body.mobile .msheet .timebar {
+/* Zeitleiste in der Anzeige: oben Tagesbogen mit großem Schieber, darunter Datum und Abspielen */
+body.mobile .timebar {
   position: static;
-  left: auto;
-  right: auto;
-  bottom: auto;
   padding: 0;
-  gap: 6px;
   background: none;
   box-shadow: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-radius: 0;
 }
-body.mobile .tb-main,
-body.mobile .tb-more {
-  flex-wrap: wrap;
-  gap: 6px;
+body.mobile .tb-more,
+body.mobile .tbfold,
+body.mobile .skychip,
+body.mobile .tb-clock,
+body.mobile #playTxt {
+  display: none !important;
+}
+body.mobile .tb-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'track track' 'date play';
+  gap: 8px 6px;
+}
+body.mobile .tb-track {
+  grid-area: track;
+  height: 68px;
+}
+body.mobile #chart {
+  display: block !important;
 }
 body.mobile .tb-date {
-  flex: 1 1 calc(100% - 64px);
+  grid-area: date;
   min-width: 0;
 }
+body.mobile #play {
+  grid-area: play;
+  height: 44px;
+  min-width: 56px;
+  justify-content: center;
+  border-radius: 10px;
+}
 body.mobile #date {
-  flex: 1 1 8em;
-  min-width: 7.2em;
+  flex: 1 1 auto;
+  min-width: 0;
   height: 44px;
   box-sizing: border-box;
-  font-size: 15px;
-  padding: 4px 6px;
+  font-size: 16px;
+  padding: 4px 8px;
 }
 body.mobile .dstep {
   width: 44px;
@@ -2451,234 +2542,288 @@ body.mobile .dstep {
   padding: 0;
   font-size: 18px;
 }
-body.mobile #play {
-  height: 44px;
-  min-width: 56px;
-  justify-content: center;
-  border-radius: 10px;
-}
-body.mobile #playTxt {
-  display: none;
-}
-body.mobile .tb-clock {
-  order: 3;
-  margin-right: auto;
-  flex-direction: row;
-  align-items: baseline;
-  gap: 6px;
-}
-body.mobile .tb-clock output {
-  font-size: 26px;
-}
-body.mobile .skychip:not([hidden]) {
-  display: inline-flex;
-  order: 4;
-  min-height: 36px;
-}
-body.mobile .tb-track {
-  order: 9;
-  flex: 1 1 calc(100% - 56px);
-  min-width: 0;
-  height: 34px;
-}
-body.mobile:not(.tbopen) #chart {
-  display: none;
-}
-body.mobile.tbopen .tb-track {
-  height: 76px;
-}
 body.mobile #time {
-  height: 34px;
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
+  height: 30px;
+  bottom: -4px;
 }
 body.mobile #time::-webkit-slider-runnable-track {
   height: 6px;
   border-radius: 3px;
-  background: color-mix(in srgb, var(--ink) 16%, transparent);
 }
 body.mobile #time::-webkit-slider-thumb {
-  -webkit-appearance: none;
   width: 30px;
   height: 30px;
   margin-top: -12px;
+  border: 3px solid #fff;
   border-radius: 50%;
   background: var(--brick);
-  border: 3px solid #fff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  -webkit-appearance: none;
+  appearance: none;
 }
 body.mobile #time::-moz-range-track {
   height: 6px;
   border-radius: 3px;
-  background: color-mix(in srgb, var(--ink) 16%, transparent);
 }
 body.mobile #time::-moz-range-thumb {
   width: 24px;
   height: 24px;
+  border: 3px solid #fff;
   border-radius: 50%;
   background: var(--brick);
-  border: 3px solid #fff;
 }
-body.mobile .tbfold {
-  order: 10;
-  width: 44px;
-  height: 44px;
+.mpquick {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
 }
-body.mobile #speed,
-body.mobile #presetBtn,
-body.mobile #nowBtn {
-  min-height: 44px;
+.mpquick .chip,
+.msbtnrow .chip {
+  height: 36px;
+  padding: 0 12px;
+  font-size: 15px;
 }
-body.mobile .tb-sum {
-  display: none;
+.msbtnrow .chip[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--panel);
 }
-body.mobile .pmenu {
-  left: 0;
-  right: auto;
-  bottom: calc(100% + 8px);
-}
-body.mobile.touring .msheet,
-body.mobile.touring .night {
-  display: none !important;
-}
-/* obere Leiste: links Haus und Ansicht, rechts Sprache und Freie Sicht */
-body.mobile .brand {
-  top: calc(10px + env(safe-area-inset-top, 0px));
-  left: max(10px, env(safe-area-inset-left, 0px));
-  right: calc(max(10px, env(safe-area-inset-right, 0px)) + 52px);
-  max-width: none;
-  padding: 0;
+.mpmore {
+  display: flex;
+  align-items: center;
   gap: 8px;
-  justify-content: space-between;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
   background: none;
-  box-shadow: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  color: var(--muted);
+  font-family: var(--f-body);
+  font-size: 14px;
+  text-align: left;
 }
-body.mobile .brand h1,
-body.mobile .brand .mwrap {
-  display: none;
+.mpmore .ico {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
-body.mobile .viewpick {
-  height: 44px;
-  min-width: 0;
-  background: var(--panel);
-  border-color: transparent;
-  box-shadow: var(--shadow);
+.mpmore .chv {
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
 }
-body.mobile .homebtn {
-  width: 44px;
+/* In 3 Schritten erklärt: ersetzt die Anzeige, liegt nie über dem Bild */
+.mshead {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
-body.mobile .vbtn {
-  padding: 0 12px 0 10px;
+.msdots {
+  display: flex;
+  gap: 5px;
+}
+.msdots i {
+  width: 22px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--line);
+}
+.msdots i.on {
+  background: var(--brick);
+}
+.msteps h2,
+.mstart h2,
+.mdesk h2 {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.msbody p {
+  margin: 0 0 8px;
+  font-size: 15.5px;
+  line-height: 1.4;
+}
+.mstab {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
+  gap: 5px 10px;
+  font-size: 15px;
+  line-height: 1.3;
+}
+.mstab span:nth-child(odd) {
+  font-family: var(--f-mono);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.mstab .mu {
+  color: var(--muted);
+}
+.mstab .sum {
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+  font-weight: 500;
+}
+.mstab span.sum:nth-child(odd) {
+  color: var(--brick);
+}
+.msbody .msnote {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.msbtns {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.msbtns .chip,
+.msbtns .btn {
+  height: 46px;
+  padding: 0 16px;
   font-size: 16px;
 }
-body.mobile .vbtn .vlab {
-  display: none;
-}
-body.mobile .langseg {
-  height: 44px;
-  background: var(--panel);
-  border-color: transparent;
-  box-shadow: var(--shadow);
-}
-body.mobile .langseg button {
-  min-width: 42px;
-  font-size: 14px;
-}
-body.mobile .vmenu {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  width: min(370px, calc(100vw - 20px));
-  max-height: calc(100vh - 80px);
-}
-body.mobile .vmenu button {
-  white-space: normal;
-  padding: 10px 8px;
-}
-body.mobile .freebtn {
-  top: calc(10px + env(safe-area-inset-top, 0px));
-  right: max(10px, env(safe-area-inset-right, 0px));
-  width: 44px;
-  height: 44px;
-  padding: 0;
+.msbtns .btn {
+  flex: 1 1 auto;
   justify-content: center;
-  border-radius: 50%;
 }
-body.mobile .freebtn .fl,
-body.mobile .freebtn kbd {
-  display: none;
-}
-/* Startseite (Begrüßung) auf dem Handy: große Knöpfe, Rundgang zuerst */
-body.mobile #tour.welcome {
-  padding: 22px 18px 18px;
+/* Startseite */
+.mstart {
   gap: 10px;
-  border-top: 0;
-  border-radius: 18px;
-  max-height: none;
+  padding-top: 18px;
 }
-body.mobile #tour.welcome h3 {
-  font-size: 26px;
+.mskick {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
-body.mobile #tour.welcome #tourText {
-  display: block;
+.mstart h2 {
+  margin-top: -4px;
+  font-size: 30px;
+}
+.msintro {
+  margin: 0;
   font-size: 16px;
   line-height: 1.4;
 }
-body.mobile #tour.welcome .tchoice {
+.msgo,
+.msgo2 {
+  height: 50px;
+  justify-content: center;
+  border-radius: 14px;
+  font-size: 18px;
+}
+.msgo2 {
+  height: 46px;
+  font-size: 17px;
+}
+/* Mehr am Computer */
+.mdesk {
+  position: absolute;
+  z-index: 9;
+  inset: 0;
+  box-sizing: border-box;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 20px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.mdesk > p {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.4;
+}
+.mback {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 14px 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--panel);
+  box-shadow: 0 4px 14px rgba(20, 16, 12, 0.14);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  font-weight: 500;
+}
+.mback svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+.mdlist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
   flex-direction: column;
   gap: 10px;
 }
-body.mobile #tour.welcome .tchoice button {
-  min-height: 52px;
+.mdlist li {
+  display: flex;
+  flex-direction: column;
+  padding-left: 14px;
+  border-left: 3px solid var(--brick);
+  font-size: 15px;
+  line-height: 1.3;
+}
+.mdlist li span {
+  color: var(--muted);
+}
+.mdesk .msend {
+  height: 50px;
   justify-content: center;
   border-radius: 14px;
+  background: var(--verd);
   font-size: 17px;
 }
-body.mobile #tour .tbtns button {
-  min-height: 48px;
-  padding: 0 18px;
+.mdesk .small {
+  margin-top: -6px;
+  text-align: center;
+  color: var(--muted);
 }
-/* Querformat: Blatt als Seitenleiste rechts */
+.mdfull {
+  margin: auto auto 0;
+  font-size: 14px;
+}
+/* Querformat: Anzeige als Seitenleiste rechts, das Bild links */
 @media (orientation: landscape) {
-  body.mobile .msheet,
-  body.mobile .msheet.half,
-  body.mobile .msheet.full {
+  .mpanel,
+  .mstart {
     top: 0;
     left: auto;
-    width: min(340px, 46%);
-    height: auto;
+    width: min(350px, 46%);
     max-height: none;
-    padding-top: calc(8px + env(safe-area-inset-top, 0px));
-    border-radius: 0;
-    box-shadow: -8px 0 30px rgba(20, 16, 12, 0.2);
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+    box-shadow: -6px 0 24px rgba(20, 16, 12, 0.16);
   }
-  body.mobile .mshandle {
-    display: none;
+  .mpval {
+    font-size: 28px;
   }
-  body.mobile .brand {
-    right: calc(min(340px, 46%) + 62px);
-  }
-  body.mobile .freebtn {
-    right: calc(min(340px, 46%) + 10px);
-  }
-  body.mobile .tourcard {
-    right: auto;
-    width: min(380px, 50%);
-  }
-}
-body.mobile .card .chead h2::after {
-  content: none;
-}
-body.mobile .mpct {
-  display: none;
-}
-body.mobile .skychip {
-  padding: 4px 9px;
-}
-body.mobile:has(#msheet.full) .hint {
-  display: none;
-}
-.mshmore {
-  order: -1; /* unter „Mehr“: Teilen, Über das Modell und die Desktop-Werkzeuge zuerst, dann Darstellung und Licht */
 }

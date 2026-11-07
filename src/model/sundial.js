@@ -306,6 +306,11 @@ function fmtDur(hh) {
   const m = Math.round(hh * 60);
   return (m >= 60 ? Math.floor(m / 60) + ' h ' : '') + pad2(m % 60) + ' min';
 }
+/** Weitere Anzeigen der Sonnenuhr (Handy, Desktop-Anzeige oben links) melden sich hier an. */
+let sdHook = null;
+export function setSdHook(f) {
+  sdHook = f;
+}
 export function moonAge(utc) {
   const ln = day.nm1 !== null && day.nm1 <= utc ? day.nm1 : day.nm0;
   return ln ? (utc - ln) / 86400000 : null;
@@ -397,6 +402,7 @@ function updateSdReadouts() {
     );
   else st = tr('Das Zifferblatt ist besonnt.', 'The dial is in sunshine.');
   $('#sdState').textContent = st;
+  if (sdHook) sdHook(ok, st);
   const m = $('#yNow');
   if (m) {
     const nx = YX(dayOfYear());

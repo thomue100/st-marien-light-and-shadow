@@ -51,10 +51,10 @@ test.describe('Handy', () => {
   test('Webfassung: lädt im Hochformat, Leisten überdecken sich nicht', async ({ page }) => {
     await page.goto(WEB + '#d=2026-06-21&t=780&v=aussen&l=de');
     await waitReady(page, false);
-    // Ansicht, Sprache, Knopf „Freie Sicht“ und das Blatt unten überdecken sich nicht und liegen im Bild
+    // Startknopf, Sprache, Blickwinkel und Anzeige unten überdecken sich nicht und liegen im Bild
+    await expect(page.locator('#mpanel')).toBeVisible();
     const boxes = {};
-    for (const sel of ['.viewpick', '#langSeg', '#freeBtn', '#msheet'])
-      boxes[sel] = await page.locator(sel).boundingBox();
+    for (const sel of ['#mHome', '#langSeg', '#mviews', '#mpanel']) boxes[sel] = await page.locator(sel).boundingBox();
     const sels = Object.keys(boxes);
     for (const [i, a] of sels.entries()) {
       const p = boxes[a];
@@ -67,10 +67,6 @@ test.describe('Handy', () => {
         expect(overlap, `${a} überdeckt ${b}`).toBe(false);
       }
     }
-    await page.locator('#viewBtn').tap();
-    const menu = await page.locator('#views').boundingBox();
-    expect(menu.x).toBeGreaterThanOrEqual(0);
-    expect(menu.x + menu.width).toBeLessThanOrEqual(390);
   });
 });
 

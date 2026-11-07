@@ -112,14 +112,6 @@ export async function windowCenter(page, type) {
  */
 export async function showCard(page, k) {
   if (await page.locator(`#card-${k}`).isVisible()) return;
-  if (await page.locator('#msheet').isVisible()) {
-    // Handy: Reiter im Blatt; Teilen, Über das Modell und Experimente unter „Mehr“
-    const TAB = { sun: 'sun', moon: 'moon', sd: 'church', clock: 'church', light: 'more', disp: 'more' };
-    await page.locator(`#mshTabs [data-tab="${TAB[k] || 'more'}"]`).click();
-    if (!TAB[k]) await page.locator(`#mshMore button[data-card="${k}"]`).click();
-    await expect(page.locator(`#card-${k}`)).toBeVisible();
-    return;
-  }
   const rail = page.locator(`.rail .rbtn[data-card="${k}"]`);
   if (await rail.count()) await rail.click();
   else {

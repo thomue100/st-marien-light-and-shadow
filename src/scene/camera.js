@@ -77,6 +77,7 @@ export const VIEWS = {
   gewoelbe: { pos: [-14, 1.7, 0], dir: [0.32, 1.6, 0], mode: 'inside', cut: 60, exp: 1.6 },
   sonnenuhr: {
     pos: [sdX + 1.2, SD.y - 0.9, sdZ + 3.4],
+    mob: [sdX + 0.75, SD.y - 0.5, sdZ + 2.2],
     tgt: [sdX, SD.y, sdZ],
     mode: 'orbit',
     cut: 60,
@@ -588,8 +589,9 @@ export function goView(name, instant) {
   farBuildings(
     !document.body.classList.contains('mobile') || ['insel', 'luft', 'himmel', 'mtTop', 'mtCam'].includes(name),
   );
-  const v = VIEWS[name];
+  let v = VIEWS[name];
   if (!v) return;
+  if (v.mob && document.body.classList.contains('mobile')) v = { ...v, pos: v.mob }; // Handy: näher heran
   {
     const far = name === 'jahr' || name === 'mtTop' || name === 'mtCam' || name === 'insel';
     scene.fog.near = far ? 2500 : 350;

@@ -34,7 +34,7 @@ const LABELS = [
 const labelLayer = $('#labels');
 const labelEls = LABELS.map(([t, p, nc, te]) => {
   const el = document.createElement('div');
-  el.className = 'lbl';
+  el.className = t === 'Sonnenuhr' ? 'lbl lsd' : 'lbl'; // auf dem Handy bleibt nur diese Beschriftung
   el.textContent = tr(t, te);
   labelLayer.appendChild(el);
   return { el, p: new V3(...p), nc: nc | 0, de: t, en: te };
@@ -138,7 +138,7 @@ function freeArea(W, H) {
   const side = [],
     s = markLayer.getBoundingClientRect();
   for (const el of document.querySelectorAll(
-    '.brand, .rail, .timebar, .card:not([hidden]), #freeBtn, #freeMini, #msheet',
+    '.brand, #sdPill, .rail, .timebar, .card:not([hidden]), #freeBtn, #freeMini',
   )) {
     const o = el.getBoundingClientRect();
     if (!o.width || !o.height) continue;
@@ -160,7 +160,7 @@ export function placeSkyMarks() {
     !tween &&
     state.mode === 'orbit' &&
     MARK_VIEWS.has(state.view) &&
-    !document.querySelector('#msheet.full:not([hidden])'); // Blatt ganz offen: kein Platz für Hinweise
+    !document.body.classList.contains('mobile'); // Handy: nur die Sonnenuhr, keine Randhinweise
   const W = markLayer.clientWidth,
     H = markLayer.clientHeight;
   let area = null;

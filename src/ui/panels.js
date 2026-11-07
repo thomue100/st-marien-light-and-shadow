@@ -102,12 +102,10 @@ $('#tintTog').addEventListener('change', e => {
 });
 // Karten der Symbolleiste: immer nur eine offen
 export function openCard(k) {
-  if (document.body.classList.contains('mobile')) phoneOpen(k);
-  else
-    document.querySelectorAll('.card').forEach(c => {
-      c.hidden = c.id !== 'card-' + k;
-      c.classList.remove('min');
-    });
+  document.querySelectorAll('.card').forEach(c => {
+    c.hidden = c.id !== 'card-' + k;
+    c.classList.remove('min');
+  });
   const gp = document.getElementById('glPop');
   if (gp) gp.hidden = true;
   document
@@ -356,8 +354,7 @@ document.querySelectorAll('[data-gl]').forEach(el => {
 // Karten auf dem Smartphone über die Überschrift ein- und ausklappen, damit die Szene sichtbar wird
 document.querySelectorAll('.card .chead h2').forEach(h =>
   h.addEventListener('click', () => {
-    if (matchMedia('(max-width: 760px)').matches && !document.body.classList.contains('mobile'))
-      h.closest('.card').classList.toggle('min');
+    if (matchMedia('(max-width: 760px)').matches) h.closest('.card').classList.toggle('min');
   }),
 );
 /* ---------------- Einfache und erweiterte Ansicht ---------------- */
@@ -408,113 +405,3 @@ document.querySelectorAll('#langSeg button').forEach(b =>
     refreshLang();
   }),
 );
-
-/* ---------------- Handy: ein Blatt mit Zeit, Reitern und Karten ---------------- */
-
-// Auf dem Handy füllt das Modell den Bildschirm; Zeitleiste und Karten wandern in ein Blatt unten (im Querformat rechts),
-// das sich in drei Stufen aufziehen lässt: zu (nur Zeit), halb (Reiter mit Karten), ganz.
-export const PHONE = matchMedia('(max-width: 760px), (max-height: 520px) and (pointer: coarse)');
-const LAND = matchMedia('(orientation: landscape)');
-const sheet = $('#msheet');
-const TABCARDS = { sun: ['sun'], moon: ['moon'], church: ['sd', 'clock'], more: ['light', 'disp'] };
-const TABOF = { sun: 'sun', moon: 'moon', sd: 'church', clock: 'church' };
-let shState = 'peek',
-  shTab = 'sun';
-const homes = [];
-export function setSheet(st) {
-  if (PHONE.matches && LAND.matches) st = 'half'; // Querformat: Seitenleiste, immer mit Reitern
-  shState = st;
-  sheet.classList.toggle('half', st === 'half');
-  sheet.classList.toggle('full', st === 'full');
-  $('#mshHandle').setAttribute('aria-expanded', String(st !== 'peek'));
-  requestRender();
-}
-function showTab(t, only) {
-  shTab = t;
-  document
-    .querySelectorAll('#mshTabs button')
-    .forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
-  document.querySelectorAll('#mshBody .card').forEach(c => {
-    const k = c.id.slice(5);
-    c.hidden = only ? k !== only : !TABCARDS[t].includes(k);
-  });
-  $('#mshMore').hidden = !(t === 'more' && !only);
-  $('#mshBody').scrollTop = 0;
-  cardShown();
-}
-function phoneOpen(k) {
-  if (!k) return showTab(shTab);
-  const t = TABOF[k] || 'more';
-  showTab(t, TABCARDS[t].includes(k) ? null : k);
-  if (shState === 'peek') setSheet('half');
-  const c = $('#card-' + k);
-  if (c && t === 'church') c.scrollIntoView({ block: 'nearest' });
-}
-document.querySelectorAll('#mshTabs button').forEach(b =>
-  b.addEventListener('click', () => {
-    showTab(b.dataset.tab);
-    document
-      .querySelectorAll('button[data-card]')
-      .forEach(x => x.setAttribute('aria-expanded', String(TABCARDS[b.dataset.tab].includes(x.dataset.card))));
-    if (shState === 'peek') setSheet('half');
-  }),
-);
-{
-  // Griff: antippen schaltet weiter (zu → halb → ganz → zu), ziehen nach oben oder unten wechselt die Stufe
-  const h = $('#mshHandle'),
-    order = ['peek', 'half', 'full'];
-  let y0 = null,
-    moved = false;
-  h.addEventListener('pointerdown', e => {
-    y0 = e.clientY;
-    moved = false;
-    h.setPointerCapture(e.pointerId);
-  });
-  h.addEventListener('pointermove', e => {
-    if (y0 !== null && Math.abs(e.clientY - y0) > 12) moved = true;
-  });
-  h.addEventListener('pointerup', e => {
-    if (y0 === null) return;
-    const dy = e.clientY - y0,
-      i = order.indexOf(shState);
-    y0 = null;
-    if (!moved) return setSheet(order[(i + 1) % 3]);
-    if (dy < -30) setSheet(order[Math.min(2, i + 1)]);
-    else if (dy > 30) setSheet(order[Math.max(0, i - 1)]);
-  });
-}
-$('#sendLink').addEventListener('click', async () => {
-  // Link auf den aktuellen Stand, um ihn am Computer zu öffnen: Teilen-Menü des Handys, sonst in die Zwischenablage
-  updateShare();
-  const url = $('#shareUrl').value || location.href,
-    title = tr('St. Marien – Licht und Schatten', "St. Mary's – Light and Shadow");
-  try {
-    if (navigator.share) return await navigator.share({ title, url });
-    await navigator.clipboard.writeText(url);
-    $('#sendLink').textContent = tr('Link kopiert', 'Link copied');
-    setTimeout(() => ($('#sendLink').textContent = tr('Link an mich senden', 'Send me the link')), 2500);
-  } catch (e) {}
-});
-export function applyPhone() {
-  const m = PHONE.matches;
-  document.body.classList.toggle('mobile', m);
-  sheet.hidden = !m;
-  if (m && !homes.length) {
-    const tb = $('.timebar'),
-      cards = [...document.querySelectorAll('.card')];
-    for (const el of [tb, ...cards]) homes.push([el, el.parentNode, el.nextSibling]);
-    $('#mshTime').appendChild(tb);
-    for (const c of cards) $('#mshBody').insertBefore(c, $('#mshMore'));
-    showTab(shTab);
-  } else if (!m && homes.length) {
-    for (const [el, p, n] of homes.reverse()) p.insertBefore(el, n);
-    homes.length = 0;
-    $('#mshMore').hidden = true;
-    openCard(null);
-  }
-  if (m) setSheet(shState);
-  requestRender();
-}
-PHONE.addEventListener('change', applyPhone);
-LAND.addEventListener('change', () => PHONE.matches && setSheet(LAND.matches ? 'half' : 'peek'));
-applyPhone();

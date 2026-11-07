@@ -26,7 +26,7 @@ test('Alle Ansichten und alle Karten', async ({ page }) => {
   // Karten: 6 über die Symbolleiste, 3 über die Menüs; immer genau eine offen
   await expect(page.locator('.rail .rbtn[data-card]')).toHaveCount(6);
   const cards = await page.locator('button[data-card]').evaluateAll(bs => bs.map(b => b.dataset.card));
-  const keys = [...new Set(cards)].sort(); // Teilen, Über das Modell, Experimente stehen auch im Handy-Blatt
+  const keys = [...new Set(cards)].sort();
   expect(keys).toEqual(['clock', 'disp', 'exp', 'info', 'light', 'moon', 'sd', 'share', 'sun']);
   for (const k of keys) {
     await showCard(page, k);
@@ -202,18 +202,15 @@ test('Zeitleiste: zweite Zeile aufklappen, Sonne und Mond antippen', async ({ pa
   await expect(page.locator('#viewTxt')).toHaveText('Blick zum Mond');
 });
 
-test.describe('Handy', () => {
-  test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
-  test('Freie Sicht: Doppeltipp ins Bild holt die Bedienelemente zurück; Karte im Blatt', async ({ page }) => {
-    await openApp(page, { hash: START });
-    await page.locator('#freeBtn').tap();
-    await expect(page.locator('.timebar')).toBeHidden();
-    await page.touchscreen.tap(200, 450);
-    await page.touchscreen.tap(200, 450);
-    await expect(page.locator('.timebar')).toBeVisible();
-    // Karten liegen im Blatt: Reiter „Sonne“ zieht es halb auf
-    await page.locator('#mshTabs [data-tab="sun"]').tap();
-    await expect(page.locator('#msheet')).toHaveClass(/half/);
-    await expect(page.locator('#msheet #card-sun')).toBeVisible();
-  });
+test('Anzeige unter der Titelleiste: was die Sonnenuhr gerade zeigt; öffnet die Karte Sonnenuhr', async ({ page }) => {
+  await openApp(page, { hash: '#d=2026-05-10&t=649&v=aussen&l=de' });
+  await expect(page.locator('#sdPill')).toBeVisible();
+  await expect(page.locator('#sdPillClock')).toHaveText('10:49 MESZ');
+  await expect(page.locator('#sdPillShow')).toHaveText(/^09:3\d$/);
+  await page.locator('#sdPill').click();
+  await expect(page.locator('#card-sd')).toBeVisible();
+  await expect(page.locator('#sdShow')).toHaveText(await page.locator('#sdPillShow').textContent());
+  // Freie Sicht blendet auch diese Anzeige aus
+  await page.keyboard.press('f');
+  await expect(page.locator('#sdPill')).toBeHidden();
 });

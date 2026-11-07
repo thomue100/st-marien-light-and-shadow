@@ -1,94 +1,139 @@
-// Handy: Startseite, Rundgang mit Wischen, Blatt in drei Stufen mit Reitern, „Mehr“, Sprache.
-import { test, expect, openApp, waitReady, setToday, TEST_HTML } from './helpers.js';
+// Handy: nur die Sonnenuhr – Startseite, Ablesen, drei Blickwinkel, Schnellwahl, „In 3 Schritten erklärt“,
+// „Mehr am Computer“ mit Ausweg in die volle Fassung, Querformat.
+import { test, expect, openApp, setToday, TEST_HTML, waitReady } from './helpers.js';
 
-test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+test.use({ viewport: { width: 360, height: 640 }, isMobile: true, hasTouch: true });
+const MAI = '#d=2026-05-10&t=649&v=sonnenuhr&l=de'; // 10. Mai 2026, 10:49 MESZ: Zifferblatt besonnt
 
-test('Startseite: Rundgang mit Fingertext, Stationen wischen, Sprache umschalten', async ({ page }) => {
-  await setToday(page);
-  await page.goto(TEST_HTML); // ohne Link: Begrüßung als Startseite
-  await waitReady(page);
-  await expect(page.locator('body')).toHaveClass(/mobile/);
-  await expect(page.locator('#tour')).toHaveClass(/welcome/);
-  await expect(page.locator('#tourChoice [data-go="tour"]')).toBeVisible();
-  await expect(page.locator('#langSeg')).toBeVisible();
-  await expect(page.locator('#msheet')).toBeHidden(); // während Begrüßung und Rundgang kein Blatt
-
-  await page.locator('#tourChoice [data-go="tour"]').tap();
-  await expect(page.locator('#tourStep')).toHaveText('Station 1 von 8');
-  await expect(page.locator('#tourText')).toContainText('Ziehen Sie mit einem Finger');
-  // nach links wischen: nächste Station
-  const box = await page.locator('#tour').boundingBox();
-  const y = box.y + 30;
-  await page.mouse.move(box.x + box.width - 30, y);
-  await page.mouse.down();
-  await page.mouse.move(box.x + 40, y, { steps: 5 });
-  await page.mouse.up();
-  await expect(page.locator('#tourStep')).toHaveText('Station 2 von 8');
-
-  // Sprache: sichtbar oben rechts, auch im Rundgang
-  await page.locator('#langSeg [data-lang="en"]').tap();
-  await expect(page.locator('#tourStep')).toHaveText('Stop 2 of 8');
-  await expect(page.locator('#langSeg [data-lang="en"]')).toHaveAttribute('aria-pressed', 'true');
-  await page.locator('#langSeg [data-lang="de"]').tap();
-  await expect(page.locator('#tourStep')).toHaveText('Station 2 von 8');
-});
-
-test('Blatt: zu, halb, ganz; Reiter mit Karten; „Mehr“ mit Teilen und Desktop-Hinweis; Haus führt zur Startseite', async ({
+test('Startseite: Sonnenuhr im Mittelpunkt, Sprache sichtbar, „Sonnenuhr ansehen“ führt zum Ablesen', async ({
   page,
 }) => {
-  await openApp(page, { hash: '#d=2026-06-21&t=882&v=aussen&l=de' });
-  const sheet = page.locator('#msheet');
-  await expect(sheet).toBeVisible();
-  await expect(page.locator('.rail')).toBeHidden();
-  await expect(sheet).not.toHaveClass(/half|full/);
-  await expect(page.locator('#msheet #timeOut')).toHaveText('14:42'); // Zeitleiste steckt im Blatt
-  await expect(page.locator('#sunChip')).toBeVisible();
+  await setToday(page);
+  await page.goto(TEST_HTML); // ohne Link: Startseite
+  await waitReady(page);
+  await expect(page.locator('body')).toHaveClass(/mobile/);
+  await expect(page.locator('#mstart')).toBeVisible();
+  await expect(page.locator('#msH')).toHaveText('Die Sonnenuhr');
+  await expect(page.locator('#mpanel')).toBeHidden();
+  await expect(page.locator('#mviews')).toBeHidden();
+  await expect(page.locator('#tour')).toBeHidden(); // kein Rundgang auf dem Handy
+  for (const sel of ['.brand', '.rail', '#freeBtn', '.card']) await expect(page.locator(sel).first(), sel).toBeHidden();
 
-  // Griff: zu → halb → ganz → zu
-  await page.locator('#mshHandle').tap();
-  await expect(sheet).toHaveClass(/half/);
-  await page.locator('#mshHandle').tap();
-  await expect(sheet).toHaveClass(/full/);
-  await page.locator('#mshHandle').tap();
-  await expect(sheet).not.toHaveClass(/half|full/);
+  await page.locator('#langSeg [data-lang="en"]').tap();
+  await expect(page.locator('#msH')).toHaveText('The Sundial');
+  await expect(page.locator('#msGo')).toHaveText('View the sundial');
+  await page.locator('#langSeg [data-lang="de"]').tap();
 
-  // Reiter
-  await page.locator('#mshTabs [data-tab="moon"]').tap();
-  await expect(sheet).toHaveClass(/half/);
-  await expect(page.locator('#card-moon')).toBeVisible();
-  await expect(page.locator('#card-sun')).toBeHidden();
-  await page.locator('#mshTabs [data-tab="church"]').tap();
-  await expect(page.locator('#card-sd')).toBeVisible();
-  await expect(page.locator('#card-clock')).toBeAttached();
-  await page.locator('#mshTabs [data-tab="more"]').tap();
-  await expect(page.locator('#mshMore')).toBeVisible();
-  await expect(page.locator('#mshMore .badge')).toHaveText('Desktop');
-  await page.locator('#mshMore button[data-card="share"]').tap();
-  await expect(page.locator('#card-share')).toBeVisible();
-  await expect(page.locator('#shareUrl')).toHaveValue(/d=2026-06-21/);
+  await page.locator('#msGo').tap();
+  await expect(page.locator('#mpanel')).toBeVisible();
+  await expect(page.locator('#mviews [data-mv="sonnenuhr"]')).toHaveAttribute('aria-pressed', 'true');
+  // Das Bild endet über der Anzeige
+  const st = await page.locator('#stage').boundingBox(),
+    pn = await page.locator('#mpanel').boundingBox();
+  expect(st.y + st.height).toBeLessThanOrEqual(pn.y + 1);
+  await page.locator('#mHome').tap();
+  await expect(page.locator('#mstart')).toBeVisible();
+});
 
-  // Karten, die andere Teile öffnen (hier: „Zur Sonne blicken“ aus der Sonnenkarte), bleiben im Blatt
-  await page.locator('#mshTabs [data-tab="sun"]').tap();
-  await page.locator('#sunLook').tap();
-  await expect(page.locator('#viewTxt')).toHaveText('Blick zur Sonne');
+test('Ablesen: Sonnenuhr und Uhr, drei Blickwinkel, Schnellwahl', async ({ page }) => {
+  await openApp(page, { hash: MAI });
+  await expect(page.locator('#mpClock')).toHaveText('10:49');
+  await expect(page.locator('#mpTz')).toHaveText('MESZ');
+  await expect(page.locator('#mpShow')).toHaveText(/^09:3\d$/);
+  await expect(page.locator('#mpDiff')).toHaveText(/^Ihre Uhr geht 1 Std\. 1\d Min\. vor\.$/);
 
-  // Haus: zurück zur Startseite
-  await page.locator('#homeBtn').tap();
-  await expect(page.locator('#tour')).toHaveClass(/welcome/);
-  await expect(page.locator('#tourChoice [data-go="free"]')).toBeVisible();
+  // Kirche: nur die Beschriftung der Sonnenuhr, keine Randhinweise
+  await page.locator('#mviews [data-mv="sued"]').tap();
+  await expect(page.locator('#mviews [data-mv="sued"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.lbl.lsd')).toBeVisible();
+  expect(await page.locator('.lbl:visible').count()).toBe(1);
+  await expect(page.locator('.skymk:visible')).toHaveCount(0);
+  // Himmel
+  await page.locator('#mviews [data-mv="himmel"]').tap();
+  await expect(page.locator('#mviews [data-mv="himmel"]')).toHaveAttribute('aria-pressed', 'true');
+
+  // Schnellwahl: 21. Dezember mittags, zurück zum Zifferblatt
+  await page.locator('.mpquick [data-q="dec"]').tap();
+  await expect(page.locator('#date')).toHaveValue('2026-12-21');
+  await expect(page.locator('#mpTz')).toHaveText('MEZ');
+  await expect(page.locator('#mviews [data-mv="sonnenuhr"]')).toHaveAttribute('aria-pressed', 'true');
+  await page.locator('.mpquick [data-q="jun"]').tap();
+  await expect(page.locator('#date')).toHaveValue('2026-06-21');
+  await page.locator('.mpquick [data-q="full"]').tap();
+  await expect(page.locator('#mpShowLbl')).toHaveText(/Mondschatten zeigt|Sonnenuhr zeigt/);
+  await expect(page.locator('#date')).not.toHaveValue('2026-06-21');
+});
+
+test('In 3 Schritten erklärt: Schatten, Zeitunterschied vorgerechnet, Sommer und Winter', async ({ page }) => {
+  await setToday(page);
+  await page.goto(TEST_HTML);
+  await waitReady(page);
+  await page.locator('#msSteps').tap();
+  await expect(page.locator('#msteps')).toBeVisible();
+  await expect(page.locator('#mpMain')).toBeHidden();
+  await expect(page.locator('#msNum')).toHaveText('Schritt 1 von 3');
+  await expect(page.locator('#date')).toHaveValue('2026-05-10');
+
+  await page.locator('#msNext').tap();
+  await expect(page.locator('#msNum')).toHaveText('Schritt 2 von 3');
+  // 10:49 MESZ − 60 − 17 + Zeitgleichung = wahre Ortszeit 09:35
+  const tab = page.locator('.mstab');
+  await expect(tab).toContainText('10:49');
+  await expect(tab).toContainText('− 60');
+  await expect(tab).toContainText('− 17');
+  await expect(tab.locator('.sum').first()).toHaveText('09:35');
+
+  await page.locator('#msNext').tap();
+  await expect(page.locator('#msNum')).toHaveText('Schritt 3 von 3');
+  await expect(page.locator('#date')).toHaveValue('2026-06-21');
+  await page.locator('#msBody [data-n="11"]').tap();
+  await expect(page.locator('#date')).toHaveValue('2026-12-21');
+  await page.locator('#msNext').tap(); // Fertig
+  await expect(page.locator('#msteps')).toBeHidden();
+  await expect(page.locator('#mpMain')).toBeVisible();
+
+  // „Warum?“ springt direkt zu Schritt 2
+  await page.locator('#mpWhy').tap();
+  await expect(page.locator('#msNum')).toHaveText('Schritt 2 von 3');
+  await page.locator('#msPrev').tap();
+  await expect(page.locator('#msNum')).toHaveText('Schritt 1 von 3');
+  await page.locator('#msPrev').tap(); // Schließen
+  await expect(page.locator('#mpMain')).toBeVisible();
+});
+
+test('Mehr am Computer: Link senden; volle Fassung öffnen und über „⋯“ zurück zur Handy-Fassung', async ({ page }) => {
+  await openApp(page, { hash: MAI });
+  await page.locator('#mpMore').tap();
+  await expect(page.locator('#mdesk')).toBeVisible();
+  await expect(page.locator('#mdesk .mdlist li')).toHaveCount(4);
+  await expect(page.locator('#sendLink')).toBeVisible();
+  await page.locator('#mdBack').tap();
+  await expect(page.locator('#mdesk')).toBeHidden();
+
+  await page.locator('#mpMore').tap();
+  await page.locator('#mdFull').tap();
+  await expect(page.locator('body')).not.toHaveClass(/mobile/);
+  await expect(page.locator('.rail')).toBeVisible();
+  await expect(page.locator('#mpanel')).toBeHidden();
+  await page.locator('#moreBtn').tap();
+  await page.locator('#phoneItem').tap();
+  await expect(page.locator('body')).toHaveClass(/mobile/);
+  await expect(page.locator('#mstart')).toBeVisible();
 });
 
 test.describe('Querformat', () => {
-  test.use({ viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true });
-  test('Blatt als Seitenleiste rechts mit Reitern, Modell links frei', async ({ page }) => {
-    await openApp(page, { hash: '#d=2026-06-21&t=882&v=aussen&l=de' });
-    const s = await page.locator('#msheet').boundingBox();
-    expect(s.x).toBeGreaterThan(400);
-    expect(s.height).toBeGreaterThan(380);
-    await expect(page.locator('#mshTabs')).toBeVisible();
-    await page.locator('#mshTabs [data-tab="moon"]').tap();
-    await expect(page.locator('#card-moon')).toBeVisible();
-    const free = await page.locator('#freeBtn').boundingBox();
-    expect(free.x + free.width).toBeLessThanOrEqual(s.x);
+  test.use({ viewport: { width: 740, height: 340 }, isMobile: true, hasTouch: true });
+  test('Anzeige als Seitenleiste rechts, Bild links frei', async ({ page }) => {
+    await openApp(page, { hash: MAI });
+    const p = await page.locator('#mpanel').boundingBox(),
+      st = await page.locator('#stage').boundingBox(),
+      lang = await page.locator('#langSeg').boundingBox(),
+      mv = await page.locator('#mviews').boundingBox();
+    expect(p.x).toBeGreaterThan(360);
+    expect(p.height).toBeGreaterThan(330);
+    expect(st.x + st.width).toBeLessThanOrEqual(p.x + 1);
+    expect(lang.x + lang.width).toBeLessThanOrEqual(p.x);
+    expect(mv.x + mv.width).toBeLessThanOrEqual(p.x);
+    await expect(page.locator('#mpClock')).toHaveText('10:49');
   });
 });
