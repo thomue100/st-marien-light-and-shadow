@@ -2445,6 +2445,15 @@ body.mobile.mv-sd .lsd {
   font-family: var(--f-body);
   font-size: 15px;
 }
+/* mit viertem Blickwinkel (Dachreiter oder Uhr) etwas enger, damit alle vier auf schmale Handys passen */
+.mviews:has(#mvExtra:not([hidden])) button {
+  padding: 0 9px;
+  font-size: 14px;
+}
+/* Steuerkreis zum Gehen (Laterne des Dachreiters) über den Blickwinkeln */
+body.mobile .joy {
+  bottom: calc(var(--mph, 0px) + 70px);
+}
 .mviews button[aria-pressed='true'] {
   background: var(--ink);
   color: var(--panel);
@@ -2811,6 +2820,46 @@ body.mobile #time::-moz-range-thumb {
   fill: none;
   stroke: currentColor;
   stroke-width: 2.2;
+  stroke-linecap: round;
+}
+.mdgrp {
+  margin: 6px 0 -4px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brick);
+}
+.mdgo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: 0 4px 14px rgba(20, 16, 12, 0.12);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.3;
+  text-align: left;
+}
+.mdgo > span {
+  display: flex;
+  flex-direction: column;
+}
+.mdgo > span > span {
+  color: var(--muted);
+}
+.mdgo .chv {
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
   stroke-linecap: round;
 }
 .mdlist {

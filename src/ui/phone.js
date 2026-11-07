@@ -76,7 +76,11 @@ $('#sdPill').addEventListener('click', () => openCard($('#card-sd').hidden ? 'sd
 
 /* ---------------- Blickwinkel: Zifferblatt · Kirche · Himmel ---------------- */
 
+// zusätzliche Blickwinkel aus „Mehr entdecken“: erscheinen als vierter Knopf, sobald man einen gewählt hat
+const EXTRA = { dachreiter: ['Dachreiter', 'Ridge turret'], uhr: ['Uhr', 'Clock'] };
 function syncViews() {
+  const xb = $('#mvExtra');
+  if (xb.dataset.mv) xb.textContent = tr(...EXTRA[xb.dataset.mv]);
   body.classList.toggle('mv-sd', !state.pano && state.view === 'sonnenuhr'); // Nahansicht: ohne Beschriftung
   for (const b of document.querySelectorAll('#mviews button'))
     b.setAttribute(
@@ -279,6 +283,20 @@ const openDesk = on => {
   if (on) $('#mdBack').focus();
 };
 $('#mpMore').addEventListener('click', () => openDesk(true));
+for (const b of document.querySelectorAll('.mdgo'))
+  b.addEventListener('click', () => {
+    const v = b.dataset.go,
+      xb = $('#mvExtra');
+    openDesk(false);
+    if (ms.i !== null) stepsEnd();
+    showStart(false);
+    setPlaying(false);
+    $('#nowBtn').click(); // heute, jetzt – zum Vergleich mit dem Blick vor Ort
+    goView(v);
+    xb.dataset.mv = v;
+    xb.hidden = false;
+    syncViews();
+  });
 $('#msDesk').addEventListener('click', () => openDesk(true));
 $('#mdBack').addEventListener('click', () => openDesk(false));
 document.addEventListener('keydown', e => {
