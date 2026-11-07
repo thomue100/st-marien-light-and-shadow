@@ -1929,7 +1929,7 @@ for (const zz of [TW.n, TW.s]) {
   if (gd.length) building.add(new THREE.Mesh(mergeGeos(gd), darkMat));
 }
 // Treppentürme der Westtürme (Grundriss 1906: achteckig, mittig vor der Nordseite des Nordturms und der Südseite des Südturms;
-// Foto von Südwesten: bis knapp unter das unterste Friesband, Kupferhaube)
+// Foto von Südwesten: Süden bis knapp unter das unterste Friesband, Kupferhaube)
 function stairTurret(x, z, R, h, cap, mat) {
   const g = new THREE.CylinderGeometry(R, R, h, 8);
   g.rotateY(Math.PI / 8);
@@ -1941,7 +1941,7 @@ function stairTurret(x, z, R, h, cap, mat) {
   c.translate(x, h + cap / 2, z);
   addMesh(c, mat || roofMat);
 }
-stairTurret(-43.4, TW.n[0] - 0.6, 1.6, 27.4, 3.2);
+stairTurret(-43.4, TW.n[0] - 0.6, 1.6, 40.3, 3.2); // Nordturm: höher geführt, bis etwa 3 m über das zweite Friesband (Foto von Westen)
 stairTurret(-43.6, TW.s[1] + 0.6, 1.6, 27.4, 3.2);
 // Sockel aus Granit und helle Eckquader an den Westecken der Türme (Fotos der Westseite)
 {
@@ -2169,23 +2169,107 @@ stairTurret(-43.6, TW.s[1] + 0.6, 1.6, 27.4, 3.2);
   building.add(new THREE.Mesh(mergeGeos(wg), darkMat));
 }
 
-// Strebepfeiler, Strebebögen, Fialen (Lage aus LoD2)
-function flyer(a, b) {
-  const len = a.distanceTo(b);
-  const m = addMesh(boxGeo(0.85, 0.95, len), wallMat);
-  m.position.copy(a).add(b).multiplyScalar(0.5);
-  m.lookAt(b);
-  const cap = new THREE.Mesh(boxGeo(1.25, 0.14, len), roofMat);
-  cap.position.set(0, 0.54, 0);
-  cap.castShadow = true;
-  m.add(cap);
-} // Kupferabdeckung (Luftbild)
+// Strebepfeiler und Strebebögen (Lage aus LoD2). Nach Luftbild und Hinweis eines Bauingenieurs: kräftige Bögen mit gerader,
+// kupferbedeckter Oberkante und gekrümmter Unterseite; die Pfeiler enden ohne Fialen unter einer schrägen Kupferabdeckung,
+// die die Oberkante des Bogens nach außen fortsetzt.
+const UP = new V3(0, 1, 0);
+/** Ebenes Profil [s, y] (s waagerecht ab a in Richtung u) als Körper der Breite w quer dazu */
+function profileMesh(pts, a, u, w, mat) {
+  const sh = new THREE.Shape(pts.map(([x, y]) => new THREE.Vector2(x, y)));
+  const g = new THREE.ExtrudeGeometry(sh, { depth: w, bevelEnabled: false, curveSegments: 1 });
+  const n = new V3().crossVectors(u, UP);
+  g.applyMatrix4(new THREE.Matrix4().makeBasis(u, UP, n));
+  g.translate(a.x - (n.x * w) / 2, 0, a.z - (n.z * w) / 2);
+  return addMesh(g, mat);
+}
+/**
+ * Strebebogen von a (Oberkante am Pfeiler) nach b (Oberkante an der Hochschiffwand): oben gerade, unten ein flacher Bogen.
+ * hA, hB: Höhe des Bogens am Pfeiler bzw. an der Wand; head: Länge des Pfeilerkopfs hinter a (nach außen), mit Abdeckung.
+ */
+function flyer(a, b, { hA = 3.2, hB = 2.2, sag = 1.4, w = 1.1, head = 0, hw = 1.6 } = {}) {
+  const u = new V3(b.x - a.x, 0, b.z - a.z),
+    L = u.length();
+  u.divideScalar(L);
+  const k = (b.y - a.y) / L,
+    N = 14,
+    arch = [
+      [0, a.y],
+      [L, b.y],
+    ];
+  for (let i = N; i >= 0; i--) {
+    const t = i / N;
+    arch.push([t * L, a.y - hA + t * (b.y - hB - a.y + hA) + sag * 4 * t * (1 - t)]);
+  }
+  const cap = (s0, s1, cw) =>
+    profileMesh(
+      [
+        [s0, a.y + k * s0],
+        [s1, a.y + k * s1],
+        [s1, a.y + k * s1 + 0.16],
+        [s0, a.y + k * s0 + 0.16],
+      ],
+      new V3(a.x, 0, a.z),
+      u,
+      cw,
+      roofMat,
+    );
+  profileMesh(arch, new V3(a.x, 0, a.z), u, w, wallMat);
+  cap(0, L, w + 0.3);
+  if (head > 0) {
+    profileMesh(
+      [
+        [-head, a.y - hA],
+        [0, a.y - hA],
+        [0, a.y],
+        [-head, a.y - k * head],
+      ],
+      new V3(a.x, 0, a.z),
+      u,
+      hw,
+      wallMat,
+    );
+    cap(-head - 0.15, 0, hw + 0.15);
+  }
+}
+/** Pfeiler im Langhaus: Schaft bis unter den Kopf, darüber Kopf und Bogen zur Hochschiffwand (s: −1 Nord, +1 Süd) */
+const FLY = { yW: 37.0, k: 0.577, hA: 5.5 };
+function naveButtress(x, s, dIn, dOut, y0) {
+  const yA = FLY.yW - FLY.k * (dIn - ZNF);
+  box(x - 0.8, x + 0.8, y0, yA - FLY.hA + 0.01, s * dIn, s * dOut);
+  flyer(P(x, yA, s * dIn), P(x, FLY.yW, s * (ZNF - 0.05)), { hA: FLY.hA, hB: 2.3, sag: 2.8, w: 1.4, head: dOut - dIn });
+}
+/** schräge Kupferabdeckung eines niedrigen Pfeilers (nach außen fallend) */
+function pierCap(x, s, dIn, dOut, y) {
+  profileMesh(
+    [
+      [0, y + 0.9],
+      [dOut - dIn + 0.15, y],
+      [dOut - dIn + 0.15, y - 0.16],
+      [0, y + 0.74],
+    ],
+    new V3(x, 0, s * dIn),
+    new V3(0, 0, s),
+    1.9,
+    roofMat,
+  );
+  profileMesh(
+    [
+      [0, y],
+      [dOut - dIn, y],
+      [0, y + 0.82],
+    ],
+    new V3(x, 0, s * dIn),
+    new V3(0, 0, s),
+    1.8,
+    wallMat,
+  );
+}
 function pinnacle(x, y, z) {
   const g = new THREE.ConeGeometry(0.6, 3.4, 4);
   g.rotateY(Math.PI / 4);
   g.translate(x, y + 1.7, z);
   addMesh(g, roofMat);
-}
+} // Fialen nur noch an den Giebeln der Chorkapellen
 const SB_FACE = 23.6; // Außenflucht der südlichen Strebepfeiler im Langhaus (LoD2)
 export const SD_PIER = 1,
   SD_FACE = 29.8,
@@ -2193,28 +2277,25 @@ export const SD_PIER = 1,
 for (let i = 1; i < NB; i++) {
   const x = PX[i];
   // Nord: Pfeiler zwischen den niedrigen Kapellen bzw. über den Chorkapellen
-  if (x < XT - 0.1) box(x - 0.8, x + 0.8, 0, 28.3, -(ZKN + 0.5), -(ZAN + 0.6));
-  else box(x - 0.8, x + 0.8, HAN - 0.5, 29.0, -21.4, -(ZAN + 0.6));
-  pinnacle(x, x < XT - 0.1 ? 28.3 : 29.0, -20.0);
-  flyer(P(x, 28.6, -19.6), P(x, 36.2, -(ZNF - 0.05)));
-  // Süd
+  if (x < XT - 0.1) naveButtress(x, -1, ZAN + 0.6, ZKN + 0.5, 0);
+  else naveButtress(x, -1, ZAN + 0.6, 21.4, HAN - 0.5);
+  // Süd; über dem Dach von Südervorhalle und Bürgermeisterkapelle kein Strebewerk – das Dach läuft durch (Luftbild)
   const zs = x < XT - 0.1 ? ZAS : ZCS;
-  box(x - 0.8, x + 0.8, HAS - 1.5, 28.5, zs - 0.7, zs + 0.75);
-  pinnacle(x, 28.5, zs);
+  if (x < XT + 0.1) naveButtress(x, 1, zs - 0.7, zs + 0.75, HAS - 1.5);
   if (x < XT - 0.1 && x > CHAPELS[0].x1) {
     box(x - 0.9, x + 0.9, 0, 18.4, ZAS + 0.6, SB_FACE);
-    pinnacle(x, 18.4, (ZAS + 0.6 + SB_FACE) / 2);
+    pierCap(x, 1, ZAS + 0.6, SB_FACE, 18.4);
   }
   if (i === SD_PIER) {
     box(x - 0.8, x + 0.8, 0, SD_TOP, CHAPELS[0].zo + 0.45, SD_FACE);
     box(x - 0.8, x + 0.8, 12.6, SD_TOP, ZAS + 0.6, CHAPELS[0].zo + 0.5);
     box(x - 0.9, x + 0.9, SD_TOP, SD_TOP + 0.12, CHAPELS[0].zo + 0.3, SD_FACE + 0.1, darkRoofMat);
   } // flach abgedeckt, gut 1 m über der Sonnenuhr (Fotos 2026)
-  flyer(P(x, 28.5, zs), P(x, 36.2, ZNF - 0.05));
 }
 // Strebepfeiler des Kapellenkranzes in Richtung der Chorecken (Grundriss) mit Strebebögen zu den Polygonecken (Drohnenfoto)
 {
-  const co = choirOff(0.75);
+  const co = choirOff(0.75),
+    CHF = { hA: 2.4, hB: 1.8, sag: 0.9, w: 1.0 };
   for (const s of [-1, 1])
     for (const k of [1, 2, 3]) {
       const v = AMB_N[k],
@@ -2230,8 +2311,8 @@ for (let i = 1; i < NB; i++) {
       n1 = AMB_BN[1],
       v3 = AMB_N[3],
       n3 = AMB_BN[3];
-    flyer(P(v1[0] + n1[0] * 0.8, 21.6, -s * (v1[1] + n1[1] * 0.8)), P(XC + 0.2, 34.5, s * (ZNF + 0.05)));
-    flyer(P(v3[0] + n3[0] * 0.8, 21.6, -s * (v3[1] + n3[1] * 0.8)), P(co[1][0], 34.5, -s * co[1][1]));
+    flyer(P(v1[0] + n1[0] * 0.8, 21.6, -s * (v1[1] + n1[1] * 0.8)), P(XC + 0.2, 34.5, s * (ZNF + 0.05)), CHF);
+    flyer(P(v3[0] + n3[0] * 0.8, 21.6, -s * (v3[1] + n3[1] * 0.8)), P(co[1][0], 34.5, -s * co[1][1]), CHF);
   }
 }
 // Treppentürme an den Anschlüssen des Umgangs (Grundriss; Drohnenfoto: dunkles Kegeldach)
