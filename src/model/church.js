@@ -2304,9 +2304,15 @@ for (let i = 1; i < NB; i++) {
   // Nord: Pfeiler zwischen den niedrigen Kapellen bzw. über den Chorkapellen
   if (x < XT - 0.1) naveButtress(x, -1, ZAN + 0.6, ZKN + 0.5, 0);
   else naveButtress(x, -1, ZAN + 0.6, 21.4, HAN - 0.5);
-  // Süd; über dem Dach von Südervorhalle und Bürgermeisterkapelle kein Strebewerk – das Dach läuft durch (Luftbild)
+  // Süd: wie im Norden an jedem Pfeiler ein Bogen; östlich von XT stehen die Pfeiler auf der Dachfläche über Südervorhalle
+  // und Bürgermeisterkapelle (Luftbilder)
   const zs = x < XT - 0.1 ? ZAS : ZCS;
-  if (x < XT + 0.1) naveButtress(x, 1, zs - 0.7, zs + 0.75, HAS - 1.5);
+  naveButtress(x, 1, zs - 0.7, zs + 0.75, HAS - 1.5);
+  if (x > XT + 0.1 && x < XC - 2) {
+    // Strebepfeiler vor der Front von Südervorhalle und Bürgermeisterkapelle, schräg abgedeckt knapp unter der Traufe (Luftbild)
+    box(x - 0.8, x + 0.8, 0, 19.0, CHAPELS[3].zo - 0.1, CHAPELS[3].zo + 1.3);
+    pierCap(x, 1, CHAPELS[3].zo - 0.1, CHAPELS[3].zo + 1.3, 19.0);
+  }
   if (x < XT - 0.1 && x > CHAPELS[0].x1) {
     box(x - 0.9, x + 0.9, 0, 18.4, ZAS + 0.6, SB_FACE);
     pierCap(x, 1, ZAS + 0.6, SB_FACE, 18.4);
@@ -2341,9 +2347,9 @@ for (let i = 1; i < NB; i++) {
   }
 }
 // Treppentürme an den Anschlüssen des Umgangs (Grundriss; Drohnenfoto: dunkles Kegeldach)
-// Nord: (28,5 / −18,8) über die Dächer geführt, dunkles Kegeldach (Luftbilder von Osten); Süd: (26,4 / 17,6) endet unter den Dächern
+// Nord: (28,5 / −18,8) über die Dächer geführt, dunkles Kegeldach (Luftbilder von Osten); Süd: (26,4 / 17,6) mit spitzem Kupferhelm
 stairTurret(28.5, -18.8, 1.35, 27.0, 5.0, darkRoofMat);
-stairTurret(26.4, 17.6, 1.35, 21.2, 1.2, darkRoofMat);
+stairTurret(26.4, 17.6, 1.35, 26.5, 10.5); // Süd: schlanker Kupferhelm über den Dächern (Luftbilder von Südwesten)
 
 // Ausstattung: Gestühl, Altar
 {

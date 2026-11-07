@@ -136,8 +136,7 @@ export const CHAPELS = [
     x0: XT,
     x1: 16.2,
     zi: ZCS,
-    zo: 29.7,
-    rzo: 28.5,
+    zo: 28.5, // laut Plan 1906 vorspringend, heute in einer Flucht mit der Bürgermeisterkapelle (Fotos)
     h: 21.3,
     roof: 'lean',
     ridge: SV_IN,
