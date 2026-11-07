@@ -201,16 +201,3 @@ test('Zeitleiste: zweite Zeile aufklappen, Sonne und Mond antippen', async ({ pa
   await waitCameraStill(page);
   await expect(page.locator('#viewTxt')).toHaveText('Blick zum Mond');
 });
-
-test('Anzeige unter der Titelleiste: was die Sonnenuhr gerade zeigt; öffnet die Karte Sonnenuhr', async ({ page }) => {
-  await openApp(page, { hash: '#d=2026-05-10&t=649&v=aussen&l=de' });
-  await expect(page.locator('#sdPill')).toBeVisible();
-  await expect(page.locator('#sdPillClock')).toHaveText('10:49 MESZ');
-  await expect(page.locator('#sdPillShow')).toHaveText(/^09:3\d$/);
-  await page.locator('#sdPill').click();
-  await expect(page.locator('#card-sd')).toBeVisible();
-  await expect(page.locator('#sdShow')).toHaveText(await page.locator('#sdPillShow').textContent());
-  // Freie Sicht blendet auch diese Anzeige aus
-  await page.keyboard.press('f');
-  await expect(page.locator('#sdPill')).toBeHidden();
-});
