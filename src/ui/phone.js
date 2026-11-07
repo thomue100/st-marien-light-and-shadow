@@ -266,6 +266,10 @@ export function showStart(on) {
   sizeVars();
   if (on) {
     if (ms.i !== null) stepsEnd();
+    // Startseite immer mit besonntem Zifferblatt: 21. Juni, 12:00 (sonst ist das Bild abends und im Winter dunkel)
+    setPlaying(false);
+    setDate(state.y, 5, 21);
+    setMinutes(12 * 60);
     if (state.view !== 'sonnenuhr' || state.pano) goView('sonnenuhr');
     syncViews();
   }
