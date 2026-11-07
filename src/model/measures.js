@@ -87,6 +87,9 @@ export const MT = [
 ]; // Marientidenkapelle (Wandmitte): westliches Vorjoch ab dem Umgang (Grundriss), Ostteil nach LoD2
 export const AXIS_MEASURED = 98.5;
 export const F = v => (+v).toFixed(4);
+// Südervorhalle, Bürgermeisterkapelle und südliches Chorseitenschiff liegen unter EINER Dachfläche: von der Traufe der
+// Kapellen (21,3 m, 0,6 m vor z = 28,5) gerade hinauf bis an die Hochschiffwand (HJ bei ZNF) – auf allen Fotos so.
+export const SV_IN = 21.3 + ((HJ - 21.3) / (29.1 - ZNF)) * (29.1 - ZCS); // Höhe dieser Fläche über der Seitenschiffwand
 export const CHAPELS = [
   {
     name: 'Briefkapelle',
@@ -136,10 +139,8 @@ export const CHAPELS = [
     zo: 29.7,
     rzo: 28.5,
     h: 21.3,
-    roof: 'gableX',
-    hin: 23.4,
-    zr: 23.0,
-    ridge: 29.7,
+    roof: 'lean',
+    ridge: SV_IN,
     ceil: 16.5,
   }, // ein durchgehendes Dach mit der Bürgermeisterkapelle (Luftbilder)
   {
@@ -150,10 +151,8 @@ export const CHAPELS = [
     zi: ZCS,
     zo: 28.5,
     h: 21.3,
-    roof: 'gableX',
-    hin: 23.4,
-    zr: 23.0,
-    ridge: 29.7,
+    roof: 'lean',
+    ridge: SV_IN,
     ceil: 16.5,
   },
 ];

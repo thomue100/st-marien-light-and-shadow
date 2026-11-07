@@ -53,6 +53,7 @@ import {
   ZN,
   ZNF,
   ZSI,
+  SV_IN,
 } from './measures.js';
 import { cutPlane, scene } from '../scene/renderer.js';
 import { brickCol, brickTex, canvasTex, rng, vaultTex } from '../scene/textures.js';
@@ -748,7 +749,7 @@ addMesh(mergeGeos(keyGeos), keyMat, false);
   }
   f.push([P(X0 - 0.7, HAN, -(ZAN + 0.8)), P(XC, HAN, -(ZAN + 0.8)), P(XC, HJ, -ZNF), P(X0 - 0.7, HJ, -ZNF)]);
   f.push([P(X0 - 0.7, HAS, ZAS + 0.8), P(XT, HAS, ZAS + 0.8), P(XT, HJ, ZNF), P(X0 - 0.7, HJ, ZNF)]);
-  f.push([P(XT, HCS, ZCS + 0.8), P(XC, HCS, ZCS + 0.8), P(XC, HJ, ZNF), P(XT, HJ, ZNF)]);
+  f.push([P(XT, SV_IN, ZCS), P(XC, SV_IN, ZCS), P(XC, HJ, ZNF), P(XT, HJ, ZNF)]); // eine Fläche mit Südervorhalle und Bürgermeisterkapelle
   for (const s of [-1, 1]) {
     const r = AMB_ROOF(s);
     r.forEach(t => f.push(t));
@@ -800,12 +801,15 @@ function chapel(c) {
     ? [[Lz + 0.5, yAt(zo + 0.5)]]
         .concat(
           prof
-            .slice(1, -1)
+            .slice(1)
             .reverse()
+            .filter(p => p[0] < zo + 0.5) // Traufe hinter einer vorstehenden Fassade (Südervorhalle) mitnehmen
             .map(p => [p[0] - zi, p[1]]),
         )
         .concat([[-0.6, yAt(zi)]])
     : null;
+  // Giebelwände knapp unter der Dachfläche enden lassen (sonst stehen sie bei durchlaufendem Dach als Grat heraus)
+  if (endTop) for (const p of endTop) p[1] -= 0.12;
   if (!c.noWest)
     wall([c.x0, s * zi], [c.x0, s * zo], { h: c.h, t: 1.0, ext: 0.5, openings: c.west || [], top: endTop });
   wall([c.x1, s * zi], [c.x1, s * zo], { h: c.h, t: 1.0, ext: 0.5, openings: c.east || [], top: endTop });
@@ -823,7 +827,7 @@ function chapel(c) {
         P(c.x0 - 0.6, b[1], s * b[0]),
       ]);
     }
-    if (prof[0][1] > HAN) box(c.x0, c.x1, HAN - 0.2, prof[0][1], s * (zi - 0.6), s * (zi + 0.6));
+    if (prof[0][1] > HAN) box(c.x0, c.x1, HAN - 0.2, prof[0][1] - 0.45, s * (zi - 0.6), s * (zi + 0.6)); // bleibt unter der Dachfläche
   } else
     for (const [a, b] of c.gables) {
       const m = (a + b) / 2;
@@ -1872,9 +1876,9 @@ for (const zz of [TW.n, TW.s]) {
       b.translate(C[0], HCS + 0.6, C[1]);
       addMesh(b, wallMat);
     }
-  // Ostgiebel der Chorkapellen: abgestufte Blendnischen und drei Fialen
+  // Ostgiebel der nördlichen Chorkapellen: abgestufte Blendnischen und drei Fialen
   const gd = [];
-  for (const c of [CHAPELS[2], CHAPELS[4]]) {
+  for (const c of [CHAPELS[2]]) {
     const s3 = c.s,
       zi = c.zi,
       zo = c.zo,
@@ -2270,6 +2274,19 @@ function pinnacle(x, y, z) {
   g.translate(x, y + 1.7, z);
   addMesh(g, roofMat);
 } // Fialen nur noch an den Giebeln der Chorkapellen
+// Bei XT stoßen das steilere Pultdach der westlichen Seitenschiffjoche und die flachere gemeinsame Fläche über Südervorhalle
+// und Chorseitenschiff aneinander: Giebeldreieck dazwischen
+profileMesh(
+  [
+    [0, HJ],
+    [ZCS - ZNF, SV_IN],
+    [ZCS - ZNF, HAS + ((HJ - HAS) / (ZAS + 0.8 - ZNF)) * (ZAS + 0.8 - ZCS)],
+  ],
+  new V3(XT, 0, ZNF),
+  new V3(0, 0, 1),
+  0.6,
+  wallMat,
+);
 const SB_FACE = 23.6; // Außenflucht der südlichen Strebepfeiler im Langhaus (LoD2)
 export const SD_PIER = 1,
   SD_FACE = 29.8,
