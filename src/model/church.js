@@ -1729,9 +1729,10 @@ for (const zz of [TW.n, TW.s]) {
   } // hellgraues Gesims über jedem Fries (Foto)
   // gekuppelte Fenster: zwei je Seite und Geschoss (Achsen bei ±24 % der Breite); innen/Ost nur über dem Dach
   // Achsen bei ±16 % der Breite (Fotos West, Süd, Ost); Ostseite über den Seitenschiffdächern, Innenseite über der Mittelschifftraufe
+  // Westseite: nur die drei Geschosse über den Friesen (Foto von Westen); unter dem untersten Fries ein kleines Einzelfenster
   for (const [bot, top] of T_LEVELS.concat([[24.8, 29.4]])) {
     for (const d of [-0.16, 0.16]) {
-      twinWindow(facadeAcc, xa, zc, -1, 0, d * 2 * hz, bot, top);
+      if (bot > 30) twinWindow(facadeAcc, xa, zc, -1, 0, d * 2 * hz, bot, top);
       twinWindow(facadeAcc, xc, zo, 0, so, d * 2 * hx, bot, top);
       if (bot >= HJ + 2) twinWindow(facadeAcc, xb, zc, 1, 0, d * 2 * hz, bot, top);
       if (bot >= HN + 2) twinWindow(facadeAcc, xc, zi, 0, -so, d * 2 * hx, bot, top);
@@ -1742,6 +1743,10 @@ for (const zz of [TW.n, TW.s]) {
     [xa, zc, -1, 0, true],
     [xc, zo, 0, so, !south],
   ]) {
+    if (nx < 0) {
+      facadeAcc.reveal.push(facePoly(cx, cz, nx, nz, lanc(0, 0.85, 25.0, 28.9), 0.05));
+      facadeAcc.dark.push(facePoly(cx, cz, nx, nz, lanc(0, 0.6, 25.2, 28.6), 0.08));
+    }
     if (tall) {
       facadeAcc.reveal.push(facePoly(cx, cz, nx, nz, lanc(0, 1.25, 6.5, 21.0), 0.05));
       facadeAcc.dark.push(facePoly(cx, cz, nx, nz, lanc(0, 0.95, 6.8, 20.6), 0.08));
