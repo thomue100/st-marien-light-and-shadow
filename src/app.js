@@ -5,7 +5,7 @@
 // app.js als Erstes das letzte Modul (ui/phone.js). Module dürfen sich gegenseitig importieren; eine Variable eines anderen
 // Moduls neu zuweisen geht aber nicht – dafür gibt es Setter wie setLang() oder requestRender(). Siehe README, „Aufbau-Reihenfolge“.
 // Reihenfolge: core/loader → core/util → core/i18n → core/prefs → model/measures → state → scene/renderer → scene/textures → scene/shaders → scene/materials → model/geometry → model/church → model/clock → model/environment → model/sundial → light/sky → light/windows → light/sun → scene/camera → scene/labels → ui/readouts → ui/controls → ui/year → ui/panels → ui/clockcard → ui/tour → ui/moontowers → ui/experiments → ui/quiz → ui/share → ui/phone → app.
-import { isPhone, showStart } from './ui/phone.js'; // Aufbau-Reihenfolge: nach ui/phone
+import { isPhone, showStart, syncViews } from './ui/phone.js'; // Aufbau-Reihenfolge: nach ui/phone
 import { applyCode } from './ui/share.js';
 import { berlinNow, localToUtc, sunPos } from './astro/index.js';
 import { ldBar, ldDone, ldT0, step } from './core/loader.js';
@@ -181,7 +181,9 @@ requestAnimationFrame(() => {
   if (ldBar) ldBar.style.width = '100%';
   ldDone();
   if (isPhone()) {
-    if (!fromLink) showStart(true); // Handy: Startseite statt Rundgang
+    if (!fromLink)
+      showStart(true); // Handy: Startseite statt Rundgang
+    else syncViews(); // Ansicht aus dem Link: Blickwinkel und Anzeige abgleichen
   } else if (!fromLink && lsGet('stm-welcomed') !== '1') {
     tour.i = -1;
     showTour();

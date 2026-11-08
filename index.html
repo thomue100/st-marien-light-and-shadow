@@ -318,6 +318,9 @@
         <span class="mgtxt" id="mgestTxt"></span>
       </div>
       <section class="mpanel" id="mpanel" hidden aria-label="Sonnenuhr ablesen" data-en-aria="Reading the sundial">
+        <button class="mpfold" id="mpFold" aria-expanded="true" aria-label="Anzeige einklappen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+        </button>
         <div class="mpmain" id="mpMain">
           <div class="mpread">
             <div>
@@ -325,7 +328,7 @@
               <p class="mpval mpsd" id="mpShow">–</p>
             </div>
             <div>
-              <p class="mplbl" data-en="Your clock">Ihre Uhr</p>
+              <p class="mplbl" id="mpClockLbl">Ihre Uhr</p>
               <p class="mpval"><span id="mpClock">–</span> <span class="mptz" id="mpTz">MEZ</span></p>
             </div>
           </div>
@@ -343,8 +346,8 @@
             <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
               <rect x="3" y="4" width="18" height="12" rx="1.5" />
               <path d="M8 20h8M12 16v4" /></svg
-            ><span data-en="Discover more: ridge turret, clock, computer"
-              >Mehr entdecken: Dachreiter, Uhr, Computer</span
+            ><span data-en="Discover more: tour, views, ridge turret"
+              >Mehr entdecken: Rundgang, Ansichten, Dachreiter</span
             ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
           </button>
         </div>
@@ -373,8 +376,8 @@
           <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
             <rect x="3" y="4" width="18" height="12" rx="1.5" />
             <path d="M8 20h8M12 16v4" /></svg
-          ><span data-en="Discover more: ridge turret, astronomical clock and everything on a computer"
-            >Mehr entdecken: Dachreiter, Astronomische Uhr und alles am Computer</span
+          ><span data-en="Discover more: tour, all views, ridge turret, clock"
+            >Mehr entdecken: Rundgang, alle Ansichten, Dachreiter, Uhr</span
           ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
         </button>
       </section>
@@ -385,6 +388,12 @@
         </button>
         <h2 id="mdH" data-en="Discover more">Mehr entdecken</h2>
         <p class="mdgrp" data-en="Also on the phone">Auch auf dem Handy</p>
+        <button class="mdgo" data-go="tour">
+          <span
+            ><b data-en="Guided tour">Rundgang</b
+            ><span data-en="8 stops through the church and the year">8 Stationen durch Kirche und Jahr</span></span
+          ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+        </button>
         <button class="mdgo" data-go="dachreiter">
           <span
             ><b data-en="On the ridge turret">Auf dem Dachreiter</b
@@ -401,38 +410,36 @@
             ></span
           ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
         </button>
+        <button class="mdgo" data-go="views">
+          <span
+            ><b data-en="All views">Alle Ansichten</b
+            ><span data-en="21 views outside, inside and into the sky – light and shadow at any time"
+              >21 Blicke außen, innen und in den Himmel – Licht und Schatten zu jeder Zeit</span
+            ></span
+          ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+        </button>
         <p class="mdgrp" data-en="On a computer">Am Computer</p>
-        <p data-en="On a large screen the model shows the whole church – inside and out, by day and by night.">
-          Auf dem großen Bildschirm zeigt das Modell die ganze Kirche – innen und außen, bei Tag und Nacht.
+        <p
+          class="mdpc"
+          data-en="Quiz, four experiments, the light calendar of the windows and the astronomical clock in detail."
+        >
+          Quiz, vier Experimente, der Lichtkalender der Fenster und die Astronomische Uhr im Detail.
         </p>
-        <ul class="mdlist">
-          <li>
-            <b data-en="Interiors and windows">Innenräume und Fenster</b
-            ><span data-en="When does sunlight fall through which window?"
-              >Wann fällt Sonnenlicht durch welches Fenster?</span
-            >
-          </li>
-          <li>
-            <b data-en="Astronomical clock in detail">Astronomische Uhr im Detail</b
-            ><span data-en="Dials, hands and moon phase explained">Zifferblätter, Zeiger und Mondphase erklärt</span>
-          </li>
-          <li>
-            <b data-en="4 experiments and a quiz">4 Experimente und ein Quiz</b
-            ><span data-en="Shadow lengths, equation of time, light calendar"
-              >Schattenlängen, Zeitgleichung, Lichtkalender</span
-            >
-          </li>
-          <li>
-            <b data-en="Tour with 8 stops">Rundgang mit 8 Stationen</b
-            ><span data-en="plus 21 views, up to the whole old town island"
-              >dazu 21 Ansichten bis zur ganzen Altstadtinsel</span
-            >
-          </li>
-        </ul>
         <button class="btn msend" id="sendLink" data-en="Send me the link">Link an mich senden</button>
         <p class="small" data-en="The link opens the same day and time on the computer.">
           Der Link öffnet am Computer denselben Tag und dieselbe Uhrzeit.
         </p>
+      </section>
+      <section class="mdesk" id="mvsel" hidden role="dialog" aria-modal="true" aria-labelledby="mvH">
+        <button class="mback" id="mvBack">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg
+          ><span data-en="Back">Zurück</span>
+        </button>
+        <h2 id="mvH" data-en="All views">Alle Ansichten</h2>
+        <p data-en="Below you set date and time – and watch light and shadow in each view.">
+          Unten stellen Sie Datum und Uhrzeit ein – und sehen in jeder Ansicht Licht und Schatten.
+        </p>
+        <div class="mvlist" id="mvList"></div>
       </section>
 
       <section class="card" id="card-sun" hidden aria-label="Sonnenstand" data-en-aria="Sun">
