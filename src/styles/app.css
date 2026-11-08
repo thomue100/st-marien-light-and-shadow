@@ -2308,6 +2308,14 @@ body.mobile .lbl:not(.lsd),
 body.mobile.mv-sd .lsd {
   display: none !important;
 }
+/* Startseite: der Knopf „Die Sonnenuhr“ führte nur hierher zurück; Platz bleibt, damit die Sprachwahl rechts steht */
+body:has(.mstart:not([hidden])) .mhome {
+  visibility: hidden;
+}
+/* In 3 Schritten erklärt: die Schritte bestimmen den Blickwinkel, die Knöpfe würden Bild und Text auseinanderbringen */
+body.mobile.mstep .mviews {
+  display: none !important;
+}
 .mtop {
   position: absolute;
   z-index: 4;
