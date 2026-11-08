@@ -325,7 +325,7 @@
               <p class="mpval mpsd" id="mpShow">–</p>
             </div>
             <div>
-              <p class="mplbl" data-en="Your clock">Ihre Uhr</p>
+              <p class="mplbl" id="mpClockLbl">Ihre Uhr</p>
               <p class="mpval"><span id="mpClock">–</span> <span class="mptz" id="mpTz">MEZ</span></p>
             </div>
           </div>
@@ -406,36 +406,36 @@
             ></span
           ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
         </button>
+        <button class="mdgo" data-go="views">
+          <span
+            ><b data-en="All views">Alle Ansichten</b
+            ><span data-en="21 views outside, inside and into the sky – light and shadow at any time"
+              >21 Blicke außen, innen und in den Himmel – Licht und Schatten zu jeder Zeit</span
+            ></span
+          ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+        </button>
         <p class="mdgrp" data-en="On a computer">Am Computer</p>
-        <p data-en="On a large screen the model shows the whole church – inside and out, by day and by night.">
-          Auf dem großen Bildschirm zeigt das Modell die ganze Kirche – innen und außen, bei Tag und Nacht.
+        <p
+          class="mdpc"
+          data-en="Quiz, four experiments, the light calendar of the windows and the astronomical clock in detail."
+        >
+          Quiz, vier Experimente, der Lichtkalender der Fenster und die Astronomische Uhr im Detail.
         </p>
-        <ul class="mdlist">
-          <li>
-            <b data-en="Interiors and windows">Innenräume und Fenster</b
-            ><span data-en="When does sunlight fall through which window?"
-              >Wann fällt Sonnenlicht durch welches Fenster?</span
-            >
-          </li>
-          <li>
-            <b data-en="Astronomical clock in detail">Astronomische Uhr im Detail</b
-            ><span data-en="Dials, hands and moon phase explained">Zifferblätter, Zeiger und Mondphase erklärt</span>
-          </li>
-          <li>
-            <b data-en="4 experiments and a quiz">4 Experimente und ein Quiz</b
-            ><span data-en="Shadow lengths, equation of time, light calendar"
-              >Schattenlängen, Zeitgleichung, Lichtkalender</span
-            >
-          </li>
-          <li>
-            <b data-en="All 21 views">Alle 21 Ansichten</b
-            ><span data-en="up to the whole old town island">bis zur ganzen Altstadtinsel</span>
-          </li>
-        </ul>
         <button class="btn msend" id="sendLink" data-en="Send me the link">Link an mich senden</button>
         <p class="small" data-en="The link opens the same day and time on the computer.">
           Der Link öffnet am Computer denselben Tag und dieselbe Uhrzeit.
         </p>
+      </section>
+      <section class="mdesk" id="mvsel" hidden role="dialog" aria-modal="true" aria-labelledby="mvH">
+        <button class="mback" id="mvBack">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg
+          ><span data-en="Back">Zurück</span>
+        </button>
+        <h2 id="mvH" data-en="All views">Alle Ansichten</h2>
+        <p data-en="Below you set date and time – and watch light and shadow in each view.">
+          Unten stellen Sie Datum und Uhrzeit ein – und sehen in jeder Ansicht Licht und Schatten.
+        </p>
+        <div class="mvlist" id="mvList"></div>
       </section>
 
       <section class="card" id="card-sun" hidden aria-label="Sonnenstand" data-en-aria="Sun">

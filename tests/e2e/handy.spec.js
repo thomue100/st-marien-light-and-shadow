@@ -105,9 +105,8 @@ test('Mehr entdecken: Dachreiter und Uhr auf dem Handy, was es am Computer gibt,
   await openApp(page, { hash: MAI });
   await page.locator('#mpMore').tap();
   await expect(page.locator('#mdesk')).toBeVisible();
-  await expect(page.locator('#mdesk .mdlist li')).toHaveCount(4);
   await expect(page.locator('#sendLink')).toBeVisible();
-  await expect(page.locator('#mdesk button')).toHaveCount(5); // Zurück, Rundgang, Dachreiter, Uhr, Link senden
+  await expect(page.locator('#mdesk button')).toHaveCount(6); // Zurück, Rundgang, Dachreiter, Uhr, Ansichten, Link senden
   await expect(page.locator('#mvExtra')).toBeHidden();
   await page.locator('#mdBack').tap();
   await expect(page.locator('#mdesk')).toBeHidden();

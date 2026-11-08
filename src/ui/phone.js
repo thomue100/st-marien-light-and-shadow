@@ -71,10 +71,24 @@ setSdHook(sdRead);
 
 // zusätzliche Blickwinkel aus „Mehr entdecken“: erscheinen als vierter Knopf, sobald man einen gewählt hat
 const EXTRA = { dachreiter: ['Dachreiter', 'Ridge turret'], uhr: ['Uhr', 'Clock'] };
+const STD = ['sonnenuhr', 'sued', 'himmel']; // die drei festen Blickwinkel
+/** vierten Knopf setzen (v leer: entfernen); de/en: Beschriftung */
+function setExtra(v, de, en) {
+  const xb = $('#mvExtra');
+  xb.dataset.mv = v || '';
+  xb.dataset.lde = de || '';
+  xb.dataset.len = en || '';
+  xb.hidden = !v;
+  if (!v) xb.textContent = '';
+}
 function syncViews() {
   const xb = $('#mvExtra');
-  if (xb.dataset.mv) xb.textContent = tr(...EXTRA[xb.dataset.mv]);
+  if (xb.dataset.mv) xb.textContent = tr(xb.dataset.lde, xb.dataset.len);
   body.classList.toggle('mv-sd', !state.pano && state.view === 'sonnenuhr'); // Nahansicht: ohne Beschriftung
+  // Sonnenuhr-Werte nur, wo man die Sonnenuhr sieht (Zifferblatt, Kirche); sonst nur Datum und Uhrzeit
+  const sdCtx = !state.pano && (state.view === 'sonnenuhr' || state.view === 'sued');
+  body.classList.toggle('mp-sd', sdCtx);
+  $('#mpClockLbl').textContent = sdCtx ? tr('Ihre Uhr', 'Your clock') : tr('Uhrzeit', 'Time');
   for (const b of document.querySelectorAll('#mviews button'))
     b.setAttribute(
       'aria-pressed',
@@ -320,10 +334,7 @@ export function showStart(on) {
     if (ms.i !== null) stepsEnd();
     if (tour.i !== null) tourEnd();
     // zurück auf der Startseite: der zusätzliche Blickwinkel (Dachreiter, Uhr) verschwindet wieder
-    const xb = $('#mvExtra');
-    xb.hidden = true;
-    xb.dataset.mv = '';
-    xb.textContent = '';
+    setExtra('');
     // Startseite immer mit besonntem Zifferblatt: 21. Juni, 12:00 (sonst ist das Bild abends und im Winter dunkel)
     setPlaying(false);
     setDate(state.y, 5, 21);
@@ -346,30 +357,64 @@ const openDesk = on => {
   if (on) $('#mdBack').focus();
 };
 $('#mpMore').addEventListener('click', () => openDesk(true));
+/** einen Blickwinkel aus „Mehr entdecken“ oder „Alle Ansichten“ öffnen; now: auf heute, jetzt stellen */
+function openView(v, de, en, now) {
+  openDesk(false);
+  $('#mvsel').hidden = true;
+  if (ms.i !== null) stepsEnd();
+  showStart(false);
+  setPlaying(false);
+  if (now) $('#nowBtn').click(); // heute, jetzt – zum Vergleich mit dem Blick vor Ort
+  goView(v);
+  gesture(v);
+  setExtra(STD.includes(v) ? '' : v, de, en);
+  syncViews();
+}
 for (const b of document.querySelectorAll('.mdgo'))
   b.addEventListener('click', () => {
-    const v = b.dataset.go,
-      xb = $('#mvExtra');
-    openDesk(false);
-    if (ms.i !== null) stepsEnd();
-    showStart(false);
+    const v = b.dataset.go;
     if (v === 'tour') {
-      xb.hidden = true;
-      xb.dataset.mv = '';
+      openDesk(false);
+      if (ms.i !== null) stepsEnd();
+      showStart(false);
+      setExtra('');
       return tourGo(0); // Rundgang: Bild oben, Text unten in der Anzeige
     }
-    setPlaying(false);
-    $('#nowBtn').click(); // heute, jetzt – zum Vergleich mit dem Blick vor Ort
-    goView(v);
-    gesture(v);
-    xb.dataset.mv = v;
-    xb.hidden = false;
-    syncViews();
+    if (v === 'views') {
+      $('#mvsel').hidden = false;
+      $('#mvBack').focus();
+      return;
+    }
+    openView(v, ...EXTRA[v], true);
   });
+// „Alle Ansichten“: dieselbe Gliederung wie das Ansichtsmenü am Desktop
+{
+  const list = $('#mvList');
+  let grp = null;
+  for (const el of $('#views').querySelectorAll('.vgroup, [data-view]')) {
+    if (el.classList.contains('vgroup')) {
+      grp = document.createElement('div');
+      grp.className = 'mvgrp';
+      const h = el.cloneNode(true);
+      h.className = 'mdgrp';
+      grp.appendChild(h);
+      list.appendChild(grp);
+      continue;
+    }
+    const b = el.cloneNode(true);
+    b.removeAttribute('role');
+    b.className = 'mvbtn';
+    b.addEventListener('click', () => openView(b.dataset.view, b.dataset.de || b.textContent, b.dataset.en, false));
+    grp.appendChild(b);
+  }
+  $('#mvBack').addEventListener('click', () => ($('#mvsel').hidden = true));
+}
 $('#msDesk').addEventListener('click', () => openDesk(true));
 $('#mdBack').addEventListener('click', () => openDesk(false));
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && !desk.hidden) openDesk(false);
+  if (e.key !== 'Escape') return;
+  if (!$('#mvsel').hidden) $('#mvsel').hidden = true;
+  else if (!desk.hidden) openDesk(false);
 });
 $('#sendLink').addEventListener('click', async () => {
   // Link auf den aktuellen Stand, um ihn am Computer zu öffnen: Teilen-Menü des Handys, sonst in die Zwischenablage
