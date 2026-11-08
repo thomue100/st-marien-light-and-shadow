@@ -6,7 +6,7 @@ import { $, clamp01 } from '../core/util.js';
 import { LANG, tr } from '../core/i18n.js';
 import { HR } from '../model/measures.js';
 import { cur, state, sunVec } from '../state.js';
-import { camera, coarse, lowEnd, renderer, requestRender, scene } from './renderer.js';
+import { camera, coarse, lowEnd, renderer, requestPanoView, requestRender, scene } from './renderer.js';
 import { CLK } from '../model/clock.js';
 import { SD, sdX, sdZ } from '../model/sundial.js';
 import { envGroup, envH, envHeightAt, farBuildings } from '../model/environment.js';
@@ -163,6 +163,10 @@ export function applyMode(mode, minD, walk) {
 // als natürliche Bögen sichtbar. Standpunkt: 140 m hoch, 170 m von der Kirche entfernt auf der den Bahnen abgewandten Seite,
 // damit die Kirche unten im Bild liegt und nichts den Himmel verdeckt.
 const cubeRT = new THREE.WebGLCubeRenderTarget(lowEnd ? 512 : coarse ? 768 : 1280, {
+  format: THREE.RGBAFormat, // Gleitkomma-Ziele gibt es nur mit Alphakanal (sonst stellt three.js mit Warnung um)
+  // dieselbe Farbkodierung wie der Bildschirm: so verwendet die Würfelkarte dieselben Shader wie die übrigen Ansichten,
+  // statt beim ersten Öffnen der Himmelsansicht alle Materialien ein zweites Mal übersetzen zu lassen (dauerte Sekunden)
+  encoding: THREE.sRGBEncoding,
   type: THREE.HalfFloatType,
   generateMipmaps: false,
   minFilter: THREE.LinearFilter,
@@ -188,8 +192,7 @@ const panoMat = new THREE.ShaderMaterial({
   void main(){ float az=radians(uAz+(gl_FragCoord.x-0.5*uW)/uKx), el=radians(clamp(uElB+(gl_FragCoord.y-uYB)/uKy,-89.9,89.9)), b=radians(uAxis);
     float E=cos(el)*sin(az), N=cos(el)*cos(az), U=sin(el);
     vec3 d=vec3(E*sin(b)+N*cos(b),U,E*cos(b)-N*sin(b));
-    gl_FragColor=vec4(textureCube(uCube,d).rgb,1.0);
-    #include <encodings_fragment>
+    gl_FragColor=vec4(textureCube(uCube,d).rgb,1.0); // Würfelkarte ist schon sRGB-kodiert
   }`,
 });
 export const panoScene = new THREE.Scene(),
@@ -455,7 +458,7 @@ renderer.domElement.addEventListener('pointermove', e => {
   PANO.az = (PANO.az - dx / PANO.kx + 360) % 360;
   PANO.elB = Math.max(-70, Math.min(20, PANO.elB + dy / PANO.ky));
   panoUniforms();
-  requestRender();
+  requestPanoView();
 });
 const panoUp = e => {
   panoPts.delete(e.pointerId);
@@ -471,7 +474,7 @@ function panoZoom(f) {
   PANO.kx = Math.max(g.W / 360, Math.min(40, PANO.kx * f));
   PANO.ky = Math.max(1, Math.min(40, PANO.ky * f));
   panoUniforms();
-  requestRender();
+  requestPanoView();
 }
 // Blick zur Sonne / zum Mond (wie „Objekt zentrieren“ in Planetariumsprogrammen): Die Kamera fährt auf die dem
 // Himmelskörper abgewandte Seite der Kirche, etwas über die Dächer, und blickt in seine Richtung. Die Kirche steht dann im

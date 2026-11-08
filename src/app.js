@@ -13,11 +13,11 @@ import { $, lsGet } from './core/util.js';
 import { fmtDeg, pad2, tr } from './core/i18n.js';
 import { AXIS_MEASURED } from './model/measures.js';
 import { cur, state } from './state.js';
-import { camera, renderer, requestRender, scene, stage, takeDirty } from './scene/renderer.js';
+import { camera, renderer, requestRender, scene, stage, takeDirty, takeSceneDirty } from './scene/renderer.js';
 import { clk, clockUpdate } from './model/clock.js';
 import { applyEnv } from './model/environment.js';
 import { sdDrawPlate, sdOrient } from './model/sundial.js';
-import { pathGroup, placeMoon, placeMoonAt, sky, skyMat, stars } from './light/sky.js';
+import { pathGroup, placeMoon, placeMoonAt, sky, skyEnc, skyMat, stars } from './light/sky.js';
 import { eclObsc, moonStr, updateSun, useMoon } from './light/sun.js';
 import {
   busyHide,
@@ -112,6 +112,7 @@ function loop(now) {
   }
   if (takeDirty()) renderFrame();
 }
+const fogKeep = new THREE.Color();
 export function renderFrame() {
   sky.position.copy(camera.position);
   stars.position.copy(camera.position);
@@ -119,11 +120,22 @@ export function renderFrame() {
   if (state.pano) {
     placeMoonAt();
     pathGroup.visible = false;
-    cubeCam.position.copy(camera.position);
-    renderer.shadowMap.autoUpdate = false;
-    renderer.shadowMap.needsUpdate = true; // Schatten nur einmal je Bild
-    cubeCam.update(renderer, scene);
-    renderer.shadowMap.autoUpdate = true;
+    // Würfelkarte (6 Seiten samt Schatten) nur neu, wenn sich die Szene geändert hat – beim Ziehen und Zoomen
+    // ändert sich nur der Ausschnitt, den das Panorama aus ihr zeigt
+    if (takeSceneDirty() || !cubeCam.position.equals(camera.position)) {
+      cubeCam.position.copy(camera.position);
+      renderer.shadowMap.autoUpdate = false;
+      renderer.shadowMap.needsUpdate = true; // Schatten nur einmal je Bild
+      // three.js mischt den Dunst erst nach der sRGB-Umrechnung ein: Dunstfarbe für die Würfelkarte ebenfalls umrechnen,
+      // damit der Horizont aussieht wie zuvor
+      fogKeep.copy(scene.fog.color);
+      scene.fog.color.convertLinearToSRGB();
+      skyEnc.value = 1;
+      cubeCam.update(renderer, scene);
+      skyEnc.value = 0;
+      scene.fog.color.copy(fogKeep);
+      renderer.shadowMap.autoUpdate = true;
+    }
     renderer.render(panoScene, panoCam);
     pathGroup.visible = true;
     if (busyState.hideOnPano) {
