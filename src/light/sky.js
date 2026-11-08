@@ -35,6 +35,11 @@ scene.add(sun);
 scene.add(sun.target);
 export const hemi = new THREE.HemisphereLight(0xbcd4ee, 0x6a5848, 0.6);
 scene.add(hemi);
+// Himmelsansicht: Die Würfelkarte ist sRGB-kodiert wie der Bildschirm (gleiche Shader, kein zweites Übersetzen). Die
+// eigenen Shader von Himmel, Mond und Sternen kodieren nicht selbst; beim Rendern der Würfelkarte (uEnc = 1) tun sie es,
+// damit die Himmelsansicht aussieht wie zuvor, als der Panorama-Shader das am Ende für alle übernahm.
+export const skyEnc = { value: 0 };
+const ENC = 'if(uEnc>0.5) gl_FragColor=LinearTosRGB(gl_FragColor);';
 export const skyMat = new THREE.ShaderMaterial({
   side: THREE.BackSide,
   depthWrite: false,
@@ -50,16 +55,17 @@ export const skyMat = new THREE.ShaderMaterial({
     uOccC: { value: 1 },
     uEcl: { value: 0 },
     uGlow: { value: 1 },
+    uEnc: skyEnc,
   },
   vertexShader:
     'varying vec3 vD; void main(){ vD=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
-  fragmentShader: `uniform vec3 uL,uZen,uHor,uGnd,uSun,uOcc; uniform float uVis,uOccC,uEcl,uGlow; varying vec3 vD;
+  fragmentShader: `uniform vec3 uL,uZen,uHor,uGnd,uSun,uOcc; uniform float uVis,uOccC,uEcl,uGlow,uEnc; varying vec3 vD;
   void main(){ vec3 d=normalize(vD); float h=d.y; vec3 c= h>0.0 ? mix(uHor,uZen,pow(h,0.5)) : mix(uHor,uGnd,pow(min(-h*5.0,1.0),0.5));
     float s=max(dot(d,normalize(uL)),0.0);
     c+=uSun*(pow(s,10.0)*0.28+pow(s,300.0)*0.7)*uVis*step(-0.02,h)*uGlow;
     float occ=uEcl*smoothstep(uOccC-0.000004,uOccC+0.000004,dot(d,uOcc));   // Sonnenfinsternis: dunkle Mondscheibe vor der Sonne
     c=mix(c,vec3(1.0,0.97,0.88),smoothstep(0.99982,0.99992,s)*uVis*(1.0-occ));
-    gl_FragColor=vec4(c,1.0); }`,
+    gl_FragColor=vec4(c,1.0); ${ENC} }`,
 });
 export const sky = new THREE.Mesh(new THREE.SphereGeometry(2000, 48, 24), skyMat);
 sky.frustumCulled = false;
@@ -193,10 +199,11 @@ export const moonMat = new THREE.ShaderMaterial({
     uShU: { value: 0 },
     uShP: { value: 0 },
     uShOn: { value: 0 },
+    uEnc: skyEnc,
   },
   vertexShader:
     'varying vec2 vP; void main(){ vP=position.xy*2.0; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
-  fragmentShader: `uniform sampler2D uTex; uniform vec3 uSun,uX,uY,uZ; uniform float uDay,uLow,uShU,uShP,uShOn; uniform vec2 uShC; varying vec2 vP;
+  fragmentShader: `uniform sampler2D uTex; uniform vec3 uSun,uX,uY,uZ; uniform float uDay,uLow,uShU,uShP,uShOn,uEnc; uniform vec2 uShC; varying vec2 vP;
   void main(){ float r2=dot(vP,vP); if(r2>1.0) discard;
     vec3 n=normalize(vP.x*uX+vP.y*uY+sqrt(1.0-r2)*uZ);
     float l=smoothstep(-0.02,0.05,dot(n,normalize(uSun)));
@@ -207,7 +214,7 @@ export const moonMat = new THREE.ShaderMaterial({
       float deep=clamp((uShU-dd)/max(uShU,0.01),0.0,1.0); vec3 cu=t*mix(vec3(0.62,0.2,0.08)*0.5,vec3(0.35,0.08,0.03)*0.3,deep);
       c=mix(cp,cu,1.0-smoothstep(uShU-0.05,uShU+0.03,dd)); }
     float a=mix(1.0,0.75,uDay)*smoothstep(1.0,0.94,r2);   // additiv: die Nachtseite lässt den Himmel durch
-    gl_FragColor=vec4(c*a,1.0); }`,
+    gl_FragColor=vec4(c*a,1.0); ${ENC} }`,
 });
 export const moonMesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), moonMat);
 moonMesh.matrixAutoUpdate = false;
@@ -328,11 +335,13 @@ export const starMat = new THREE.ShaderMaterial({
   transparent: true,
   depthWrite: false,
   fog: false,
-  uniforms: { uA: { value: 0 }, uPR: { value: renderer.getPixelRatio() } },
+  uniforms: { uA: { value: 0 }, uPR: { value: renderer.getPixelRatio() }, uEnc: skyEnc },
   vertexShader:
     'attribute float aMag; attribute float aVis; uniform float uA,uPR; varying float vA; void main(){ vA=aVis*uA*clamp(1.12-0.26*aMag,0.25,1.0); gl_PointSize=uPR*clamp(4.4-0.85*aMag,1.7,5.6); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
   fragmentShader:
-    'varying float vA; void main(){ float d=length(gl_PointCoord-0.5); if(d>0.5||vA<0.004) discard; gl_FragColor=vec4(vec3(1.0,0.97,0.92),vA*smoothstep(0.5,0.12,d)); }',
+    'uniform float uEnc; varying float vA; void main(){ float d=length(gl_PointCoord-0.5); if(d>0.5||vA<0.004) discard; gl_FragColor=vec4(vec3(1.0,0.97,0.92),vA*smoothstep(0.5,0.12,d)); ' +
+    ENC +
+    ' }',
 });
 export const stars = new THREE.Points(starGeo, starMat);
 stars.frustumCulled = false;

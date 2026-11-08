@@ -73,9 +73,21 @@ export const camera = new THREE.PerspectiveCamera(55, 1, 0.2, 5000);
 export const cutPlane = new THREE.Plane(new V3(0, -1, 0), 200);
 export const maxAniso = renderer.capabilities.getMaxAnisotropy();
 // Bild neu zeichnen, sobald sich etwas geändert hat (die Render-Schleife in app.js fragt den Merker ab)
-let dirty = true;
+let dirty = true,
+  sceneDirty = true;
 export function requestRender() {
   dirty = true;
+  sceneDirty = true;
+}
+/** Himmelsansicht: nur der Ausschnitt hat sich geändert (Ziehen, Zoomen) – die Würfelkarte bleibt, wie sie ist */
+export function requestPanoView() {
+  dirty = true;
+}
+/** Muss die Würfelkarte der Himmelsansicht neu gerendert werden? (setzt den Merker zurück) */
+export function takeSceneDirty() {
+  const d = sceneDirty;
+  sceneDirty = false;
+  return d;
 }
 export function takeDirty() {
   const d = dirty;
