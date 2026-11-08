@@ -619,7 +619,7 @@ export const typeColor = [
   [1, 1, 1],
 ].map(c => new THREE.Color(c[0], c[1], c[2]));
 function imgColor(img) {
-  const cg = ccCanvas.getContext('2d', { willReadFrequently: true }); // wird je Fensterfoto ausgelesen
+  const cg = ccCanvas.getContext('2d');
   cg.clearRect(0, 0, 8, 32);
   cg.drawImage(img, 0, 0, 8, 32);
   const d = cg.getImageData(0, 0, 8, 32).data;
