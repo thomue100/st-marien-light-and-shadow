@@ -336,6 +336,7 @@ export function stepsGo(i, from) {
   showStart(false);
   ms.i = i;
   steps.hidden = false;
+  body.classList.add('mstep');
   $('#mpMain').hidden = true;
   STEPS[i].go(from);
   stepRender();
@@ -344,6 +345,7 @@ function stepsEnd() {
   ms.i = null;
   setPlaying(false);
   steps.hidden = true;
+  body.classList.remove('mstep');
   $('#mpMain').hidden = false;
 }
 $('#msPrev').addEventListener('click', () => (ms.i ? stepsGo(ms.i - 1, ms.i) : stepsEnd()));
@@ -384,14 +386,13 @@ const openDesk = on => {
   if (on) $('#mdBack').focus();
 };
 $('#mpMore').addEventListener('click', () => openDesk(true));
-/** einen Blickwinkel aus „Mehr entdecken“ oder „Alle Ansichten“ öffnen; now: auf heute, jetzt stellen */
-function openView(v, de, en, now, fromList) {
+/** einen Blickwinkel aus „Mehr entdecken“ oder „Alle Ansichten“ öffnen; die eingestellte Zeit bleibt */
+function openView(v, de, en, fromList) {
   openDesk(false);
   $('#mvsel').hidden = true;
   if (ms.i !== null) stepsEnd();
   showStart(false);
   setPlaying(false);
-  if (now) $('#nowBtn').click(); // heute, jetzt – zum Vergleich mit dem Blick vor Ort
   goView(v);
   gesture(v);
   // aus der Liste eine der festen Ansichten gewählt: der vierte Knopf führt als „Ansichten ▾“ zurück zur Liste
@@ -414,7 +415,7 @@ for (const b of document.querySelectorAll('.mdgo'))
       $('#mvBack').focus();
       return;
     }
-    openView(v, ...EXTRA[v], true);
+    openView(v, ...EXTRA[v]);
   });
 // „Alle Ansichten“: dieselbe Gliederung wie das Ansichtsmenü am Desktop
 {
@@ -433,9 +434,7 @@ for (const b of document.querySelectorAll('.mdgo'))
     const b = el.cloneNode(true);
     b.removeAttribute('role');
     b.className = 'mvbtn';
-    b.addEventListener('click', () =>
-      openView(b.dataset.view, b.dataset.de || b.textContent, b.dataset.en, false, true),
-    );
+    b.addEventListener('click', () => openView(b.dataset.view, b.dataset.de || b.textContent, b.dataset.en, true));
     grp.appendChild(b);
   }
   $('#mvBack').addEventListener('click', () => ($('#mvsel').hidden = true));

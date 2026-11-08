@@ -6,7 +6,7 @@ import { fmtT, LANG, tr, tzN } from '../core/i18n.js';
 import { state } from '../state.js';
 import { clockUpdate } from '../model/clock.js';
 import { goView } from '../scene/camera.js';
-import { setDate, setPlaying } from './controls.js';
+import { setDate, setMinutes, setPlaying } from './controls.js';
 import { yearStop, yr } from './year.js';
 import { introExplore, menuOpen, openCard } from './panels.js';
 import { quiz, quizEnd, quizStart } from './quiz.js';
@@ -263,7 +263,13 @@ $('#tourChoice').addEventListener('click', e => {
     $('#mpMore').click(); // Handy: Seite „Mehr entdecken“
   } else {
     tourEnd();
-    const v = document.body.classList.contains('mobile') ? 'sonnenuhr' : 'sued';
+    const mob = document.body.classList.contains('mobile'),
+      v = mob ? 'sonnenuhr' : 'sued';
+    if (mob) {
+      // Handy: wie die Startseite mit besonntem Zifferblatt beginnen, nicht mit der (vielleicht nächtlichen) Zeit der letzten Station
+      setDate(state.y, 5, 21);
+      setMinutes(12 * 60);
+    }
     if (state.view !== v) goView(v);
   }
 });
