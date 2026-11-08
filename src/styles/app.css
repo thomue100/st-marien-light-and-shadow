@@ -3033,3 +3033,69 @@ body.mobile:not(.mp-sd) .mpquick [data-q='full'] {
   line-height: 1.25;
   text-align: left;
 }
+/* Handy: Anzeige einklappen (Knopf oben rechts in der Anzeige) */
+.mpfold {
+  position: absolute;
+  z-index: 1;
+  top: 6px;
+  right: 8px;
+  width: 40px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(38, 28, 22, 0.07);
+  color: var(--ink);
+}
+.mpfold svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.2s;
+}
+body.mpfold .mpfold svg {
+  transform: rotate(180deg);
+}
+body.touring .mpfold,
+.mpanel:has(.msteps:not([hidden])) .mpfold {
+  display: none;
+}
+body.mobile.mpfold .mpread > div:first-child,
+body.mobile.mpfold .mpdiff,
+body.mobile.mpfold .mpquick,
+body.mobile.mpfold .mpmore,
+body.mobile.mpfold .tb-date,
+body.mobile.mpfold #chart {
+  display: none !important;
+}
+body.mobile.mpfold .mpread {
+  grid-template-columns: 1fr;
+}
+body.mobile.mpfold .mpread .mplbl {
+  display: none;
+}
+body.mobile.mpfold .mpval {
+  font-size: 22px;
+}
+body.mobile.mpfold .tb-main {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'track play';
+  align-items: center;
+}
+body.mobile.mpfold .tb-track {
+  height: 36px;
+}
+body.mobile.mpfold .mpanel {
+  padding-top: 8px;
+}
+/* der vierte Knopf zeigt, dass ein erneutes Tippen die Liste öffnet */
+#mvExtra[aria-pressed='true']::after {
+  content: ' ▾';
+}

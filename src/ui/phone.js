@@ -81,8 +81,13 @@ function setExtra(v, de, en) {
   xb.hidden = !v;
   if (!v) xb.textContent = '';
 }
-function syncViews() {
+export function syncViews() {
   const xb = $('#mvExtra');
+  // über einen Link oder nach einem abgebrochenen Rundgang in einer anderen Ansicht: als vierten Knopf zeigen
+  if (state.view && !state.pano && !STD.includes(state.view) && xb.dataset.mv !== state.view) {
+    const mb = document.querySelector('#views [data-view="' + state.view + '"]');
+    if (mb) setExtra(state.view, mb.dataset.de || mb.textContent.trim(), mb.dataset.en);
+  }
   if (xb.dataset.mv) xb.textContent = tr(xb.dataset.lde, xb.dataset.len);
   body.classList.toggle('mv-sd', !state.pano && state.view === 'sonnenuhr'); // Nahansicht: ohne Beschriftung
   // Sonnenuhr-Werte nur, wo man die Sonnenuhr sieht (Zifferblatt, Kirche); sonst nur Datum und Uhrzeit
@@ -97,6 +102,12 @@ function syncViews() {
 }
 for (const b of document.querySelectorAll('#mviews button'))
   b.addEventListener('click', () => {
+    // vierter Knopf schon gewählt: erneutes Tippen öffnet „Alle Ansichten“, um eine andere zu wählen
+    if (b.id === 'mvExtra' && b.getAttribute('aria-pressed') === 'true') {
+      $('#mvsel').hidden = false;
+      $('#mvBack').focus();
+      return;
+    }
     goView(b.dataset.mv);
     gesture(b.dataset.mv);
     // die Himmelsansicht wird beim ersten Mal erst vorbereitet: Auswahl sofort zeigen, danach am Zustand abgleichen
@@ -160,6 +171,21 @@ renderer.domElement.addEventListener('pointerdown', () => {
   nudgeOn = false; // wer selbst dreht, braucht keinen Schwenk und keinen Hinweis mehr
   gestHide();
 });
+
+/* ---------------- Anzeige einklappen: mehr Platz für das Bild ---------------- */
+
+// Eingeklappt bleiben Uhrzeit, Schieber und Abspielen; Datum, Sonnenuhr-Werte und Schnellwahl kommen mit ▴ zurück.
+function setFold(on) {
+  body.classList.toggle('mpfold', on);
+  const b = $('#mpFold');
+  b.setAttribute('aria-expanded', String(!on));
+  b.setAttribute(
+    'aria-label',
+    on ? tr('Anzeige ausklappen', 'Expand panel') : tr('Anzeige einklappen', 'Collapse panel'),
+  );
+  requestRender();
+}
+$('#mpFold').addEventListener('click', () => setFold(!body.classList.contains('mpfold')));
 
 /* ---------------- Schnellwahl ---------------- */
 
@@ -327,6 +353,7 @@ $('#mpWhy').addEventListener('click', () => stepsGo(1));
 /* ---------------- Startseite und „Mehr am Computer“ ---------------- */
 
 export function showStart(on) {
+  if (on) setFold(false);
   start.hidden = !on;
   panel.hidden = on;
   sizeVars();
