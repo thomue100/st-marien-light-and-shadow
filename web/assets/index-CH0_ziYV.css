@@ -2586,6 +2586,7 @@ body.mobile .joy {
   color: var(--muted);
 }
 .mpval {
+  white-space: nowrap;
   font-family: var(--f-mono);
   font-size: 32px;
   font-weight: 500;
@@ -3216,6 +3217,37 @@ body.mobile.mpfold .mpanel {
   padding-top: 8px;
 }
 /* der vierte Knopf zeigt, dass ein erneutes Tippen die Liste öffnet */
+#mvExtra[data-mv='list']::after,
 #mvExtra[aria-pressed='true']::after {
   content: ' ▾';
+}
+/* „Alle Ansichten“ kompakt: alle drei Gruppen auf einen Blick */
+#mvsel {
+  gap: 8px;
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+}
+.mvhead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mvhead h2 {
+  font-size: 20px;
+}
+#mvsel .mvlist {
+  gap: 2px;
+}
+#mvsel .mvgrp {
+  gap: 5px;
+}
+#mvsel .mvgrp .mdgrp {
+  margin: 6px 0 0;
+  font-size: 11px;
+}
+#mvsel .mvbtn {
+  min-height: 36px;
+  padding: 5px 10px;
+  border-radius: 9px;
+  font-size: 14px;
+  line-height: 1.2;
 }
