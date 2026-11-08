@@ -12,7 +12,7 @@ import { useMoon } from '../light/sun.js';
 import { controls, goView, tween, VIEWS } from '../scene/camera.js';
 import { setDate, setMinutes, setPlaying } from './controls.js';
 import { openCard, setFree } from './panels.js';
-import { tour, tourEnd } from './tour.js';
+import { tour, tourEnd, tourGo } from './tour.js';
 import { quiz, quizEnd } from './quiz.js';
 import { updateShare } from './share.js';
 
@@ -71,10 +71,29 @@ setSdHook(sdRead);
 
 // zusätzliche Blickwinkel aus „Mehr entdecken“: erscheinen als vierter Knopf, sobald man einen gewählt hat
 const EXTRA = { dachreiter: ['Dachreiter', 'Ridge turret'], uhr: ['Uhr', 'Clock'] };
-function syncViews() {
+const STD = ['sonnenuhr', 'sued', 'himmel']; // die drei festen Blickwinkel
+/** vierten Knopf setzen (v leer: entfernen); de/en: Beschriftung */
+function setExtra(v, de, en) {
   const xb = $('#mvExtra');
-  if (xb.dataset.mv) xb.textContent = tr(...EXTRA[xb.dataset.mv]);
+  xb.dataset.mv = v || '';
+  xb.dataset.lde = de || '';
+  xb.dataset.len = en || '';
+  xb.hidden = !v;
+  if (!v) xb.textContent = '';
+}
+export function syncViews() {
+  const xb = $('#mvExtra');
+  // über einen Link oder nach einem abgebrochenen Rundgang in einer anderen Ansicht: als vierten Knopf zeigen
+  if (state.view && !state.pano && !STD.includes(state.view) && xb.dataset.mv !== state.view) {
+    const mb = document.querySelector('#views [data-view="' + state.view + '"]');
+    if (mb) setExtra(state.view, mb.dataset.de || mb.textContent.trim(), mb.dataset.en);
+  }
+  if (xb.dataset.mv) xb.textContent = tr(xb.dataset.lde, xb.dataset.len);
   body.classList.toggle('mv-sd', !state.pano && state.view === 'sonnenuhr'); // Nahansicht: ohne Beschriftung
+  // Sonnenuhr-Werte nur, wo man die Sonnenuhr sieht (Zifferblatt, Kirche); sonst nur Datum und Uhrzeit
+  const sdCtx = !state.pano && (state.view === 'sonnenuhr' || state.view === 'sued');
+  body.classList.toggle('mp-sd', sdCtx);
+  $('#mpClockLbl').textContent = sdCtx ? tr('Ihre Uhr', 'Your clock') : tr('Uhrzeit', 'Time');
   for (const b of document.querySelectorAll('#mviews button'))
     b.setAttribute(
       'aria-pressed',
@@ -83,6 +102,12 @@ function syncViews() {
 }
 for (const b of document.querySelectorAll('#mviews button'))
   b.addEventListener('click', () => {
+    // vierter Knopf schon gewählt: erneutes Tippen öffnet „Alle Ansichten“, um eine andere zu wählen
+    if (b.id === 'mvExtra' && b.getAttribute('aria-pressed') === 'true') {
+      $('#mvsel').hidden = false;
+      $('#mvBack').focus();
+      return;
+    }
     goView(b.dataset.mv);
     gesture(b.dataset.mv);
     // die Himmelsansicht wird beim ersten Mal erst vorbereitet: Auswahl sofort zeigen, danach am Zustand abgleichen
@@ -146,6 +171,21 @@ renderer.domElement.addEventListener('pointerdown', () => {
   nudgeOn = false; // wer selbst dreht, braucht keinen Schwenk und keinen Hinweis mehr
   gestHide();
 });
+
+/* ---------------- Anzeige einklappen: mehr Platz für das Bild ---------------- */
+
+// Eingeklappt bleiben Uhrzeit, Schieber und Abspielen; Datum, Sonnenuhr-Werte und Schnellwahl kommen mit ▴ zurück.
+function setFold(on) {
+  body.classList.toggle('mpfold', on);
+  const b = $('#mpFold');
+  b.setAttribute('aria-expanded', String(!on));
+  b.setAttribute(
+    'aria-label',
+    on ? tr('Anzeige ausklappen', 'Expand panel') : tr('Anzeige einklappen', 'Collapse panel'),
+  );
+  requestRender();
+}
+$('#mpFold').addEventListener('click', () => setFold(!body.classList.contains('mpfold')));
 
 /* ---------------- Schnellwahl ---------------- */
 
@@ -292,6 +332,7 @@ function stepRender() {
   syncViews();
 }
 export function stepsGo(i, from) {
+  if (tour.i !== null) tourEnd();
   showStart(false);
   ms.i = i;
   steps.hidden = false;
@@ -312,16 +353,15 @@ $('#mpWhy').addEventListener('click', () => stepsGo(1));
 /* ---------------- Startseite und „Mehr am Computer“ ---------------- */
 
 export function showStart(on) {
+  if (on) setFold(false);
   start.hidden = !on;
   panel.hidden = on;
   sizeVars();
   if (on) {
     if (ms.i !== null) stepsEnd();
+    if (tour.i !== null) tourEnd();
     // zurück auf der Startseite: der zusätzliche Blickwinkel (Dachreiter, Uhr) verschwindet wieder
-    const xb = $('#mvExtra');
-    xb.hidden = true;
-    xb.dataset.mv = '';
-    xb.textContent = '';
+    setExtra('');
     // Startseite immer mit besonntem Zifferblatt: 21. Juni, 12:00 (sonst ist das Bild abends und im Winter dunkel)
     setPlaying(false);
     setDate(state.y, 5, 21);
@@ -344,25 +384,64 @@ const openDesk = on => {
   if (on) $('#mdBack').focus();
 };
 $('#mpMore').addEventListener('click', () => openDesk(true));
+/** einen Blickwinkel aus „Mehr entdecken“ oder „Alle Ansichten“ öffnen; now: auf heute, jetzt stellen */
+function openView(v, de, en, now) {
+  openDesk(false);
+  $('#mvsel').hidden = true;
+  if (ms.i !== null) stepsEnd();
+  showStart(false);
+  setPlaying(false);
+  if (now) $('#nowBtn').click(); // heute, jetzt – zum Vergleich mit dem Blick vor Ort
+  goView(v);
+  gesture(v);
+  setExtra(STD.includes(v) ? '' : v, de, en);
+  syncViews();
+}
 for (const b of document.querySelectorAll('.mdgo'))
   b.addEventListener('click', () => {
-    const v = b.dataset.go,
-      xb = $('#mvExtra');
-    openDesk(false);
-    if (ms.i !== null) stepsEnd();
-    showStart(false);
-    setPlaying(false);
-    $('#nowBtn').click(); // heute, jetzt – zum Vergleich mit dem Blick vor Ort
-    goView(v);
-    gesture(v);
-    xb.dataset.mv = v;
-    xb.hidden = false;
-    syncViews();
+    const v = b.dataset.go;
+    if (v === 'tour') {
+      openDesk(false);
+      if (ms.i !== null) stepsEnd();
+      showStart(false);
+      setExtra('');
+      return tourGo(0); // Rundgang: Bild oben, Text unten in der Anzeige
+    }
+    if (v === 'views') {
+      $('#mvsel').hidden = false;
+      $('#mvBack').focus();
+      return;
+    }
+    openView(v, ...EXTRA[v], true);
   });
+// „Alle Ansichten“: dieselbe Gliederung wie das Ansichtsmenü am Desktop
+{
+  const list = $('#mvList');
+  let grp = null;
+  for (const el of $('#views').querySelectorAll('.vgroup, [data-view]')) {
+    if (el.classList.contains('vgroup')) {
+      grp = document.createElement('div');
+      grp.className = 'mvgrp';
+      const h = el.cloneNode(true);
+      h.className = 'mdgrp';
+      grp.appendChild(h);
+      list.appendChild(grp);
+      continue;
+    }
+    const b = el.cloneNode(true);
+    b.removeAttribute('role');
+    b.className = 'mvbtn';
+    b.addEventListener('click', () => openView(b.dataset.view, b.dataset.de || b.textContent, b.dataset.en, false));
+    grp.appendChild(b);
+  }
+  $('#mvBack').addEventListener('click', () => ($('#mvsel').hidden = true));
+}
 $('#msDesk').addEventListener('click', () => openDesk(true));
 $('#mdBack').addEventListener('click', () => openDesk(false));
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && !desk.hidden) openDesk(false);
+  if (e.key !== 'Escape') return;
+  if (!$('#mvsel').hidden) $('#mvsel').hidden = true;
+  else if (!desk.hidden) openDesk(false);
 });
 $('#sendLink').addEventListener('click', async () => {
   // Link auf den aktuellen Stand, um ihn am Computer zu öffnen: Teilen-Menü des Handys, sonst in die Zwischenablage
@@ -410,9 +489,10 @@ export function applyPhone() {
     if (quiz.i !== null) quizEnd();
     setFree(false);
     openCard(null);
-    for (const el of [$('.timebar'), $('#langSeg')]) homes.push([el, el.parentNode, el.nextSibling]);
+    for (const el of [$('.timebar'), $('#langSeg'), $('#tour')]) homes.push([el, el.parentNode, el.nextSibling]);
     $('#mpTime').appendChild($('.timebar'));
     $('#mtop').appendChild($('#langSeg'));
+    panel.appendChild($('#tour')); // Rundgang: Text unten statt Karte über dem Bild
     if (start.hidden) panel.hidden = false;
   } else {
     for (const [el, p, n] of homes.reverse()) p.insertBefore(el, n);

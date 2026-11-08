@@ -2296,7 +2296,12 @@ body.mobile .freetoast,
 body.mobile .hint,
 body.mobile .night,
 body.mobile .panonote,
-body.mobile .tourcard,
+body.mobile .quizcard,
+body.mobile:not(.touring) #tour,
+body.mobile .tmore,
+body.mobile.touring .mviews,
+body.mobile.touring .mpmain,
+body.mobile.touring .msteps,
 body.mobile .yearnote,
 body.mobile .skymk,
 body.mobile .lbl:not(.lsd),
@@ -2945,4 +2950,152 @@ body.mobile #time::-moz-range-thumb {
   .mgest {
     animation: none;
   }
+}
+/* Handy: Rundgang als Text in der Anzeige unten, das Bild darüber bleibt frei */
+body.mobile #tour {
+  position: static;
+  width: auto;
+  max-height: none;
+  padding: 2px 0 0;
+  background: none;
+  box-shadow: none;
+  border: 0;
+  border-radius: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  overflow: visible;
+  gap: 6px;
+}
+body.mobile #tour .tstep {
+  font-size: 11.5px;
+}
+body.mobile #tour h3 {
+  font-size: 20px;
+}
+body.mobile #tour p {
+  font-size: 15.5px;
+  line-height: 1.4;
+}
+body.mobile #tour #tourText {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+body.mobile #tour .tbtns .chip,
+body.mobile #tour .tbtns .btn,
+body.mobile #tour .tchoice button {
+  min-height: 44px;
+  font-size: 16px;
+}
+/* Handy: außerhalb von Zifferblatt und Kirche nur Datum und Uhrzeit (ohne Sonnenuhr-Werte) */
+body.mobile:not(.mp-sd) .mpread > div:first-child,
+body.mobile:not(.mp-sd) .mpdiff,
+body.mobile:not(.mp-sd) .mpquick [data-q='full'] {
+  display: none;
+}
+#mvExtra {
+  max-width: 116px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Handy: „Alle Ansichten“ */
+.mdpc {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.mvlist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mvgrp {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.mvgrp .mdgrp {
+  grid-column: 1 / -1;
+  margin: 8px 0 0;
+}
+.mvbtn {
+  min-height: 46px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: 0 3px 10px rgba(20, 16, 12, 0.1);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.25;
+  text-align: left;
+}
+/* Handy: Anzeige einklappen (Knopf oben rechts in der Anzeige) */
+.mpfold {
+  position: absolute;
+  z-index: 1;
+  top: 6px;
+  right: 8px;
+  width: 40px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(38, 28, 22, 0.07);
+  color: var(--ink);
+}
+.mpfold svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.2s;
+}
+body.mpfold .mpfold svg {
+  transform: rotate(180deg);
+}
+body.touring .mpfold,
+.mpanel:has(.msteps:not([hidden])) .mpfold {
+  display: none;
+}
+body.mobile.mpfold .mpread > div:first-child,
+body.mobile.mpfold .mpdiff,
+body.mobile.mpfold .mpquick,
+body.mobile.mpfold .mpmore,
+body.mobile.mpfold .tb-date,
+body.mobile.mpfold #chart {
+  display: none !important;
+}
+body.mobile.mpfold .mpread {
+  grid-template-columns: 1fr;
+}
+body.mobile.mpfold .mpread .mplbl {
+  display: none;
+}
+body.mobile.mpfold .mpval {
+  font-size: 22px;
+}
+body.mobile.mpfold .tb-main {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'track play';
+  align-items: center;
+}
+body.mobile.mpfold .tb-track {
+  height: 36px;
+}
+body.mobile.mpfold .mpanel {
+  padding-top: 8px;
+}
+/* der vierte Knopf zeigt, dass ein erneutes Tippen die Liste öffnet */
+#mvExtra[aria-pressed='true']::after {
+  content: ' ▾';
 }

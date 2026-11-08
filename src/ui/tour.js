@@ -29,8 +29,8 @@ const TOUR = [
       "Welcome! The model shows St. Mary's Church and how sun and moon light it at any hour of the year. Drag with the mouse to turn the church, use the wheel to zoom. Set date and time in the bar at the bottom.",
     ],
     // Handy: Fingergesten statt Maus
-    deT: 'Willkommen! Das Modell zeigt die Marienkirche und wie Sonne und Mond sie zu jeder Stunde des Jahres beleuchten. Ziehen Sie mit einem Finger, um die Kirche zu drehen, mit zwei Fingern verschieben und zoomen Sie. Unten stellen Sie Datum und Uhrzeit ein.',
-    enT: "Welcome! The model shows St. Mary's Church and how sun and moon light it at any hour of the year. Drag with one finger to turn the church, use two fingers to move and zoom. Set date and time in the panel at the bottom.",
+    deT: 'Willkommen! Das Modell zeigt die Marienkirche und wie Sonne und Mond sie zu jeder Stunde des Jahres beleuchten. Ziehen Sie mit einem Finger, um die Kirche zu drehen, mit zwei Fingern verschieben und zoomen Sie. Mit „Weiter“ geht es zur nächsten Station.',
+    enT: "Welcome! The model shows St. Mary's Church and how sun and moon light it at any hour of the year. Drag with one finger to turn the church, use two fingers to move and zoom. “Next” takes you to the next stop.",
   },
   {
     m: 4,
@@ -131,8 +131,8 @@ const TOUR = [
       'What next?',
       'The model is back at today. Test yourself in a quiz with five tasks you solve in the model, try experiments on sun, sundial, light and moon – or explore on your own: on the right you find the panels, at the top “Explore” holds the quiz and experiments, next to it more views.',
     ],
-    deT: 'Das Modell zeigt wieder den heutigen Tag. Testen Sie Ihr Wissen in einem Quiz mit fünf Aufgaben, die Sie im Modell lösen – oder erkunden Sie selbst: Unten im Blatt finden Sie Sonne, Mond, Kirche und mehr, oben weitere Ansichten. Die Experimente machen am Computer oder Tablet am meisten Freude.',
-    enT: 'The model is back at today. Test yourself in a quiz with five tasks you solve in the model – or explore on your own: the panel at the bottom holds sun, moon, church and more, at the top you choose more views. The experiments work best on a computer or tablet.',
+    deT: 'Das Modell zeigt wieder den heutigen Tag. Probieren Sie die Sonnenuhr selbst aus: Unten lesen Sie sie ab und stellen Datum und Uhrzeit ein. Unter „Mehr entdecken“ finden Sie den Dachreiter und die Astronomische Uhr – und was es am Computer zusätzlich gibt: Quiz, Experimente und die ganze Kirche.',
+    enT: 'The model is back at today. Try the sundial yourself: read it at the bottom and set the date and time. Under “Discover more” you find the ridge turret and the astronomical clock – and what else there is on a computer: quiz, experiments and the whole church.',
   },
 ];
 export const tour = { i: null };
@@ -212,14 +212,20 @@ export function showTour() {
   $('#tourPrev').textContent = tr('Zurück', 'Back');
   $('#tourNext').textContent = i === TOUR.length - 1 ? tr('Fertig', 'Done') : tr('Weiter', 'Next');
   tourChoice(
-    s.choice
-      ? [
-          ['quiz', tr('Quiz starten', 'Start the quiz')],
-          ['exp', tr('Experimente', 'Experiments')],
-          ['free', tr('Selbst entdecken', 'Explore on my own')],
-          ['tour', tr('Rundgang wiederholen', 'Repeat the tour')],
-        ]
-      : null,
+    !s.choice
+      ? null
+      : touch // Handy: kein Quiz und keine Experimente, dafür „Mehr entdecken“
+        ? [
+            ['free', tr('Selbst ausprobieren', 'Try it yourself')],
+            ['more', tr('Mehr entdecken', 'Discover more')],
+            ['tour', tr('Rundgang wiederholen', 'Repeat the tour')],
+          ]
+        : [
+            ['quiz', tr('Quiz starten', 'Start the quiz')],
+            ['exp', tr('Experimente', 'Experiments')],
+            ['free', tr('Selbst entdecken', 'Explore on my own')],
+            ['tour', tr('Rundgang wiederholen', 'Repeat the tour')],
+          ],
   );
   tourWhen();
   tourFit();
@@ -252,9 +258,13 @@ $('#tourChoice').addEventListener('click', e => {
     document.querySelectorAll('.exppanel').forEach(p => (p.hidden = true));
     $('#expList').hidden = false;
     openCard('exp');
+  } else if (g === 'more') {
+    tourEnd();
+    $('#mpMore').click(); // Handy: Seite „Mehr entdecken“
   } else {
     tourEnd();
-    if (state.view !== 'sued') goView('sued');
+    const v = document.body.classList.contains('mobile') ? 'sonnenuhr' : 'sued';
+    if (state.view !== v) goView(v);
   }
 });
 // Datum und Uhrzeit der Station in der Kopfzeile (auf dem Smartphone ist die Zeitleiste während des Rundgangs ausgeblendet)
