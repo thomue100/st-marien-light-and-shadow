@@ -103,7 +103,7 @@ export function syncViews() {
 for (const b of document.querySelectorAll('#mviews button'))
   b.addEventListener('click', () => {
     // vierter Knopf schon gewählt: erneutes Tippen öffnet „Alle Ansichten“, um eine andere zu wählen
-    if (b.id === 'mvExtra' && b.getAttribute('aria-pressed') === 'true') {
+    if (b.id === 'mvExtra' && (b.dataset.mv === 'list' || b.getAttribute('aria-pressed') === 'true')) {
       $('#mvsel').hidden = false;
       $('#mvBack').focus();
       return;
@@ -385,7 +385,7 @@ const openDesk = on => {
 };
 $('#mpMore').addEventListener('click', () => openDesk(true));
 /** einen Blickwinkel aus „Mehr entdecken“ oder „Alle Ansichten“ öffnen; now: auf heute, jetzt stellen */
-function openView(v, de, en, now) {
+function openView(v, de, en, now, fromList) {
   openDesk(false);
   $('#mvsel').hidden = true;
   if (ms.i !== null) stepsEnd();
@@ -394,7 +394,9 @@ function openView(v, de, en, now) {
   if (now) $('#nowBtn').click(); // heute, jetzt – zum Vergleich mit dem Blick vor Ort
   goView(v);
   gesture(v);
-  setExtra(STD.includes(v) ? '' : v, de, en);
+  // aus der Liste eine der festen Ansichten gewählt: der vierte Knopf führt als „Ansichten ▾“ zurück zur Liste
+  if (STD.includes(v)) setExtra(fromList ? 'list' : '', 'Ansichten', 'Views');
+  else setExtra(v, de, en);
   syncViews();
 }
 for (const b of document.querySelectorAll('.mdgo'))
@@ -431,7 +433,9 @@ for (const b of document.querySelectorAll('.mdgo'))
     const b = el.cloneNode(true);
     b.removeAttribute('role');
     b.className = 'mvbtn';
-    b.addEventListener('click', () => openView(b.dataset.view, b.dataset.de || b.textContent, b.dataset.en, false));
+    b.addEventListener('click', () =>
+      openView(b.dataset.view, b.dataset.de || b.textContent, b.dataset.en, false, true),
+    );
     grp.appendChild(b);
   }
   $('#mvBack').addEventListener('click', () => ($('#mvsel').hidden = true));
