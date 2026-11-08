@@ -12,7 +12,7 @@ import { useMoon } from '../light/sun.js';
 import { controls, goView, tween, VIEWS } from '../scene/camera.js';
 import { setDate, setMinutes, setPlaying } from './controls.js';
 import { openCard, setFree } from './panels.js';
-import { tour, tourEnd } from './tour.js';
+import { tour, tourEnd, tourGo } from './tour.js';
 import { quiz, quizEnd } from './quiz.js';
 import { updateShare } from './share.js';
 
@@ -292,6 +292,7 @@ function stepRender() {
   syncViews();
 }
 export function stepsGo(i, from) {
+  if (tour.i !== null) tourEnd();
   showStart(false);
   ms.i = i;
   steps.hidden = false;
@@ -317,6 +318,7 @@ export function showStart(on) {
   sizeVars();
   if (on) {
     if (ms.i !== null) stepsEnd();
+    if (tour.i !== null) tourEnd();
     // zurück auf der Startseite: der zusätzliche Blickwinkel (Dachreiter, Uhr) verschwindet wieder
     const xb = $('#mvExtra');
     xb.hidden = true;
@@ -351,6 +353,11 @@ for (const b of document.querySelectorAll('.mdgo'))
     openDesk(false);
     if (ms.i !== null) stepsEnd();
     showStart(false);
+    if (v === 'tour') {
+      xb.hidden = true;
+      xb.dataset.mv = '';
+      return tourGo(0); // Rundgang: Bild oben, Text unten in der Anzeige
+    }
     setPlaying(false);
     $('#nowBtn').click(); // heute, jetzt – zum Vergleich mit dem Blick vor Ort
     goView(v);
@@ -410,9 +417,10 @@ export function applyPhone() {
     if (quiz.i !== null) quizEnd();
     setFree(false);
     openCard(null);
-    for (const el of [$('.timebar'), $('#langSeg')]) homes.push([el, el.parentNode, el.nextSibling]);
+    for (const el of [$('.timebar'), $('#langSeg'), $('#tour')]) homes.push([el, el.parentNode, el.nextSibling]);
     $('#mpTime').appendChild($('.timebar'));
     $('#mtop').appendChild($('#langSeg'));
+    panel.appendChild($('#tour')); // Rundgang: Text unten statt Karte über dem Bild
     if (start.hidden) panel.hidden = false;
   } else {
     for (const [el, p, n] of homes.reverse()) p.insertBefore(el, n);
