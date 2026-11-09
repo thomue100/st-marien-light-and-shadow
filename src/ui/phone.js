@@ -2,7 +2,7 @@
 // Blickwinkel, eine Startseite, „In 3 Schritten erklärt“ und eine Seite „Mehr am Computer“. Alles andere bleibt dem
 // Desktop vorbehalten („Link an mich senden“ öffnet denselben Moment am Computer).
 import './share.js'; // Aufbau-Reihenfolge: nach ui/share
-import { dstInfo, localToUtc, LON, sunPos, trueNoon } from '../astro/index.js';
+import { dstInfo, localToUtc, LON, sunPos } from '../astro/index.js';
 import { $, lsGet, lsSet } from '../core/util.js';
 import { fmtT, LANG, tr, tzN } from '../core/i18n.js';
 import { cur, state } from '../state.js';
@@ -188,11 +188,13 @@ $('#mpFold').addEventListener('click', () => setFold(!body.classList.contains('m
 
 /* ---------------- Schnellwahl ---------------- */
 
-function goNoon(m, d) {
-  setDate(state.y, m, d);
-  setMinutes(Math.round(trueNoon(state.y, m, d)));
+// Sommer und Winter zur selben Sonnenzeit (Sonnenuhr zeigt etwa 10:45): 21. Juni 12:00 MESZ, 21. Dezember 11:00 MEZ.
+// Am wahren Mittag stünde der Schatten im Juni fast senkrecht unter dem Stab, im Dezember läge das Zifferblatt
+// schon im Schatten der Mauer (besonnt etwa 10:20–12:00 MEZ).
+function goJun() {
+  setDate(state.y, 5, 21);
+  setMinutes(12 * 60);
 }
-/** 21. Dezember 11:00 MEZ: am wahren Mittag (12:13) liegt das Zifferblatt schon im Schatten der Mauer – besonnt etwa 10:20–12:00 */
 function goDec() {
   setDate(state.y, 11, 21);
   setMinutes(11 * 60);
@@ -202,7 +204,7 @@ for (const b of document.querySelectorAll('.mpquick button'))
     setPlaying(false);
     const q = b.dataset.q;
     if (q === 'now') $('#nowBtn').click();
-    else if (q === 'jun') goNoon(5, 21);
+    else if (q === 'jun') goJun();
     else if (q === 'dec') goDec();
     else if (q === 'full') $('#sdMoonGo').click(); // nächster Vollmond, Blick auf das Zifferblatt
     if (q !== 'full' && (state.view !== 'sonnenuhr' || state.pano)) goView('sonnenuhr');
@@ -303,13 +305,13 @@ const STEPS = [
     go() {
       setPlaying(false);
       if (state.view !== 'sonnenuhr') goView('sonnenuhr');
-      goNoon(5, 21);
+      goJun();
     },
     body: () =>
       '<p>' +
       tr(
-        'Mittags steht die Sonne am 21. Juni fast 60° hoch, am 21. Dezember nur knapp 13° – dann liegt die Sonnenuhr ab etwa 12 Uhr im Schatten der Mauer, deshalb hier 11 Uhr. Der Schatten des Stabes wird kürzer oder länger – die Stunde liest man trotzdem an derselben Linie ab.',
-        'At noon the sun stands almost 60° high on 21 June, but barely 13° on 21 December – then the wall shades the sundial from about 12 o’clock, hence 11 o’clock here. The rod’s shadow gets shorter or longer – yet the hour is read on the same line.',
+        'Am 21. Juni steht die Sonne viel höher als am 21. Dezember – im Winter liegt die Sonnenuhr ab etwa 12 Uhr sogar im Schatten der Mauer. Verglichen wird deshalb 12 Uhr Sommerzeit mit 11 Uhr Winterzeit, also dieselbe Sonnenzeit: Der Schatten des Stabes ist kürzer oder länger – die Stunde liest man trotzdem an derselben Linie ab.',
+        'On 21 June the sun stands far higher than on 21 December – in winter the wall even shades the sundial from about 12 o’clock. So we compare 12 o’clock summer time with 11 o’clock winter time, the same solar time: the rod’s shadow is shorter or longer – yet the hour is read on the same line.',
       ) +
       '</p><p class="msbtnrow"><button class="chip" data-n="5">' +
       tr('21. Juni', '21 June') +
@@ -327,7 +329,7 @@ function stepRender() {
   for (const b of $('#msBody').querySelectorAll('[data-n]'))
     b.addEventListener('click', () => {
       if (+b.dataset.n === 11) goDec();
-      else goNoon(5, 21);
+      else goJun();
       for (const x of $('#msBody').querySelectorAll('[data-n]')) x.setAttribute('aria-pressed', String(x === b));
     });
   const first = $('#msBody').querySelector('[data-n]');
