@@ -1,7 +1,7 @@
 // Astronomische Uhr (Paul Behrens, 1955–1976) an der Ostwand der Totentanzkapelle: Gehäuse, Zifferblatt, Kalenderscheibe.
 import './church.js'; // Aufbau-Reihenfolge: nach model/church
 import { berlinOffsetMin, rad } from '../astro/index.js';
-import { DATA } from '../data.js';
+import { DATA, LATER } from '../data.js';
 import { smooth } from '../core/util.js';
 import { cur } from '../state.js';
 import { maxAniso, requestRender } from '../scene/renderer.js';
@@ -36,12 +36,55 @@ async function ckImg(src) {
     return null;
   }
 }
+// Handy: die drei großen Bilder (Gehäuse, Kalenderscheibe, Sternenhimmel; 0,6 MB) erst nach dem Start (loadClockLater)
+const BIG = ['gehaeuse', 'kalender', 'stern'];
 if (CK && CK.img) {
-  const ks = Object.keys(CK.img),
+  const ks = Object.keys(CK.img).filter(k => !LATER || !BIG.includes(k)),
     ims = await Promise.all(ks.map(k => ckImg(CK.img[k])));
   ks.forEach((k, i) => {
     if (ims[i]) clk.img[k] = ims[i];
   });
+}
+/** Foto des Gehäuses als Textur (sobald geladen) */
+function caseTex() {
+  const I = clk.img,
+    m = clk.caseMat;
+  if (!I.gehaeuse || m.map) return;
+  const t = ckTex(I.gehaeuse);
+  m.map = t;
+  m.emissiveMap = t;
+  m.emissive = new THREE.Color(0.16, 0.15, 0.14);
+  m.needsUpdate = true;
+  clk.em.push([m, 0.155]);
+}
+/** Kalenderscheibe als Textur (sobald geladen) */
+function calTex() {
+  const I = clk.img,
+    m = clk.calMat;
+  if (!I.kalender || m.map) return;
+  const t = ckTex(I.kalender);
+  m.color.set(0xffffff);
+  m.map = t;
+  m.emissiveMap = t;
+  m.emissive = new THREE.Color(0.16, 0.16, 0.16);
+  m.needsUpdate = true;
+  clk.em.push([m, 0.16]);
+}
+let clockP = null;
+/** Handy: die großen Bilder der Uhr nachladen und einsetzen (einmalig). */
+export function loadClockLater() {
+  return (clockP ||= (async () => {
+    if (!LATER || !CK || !CK.img) return;
+    const ks = BIG.filter(k => CK.img[k] && !clk.img[k]),
+      ims = await Promise.all(ks.map(k => ckImg(CK.img[k])));
+    ks.forEach((k, i) => {
+      if (ims[i]) clk.img[k] = ims[i];
+    });
+    caseTex();
+    calTex();
+    clockUpdate(null, true); // Zifferblatt mit Sternenhimmel neu zeichnen
+    requestRender();
+  })());
 }
 function ckTex(img, srgb) {
   const t = new THREE.Texture(img);
@@ -75,13 +118,8 @@ function ckTex(img, srgb) {
     }),
     {},
   );
-  if (I.gehaeuse) {
-    const t = ckTex(I.gehaeuse);
-    caseMat.map = t;
-    caseMat.emissiveMap = t;
-    caseMat.emissive = new THREE.Color(0.16, 0.15, 0.14);
-    clk.em.push([caseMat, 0.155]);
-  }
+  clk.caseMat = caseMat;
+  caseTex();
   if (I.maske) {
     caseMat.alphaMap = ckTex(I.maske, false);
   }
@@ -126,13 +164,8 @@ function ckTex(img, srgb) {
     }),
     {},
   );
-  if (I.kalender) {
-    const t = ckTex(I.kalender);
-    calMat.map = t;
-    calMat.emissiveMap = t;
-    calMat.emissive = new THREE.Color(0.16, 0.16, 0.16);
-    clk.em.push([calMat, 0.16]);
-  }
+  clk.calMat = calMat;
+  calTex();
   const cgrp = new THREE.Group();
   cgrp.position.set(x0 - 0.05, CLK.calY, zc);
   cgrp.rotation.y = -Math.PI / 2;
