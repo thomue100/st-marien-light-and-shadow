@@ -12,7 +12,7 @@ import { useMoon } from '../light/sun.js';
 import { controls, goView, tween, VIEWS } from '../scene/camera.js';
 import { setDate, setMinutes, setPlaying } from './controls.js';
 import { openCard, setFree } from './panels.js';
-import { tour, tourEnd, tourGo } from './tour.js';
+import { setTourEndHook, tour, tourEnd, tourGo } from './tour.js';
 import { quiz, quizEnd } from './quiz.js';
 import { updateShare } from './share.js';
 
@@ -66,6 +66,7 @@ function sdRead(ok) {
   syncViews();
 }
 setSdHook(sdRead);
+setTourEndHook(() => isPhone() && syncViews()); // Rundgang beendet: Station als vierter Knopf
 
 /* ---------------- Blickwinkel: Zifferblatt · Kirche · Himmel ---------------- */
 

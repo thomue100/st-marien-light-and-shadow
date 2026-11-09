@@ -264,13 +264,21 @@ test('Zufallsspaziergang: nach jedem Tipp gelten alle Prüfregeln', async ({ pag
   test.setTimeout(120_000 + n * 6_000);
   test.info().annotations.push({ type: 'Zufallsspaziergang', description: `WALK_SEED=${seed} WALK_STEPS=${n}` });
   const rnd = zufall(seed),
-    log = [];
+    log = [],
+    getippt = new Map();
   await oeffne(page);
   const besucht = new Set();
   for (let i = 0; i < n; i++) {
     const k = await knoepfe(page);
     expect(k.length, 'kein Knopf auf ' + (await oben(page))).toBeGreaterThan(0);
-    const s = k[Math.floor(rnd() * k.length)];
+    // Knöpfe, die noch selten getippt wurden, kommen öfter dran – so erreicht der Spaziergang auch entlegene Bildschirme
+    const w = k.map(x => 1 / (1 + (getippt.get(x) || 0)) ** 2),
+      sum = w.reduce((a, b) => a + b);
+    let r = rnd() * sum,
+      j = 0;
+    while (r > w[j] && j < k.length - 1) r -= w[j++];
+    const s = k[j];
+    getippt.set(s, (getippt.get(s) || 0) + 1);
     besucht.add(await oben(page));
     await tippe(page, s, log);
   }
