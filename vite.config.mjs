@@ -41,7 +41,13 @@ function webApp() {
   return {
     name: 'st-marien-web-app',
     transformIndexHtml: () => [
-      { tag: 'link', attrs: { rel: 'manifest', href: 'manifest.webmanifest' }, injectTo: 'head' },
+      // use-credentials: In den geschützten Vercel-Vorschauen holt der Browser das Manifest sonst ohne Anmeldung und
+      // wird zur Anmeldeseite umgeleitet (CORS-Fehler in der Konsole); in Produktion ohne Wirkung
+      {
+        tag: 'link',
+        attrs: { rel: 'manifest', href: 'manifest.webmanifest', crossorigin: 'use-credentials' },
+        injectTo: 'head',
+      },
       { tag: 'link', attrs: { rel: 'apple-touch-icon', href: 'apple-touch-icon.png' }, injectTo: 'head' },
       { tag: 'meta', attrs: { name: 'theme-color', content: '#9b3a26' }, injectTo: 'head' },
       { tag: 'meta', attrs: { name: 'mobile-web-app-capable', content: 'yes' }, injectTo: 'head' },
