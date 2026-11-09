@@ -310,8 +310,8 @@ const STEPS = [
     body: () =>
       '<p>' +
       tr(
-        'Am 21. Juni steht die Sonne viel höher als am 21. Dezember – im Winter liegt die Sonnenuhr ab etwa 12 Uhr sogar im Schatten der Mauer. Verglichen wird deshalb 12 Uhr Sommerzeit mit 11 Uhr Winterzeit, also dieselbe Sonnenzeit: Der Schatten des Stabes ist kürzer oder länger – die Stunde liest man trotzdem an derselben Linie ab.',
-        'On 21 June the sun stands far higher than on 21 December – in winter the wall even shades the sundial from about 12 o’clock. So we compare 12 o’clock summer time with 11 o’clock winter time, the same solar time: the rod’s shadow is shorter or longer – yet the hour is read on the same line.',
+        'Um diese Sonnenzeit steht die Sonne am 21. Juni gut 56° hoch, am 21. Dezember nur 11° – im Winter liegt die Sonnenuhr ab etwa 12 Uhr sogar im Schatten der Mauer, deshalb vergleichen wir 12 Uhr Sommerzeit mit 11 Uhr Winterzeit. Trotzdem fällt der Schatten auf dieselbe Linie: Der Stab zeigt parallel zur Erdachse (Polstab) – deshalb geht die Sonnenuhr das ganze Jahr richtig.',
+        'At this solar time the sun stands a good 56° high on 21 June, but only 11° on 21 December – in winter the wall even shades the sundial from about 12 o’clock, so we compare 12 o’clock summer time with 11 o’clock winter time. Yet the shadow falls on the same line: the rod points parallel to the Earth’s axis (a polar gnomon) – that is why the sundial is right all year round.',
       ) +
       '</p><p class="msbtnrow"><button class="chip" data-n="5">' +
       tr('21. Juni', '21 June') +
