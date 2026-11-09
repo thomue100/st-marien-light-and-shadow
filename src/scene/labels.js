@@ -34,7 +34,7 @@ const LABELS = [
 const labelLayer = $('#labels');
 const labelEls = LABELS.map(([t, p, nc, te]) => {
   const el = document.createElement('div');
-  el.className = t === 'Sonnenuhr' ? 'lbl lsd' : 'lbl'; // auf dem Handy bleibt nur diese Beschriftung
+  el.className = 'lbl'; // auf dem Handy ausgeblendet
   el.textContent = tr(t, te);
   labelLayer.appendChild(el);
   return { el, p: new V3(...p), nc: nc | 0, de: t, en: te };
