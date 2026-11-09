@@ -635,6 +635,19 @@ body:not(.tbopen) .tb-more {
   padding: 5px 10px;
   flex: none;
 }
+/* feste Breiten: wechselnde Werte („12,3° SO“, „unter dem Horizont“, „-35,7° NNW · 100 %“) dürfen die Zeitskala
+   daneben nicht verschieben */
+#sunChip,
+#moonChip {
+  width: 14.5em;
+  justify-content: flex-start;
+  overflow: hidden;
+  white-space: nowrap;
+}
+#tzName {
+  display: inline-block;
+  min-width: 4ch; /* MEZ / MESZ */
+}
 .skychip svg {
   width: 15px;
   height: 15px;
