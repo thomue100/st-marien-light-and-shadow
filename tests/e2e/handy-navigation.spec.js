@@ -6,7 +6,7 @@
 // Blickwinkel-Knöpfe passend zur Ansicht, Bild über der Anzeige; Fehler im Browser lassen den Test ohnehin scheitern.
 //
 // Zufallsspaziergang wiederholen: WALK_SEED=… WALK_STEPS=… npx playwright test handy-navigation
-import { test, expect, setToday, TEST_HTML, waitReady } from './helpers.js';
+import { test, expect, setToday, TEST_HTML, waitCameraStill, waitReady } from './helpers.js';
 
 test.use({ viewport: { width: 360, height: 740 }, isMobile: true, hasTouch: true });
 
@@ -85,11 +85,12 @@ function oben(page) {
 /** Tippen, auf das Ende der Kamerafahrt warten, dann die Prüfregeln (mit Geduld für Übergänge) anwenden. */
 async function tippe(page, sel, log, erwartet) {
   log.push(sel);
-  await page.locator(sel).tap({ timeout: 15_000 });
-  // Kamerafahrt abwarten, dazu die verzögerten Abgleiche (Blickwinkel nach 0,5 s, Himmelsansicht wird erst vorbereitet)
-  await page.waitForFunction(() => !window.__moving(), null, { timeout: 60_000 });
+  await page.locator(sel).tap({ timeout: 60_000 });
+  // Kamerafahrt und ein gezeichnetes Bild abwarten (das erste Öffnen der Himmelsansicht dauert mit Software-Grafik
+  // lange), dazu die verzögerten Abgleiche (Blickwinkel nach 0,5 s)
+  await waitCameraStill(page);
   await page.waitForTimeout(700);
-  await page.waitForFunction(() => !window.__moving(), null, { timeout: 60_000 });
+  await waitCameraStill(page);
   await expect
     .poll(() => regeln(page), { timeout: 15_000, message: 'Prüfregeln nach: ' + log.slice(-10).join(' → ') })
     .toEqual([]);
