@@ -265,6 +265,15 @@ export function panoUniforms() {
   u.uAxis.value = state.axis;
   drawPanoGrid();
 }
+// Ändert sich die Höhe der Zeitleiste (zweite Zeile, Handy: Anzeige ein- oder ausgeklappt), verschiebt sich der Horizont
+// der Himmelsansicht: Bild (Shader) und Overlay (Bahnen, Stunden) gemeinsam neu einstellen, sonst liegt die Sonne neben
+// ihrer Bahn
+new ResizeObserver(() => {
+  if (!state.pano) return;
+  panoUniforms();
+  panoMarks();
+  requestRender();
+}).observe(document.querySelector('.timebar'));
 // Himmelsrichtungen und Höhenlinien als Overlay
 export function drawPanoGrid() {
   const svg = $('#panoGrid');
