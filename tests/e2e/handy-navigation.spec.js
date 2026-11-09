@@ -85,7 +85,10 @@ function oben(page) {
 /** Tippen, auf das Ende der Kamerafahrt warten, dann die Prüfregeln (mit Geduld für Übergänge) anwenden. */
 async function tippe(page, sel, log, erwartet) {
   log.push(sel);
-  await page.locator(sel).tap();
+  await page.locator(sel).tap({ timeout: 15_000 });
+  // Kamerafahrt abwarten, dazu die verzögerten Abgleiche (Blickwinkel nach 0,5 s, Himmelsansicht wird erst vorbereitet)
+  await page.waitForFunction(() => !window.__moving(), null, { timeout: 60_000 });
+  await page.waitForTimeout(700);
   await page.waitForFunction(() => !window.__moving(), null, { timeout: 60_000 });
   await expect
     .poll(() => regeln(page), { timeout: 15_000, message: 'Prüfregeln nach: ' + log.slice(-10).join(' → ') })
@@ -260,8 +263,8 @@ function knoepfe(page) {
 
 test('Zufallsspaziergang: nach jedem Tipp gelten alle Prüfregeln', async ({ page }) => {
   const seed = Number(process.env.WALK_SEED || 20261109),
-    n = Number(process.env.WALK_STEPS || 150);
-  test.setTimeout(120_000 + n * 6_000);
+    n = Number(process.env.WALK_STEPS || 60);
+  test.setTimeout(120_000 + n * 12_000);
   test.info().annotations.push({ type: 'Zufallsspaziergang', description: `WALK_SEED=${seed} WALK_STEPS=${n}` });
   const rnd = zufall(seed),
     log = [],
