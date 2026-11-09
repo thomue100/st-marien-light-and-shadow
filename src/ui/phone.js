@@ -89,7 +89,6 @@ export function syncViews() {
     if (mb) setExtra(state.view, mb.dataset.de || mb.textContent.trim(), mb.dataset.en);
   }
   if (xb.dataset.mv) xb.textContent = tr(xb.dataset.lde, xb.dataset.len);
-  body.classList.toggle('mv-sd', !state.pano && state.view === 'sonnenuhr'); // Nahansicht: ohne Beschriftung
   // Sonnenuhr-Werte nur, wo man die Sonnenuhr sieht (Zifferblatt, Kirche); sonst nur Datum und Uhrzeit
   const sdCtx = !state.pano && (state.view === 'sonnenuhr' || state.view === 'sued');
   body.classList.toggle('mp-sd', sdCtx);
@@ -193,13 +192,18 @@ function goNoon(m, d) {
   setDate(state.y, m, d);
   setMinutes(Math.round(trueNoon(state.y, m, d)));
 }
+/** 21. Dezember 11:00 MEZ: am wahren Mittag (12:13) liegt das Zifferblatt schon im Schatten der Mauer – besonnt etwa 10:20–12:00 */
+function goDec() {
+  setDate(state.y, 11, 21);
+  setMinutes(11 * 60);
+}
 for (const b of document.querySelectorAll('.mpquick button'))
   b.addEventListener('click', () => {
     setPlaying(false);
     const q = b.dataset.q;
     if (q === 'now') $('#nowBtn').click();
     else if (q === 'jun') goNoon(5, 21);
-    else if (q === 'dec') goNoon(11, 21);
+    else if (q === 'dec') goDec();
     else if (q === 'full') $('#sdMoonGo').click(); // nächster Vollmond, Blick auf das Zifferblatt
     if (q !== 'full' && (state.view !== 'sonnenuhr' || state.pano)) goView('sonnenuhr');
     syncViews();
@@ -304,8 +308,8 @@ const STEPS = [
     body: () =>
       '<p>' +
       tr(
-        'Mittags steht die Sonne am 21. Juni fast 60° hoch, am 21. Dezember nur knapp 13°. Der Schatten des Stabes wird kürzer oder länger – die Stunde liest man trotzdem an derselben Linie ab.',
-        'At noon the sun stands almost 60° high on 21 June, but barely 13° on 21 December. The rod’s shadow gets shorter or longer – yet the hour is read on the same line.',
+        'Mittags steht die Sonne am 21. Juni fast 60° hoch, am 21. Dezember nur knapp 13° – dann liegt die Sonnenuhr ab etwa 12 Uhr im Schatten der Mauer, deshalb hier 11 Uhr. Der Schatten des Stabes wird kürzer oder länger – die Stunde liest man trotzdem an derselben Linie ab.',
+        'At noon the sun stands almost 60° high on 21 June, but barely 13° on 21 December – then the wall shades the sundial from about 12 o’clock, hence 11 o’clock here. The rod’s shadow gets shorter or longer – yet the hour is read on the same line.',
       ) +
       '</p><p class="msbtnrow"><button class="chip" data-n="5">' +
       tr('21. Juni', '21 June') +
@@ -322,7 +326,8 @@ function stepRender() {
   $('#msBody').innerHTML = s.body();
   for (const b of $('#msBody').querySelectorAll('[data-n]'))
     b.addEventListener('click', () => {
-      goNoon(+b.dataset.n, 21);
+      if (+b.dataset.n === 11) goDec();
+      else goNoon(5, 21);
       for (const x of $('#msBody').querySelectorAll('[data-n]')) x.setAttribute('aria-pressed', String(x === b));
     });
   const first = $('#msBody').querySelector('[data-n]');
