@@ -313,6 +313,11 @@ export function tourGo(i) {
   if (i >= 0) tourApply(TOUR[i]);
   $('#tourNext').focus({ preventScroll: true });
 }
+// Handy: nach dem Rundgang die Blickwinkel-Knöpfe an die zuletzt gezeigte Ansicht angleichen (setzt ui/phone.js)
+let endHook = null;
+export function setTourEndHook(f) {
+  endHook = f;
+}
 export function tourEnd() {
   if (state.playing && tour.i !== null && tour.i >= 0) setPlaying(false);
   if (tour.i !== null && tour.i >= 0) {
@@ -322,6 +327,7 @@ export function tourEnd() {
   tour.i = null;
   $('#tour').hidden = true;
   document.body.classList.remove('touring');
+  if (endHook) setTimeout(endHook); // erst nach einer Ansicht, die die Wahl am Ende noch einstellt
   lsSet('stm-welcomed', '1');
   if (!quiz || quiz.i === null) setTimeout(introExplore, 400);
 }
