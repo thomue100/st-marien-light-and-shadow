@@ -2424,8 +2424,7 @@ body.mobile.touring .mpmain,
 body.mobile.touring .msteps,
 body.mobile .yearnote,
 body.mobile .skymk,
-body.mobile .lbl:not(.lsd),
-body.mobile.mv-sd .lsd {
+body.mobile .lbl {
   display: none !important;
 }
 /* Startseite: der Knopf „Die Sonnenuhr“ führte nur hierher zurück; Platz bleibt, damit die Sprachwahl rechts steht */

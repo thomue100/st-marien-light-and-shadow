@@ -42,20 +42,20 @@ test('Ablesen: Sonnenuhr und Uhr, drei Blickwinkel, Schnellwahl', async ({ page 
   await expect(page.locator('#mpShow')).toHaveText(/^09:3\d$/);
   await expect(page.locator('#mpDiff')).toHaveText(/^Ihre Uhr geht 1 Std\. 1\d Min\. vor\.$/);
 
-  // Kirche: nur die Beschriftung der Sonnenuhr, keine Randhinweise
+  // Kirche: keine Beschriftungen, keine Randhinweise
   await page.locator('#mviews [data-mv="sued"]').tap();
   await expect(page.locator('#mviews [data-mv="sued"]')).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('.lbl.lsd')).toBeVisible();
-  expect(await page.locator('.lbl:visible').count()).toBe(1);
+  await expect(page.locator('.lbl:visible')).toHaveCount(0);
   await expect(page.locator('.skymk:visible')).toHaveCount(0);
   // Himmel
   await page.locator('#mviews [data-mv="himmel"]').tap();
   await expect(page.locator('#mviews [data-mv="himmel"]')).toHaveAttribute('aria-pressed', 'true');
 
-  // Schnellwahl: 21. Dezember mittags, zurück zum Zifferblatt
+  // Schnellwahl: 21. Dezember 11 Uhr (Zifferblatt noch besonnt), zurück zum Zifferblatt
   await page.locator('.mpquick [data-q="dec"]').tap();
   await expect(page.locator('#date')).toHaveValue('2026-12-21');
   await expect(page.locator('#mpTz')).toHaveText('MEZ');
+  await expect(page.locator('#mpClock')).toHaveText('11:00');
   await expect(page.locator('#mviews [data-mv="sonnenuhr"]')).toHaveAttribute('aria-pressed', 'true');
   await page.locator('.mpquick [data-q="jun"]').tap();
   await expect(page.locator('#date')).toHaveValue('2026-06-21');
