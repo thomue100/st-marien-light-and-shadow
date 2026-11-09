@@ -635,6 +635,19 @@ body:not(.tbopen) .tb-more {
   padding: 5px 10px;
   flex: none;
 }
+/* feste Breiten: wechselnde Werte („12,3° SO“, „unter dem Horizont“, „-35,7° NNW · 100 %“) dürfen die Zeitskala
+   daneben nicht verschieben */
+#sunChip,
+#moonChip {
+  width: 14.5em;
+  justify-content: flex-start;
+  overflow: hidden;
+  white-space: nowrap;
+}
+#tzName {
+  display: inline-block;
+  min-width: 4ch; /* MEZ / MESZ */
+}
 .skychip svg {
   width: 15px;
   height: 15px;
@@ -1892,6 +1905,22 @@ body.touring .yearnote {
   transition:
     opacity 0.45s ease,
     visibility 0.45s;
+}
+/* Handy, während des Aufbaus: Startseite unten, Ladeanzeige darüber im Bildbereich */
+body.mearly #loader {
+  place-items: start center;
+  padding-top: 16vh;
+  background: var(--bg); /* deckt die noch nicht umgestellte Bedienung der Computer-Fassung ab */
+}
+@media (orientation: landscape) {
+  body.mearly #loader {
+    right: min(350px, 46%);
+    place-items: center;
+    padding-top: 16px;
+  }
+}
+body.mearly .mstart button:disabled {
+  opacity: 0.45;
 }
 #loader.done {
   opacity: 0;

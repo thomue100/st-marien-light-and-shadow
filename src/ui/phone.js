@@ -4,6 +4,7 @@
 import './share.js'; // Aufbau-Reihenfolge: nach ui/share
 import { dstInfo, localToUtc, LON, sunPos } from '../astro/index.js';
 import { $, lsGet, lsSet } from '../core/util.js';
+import { PHONE } from '../data.js';
 import { fmtT, LANG, tr, tzN } from '../core/i18n.js';
 import { cur, state } from '../state.js';
 import { camera, renderer, requestRender } from '../scene/renderer.js';
@@ -16,7 +17,7 @@ import { setTourEndHook, tour, tourEnd, tourGo } from './tour.js';
 import { quiz, quizEnd } from './quiz.js';
 import { updateShare } from './share.js';
 
-export const PHONE = matchMedia('(max-width: 760px), (max-height: 520px) and (pointer: coarse)');
+export { PHONE };
 const LAND = matchMedia('(orientation: landscape)');
 const body = document.body,
   panel = $('#mpanel'),
