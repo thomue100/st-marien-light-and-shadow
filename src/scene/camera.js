@@ -610,13 +610,16 @@ export function busyText(t) {
 export function busyHide() {
   $('#busy').hidden = true;
 }
-export function goView(name, instant) {
-  if (name === 'himmel') fitSky();
-  if (name === 'zurSonne' || name === 'zumMond') bodyView(name);
-  // Handy: die ganze Altstadtinsel nur dort zeichnen, wo man sie sieht – spart Rechenzeit
+/** Handy: die ganze Altstadtinsel nur dort zeichnen, wo man sie sieht – spart Rechenzeit */
+export function farFor(name) {
   farBuildings(
     !document.body.classList.contains('mobile') || ['insel', 'luft', 'himmel', 'mtTop', 'mtCam'].includes(name),
   );
+}
+export function goView(name, instant) {
+  if (name === 'himmel') fitSky();
+  if (name === 'zurSonne' || name === 'zumMond') bodyView(name);
+  farFor(name);
   let v = VIEWS[name];
   if (!v) return;
   if (v.mob && document.body.classList.contains('mobile')) v = { ...v, pos: v.mob }; // Handy: näher heran

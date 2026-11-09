@@ -14,8 +14,9 @@ import { fmtDeg, pad2, tr } from './core/i18n.js';
 import { AXIS_MEASURED } from './model/measures.js';
 import { cur, state } from './state.js';
 import { camera, renderer, requestRender, scene, stage, takeDirty } from './scene/renderer.js';
-import { clk, clockUpdate } from './model/clock.js';
-import { applyEnv } from './model/environment.js';
+import { clk, clockUpdate, loadClockLater } from './model/clock.js';
+import { LATER } from './data.js';
+import { applyEnv, loadEnvLater } from './model/environment.js';
 import { sdDrawPlate, sdOrient } from './model/sundial.js';
 import { pathGroup, placeMoon, placeMoonAt, sky, skyMat, stars } from './light/sky.js';
 import { eclObsc, moonStr, updateSun, useMoon } from './light/sun.js';
@@ -25,6 +26,7 @@ import {
   clampWalk,
   controls,
   cubeCam,
+  farFor,
   goView,
   joy,
   joyMove,
@@ -189,4 +191,16 @@ requestAnimationFrame(() => {
     showTour();
   }
   console.log('[St. Marien] Aufbau in', Math.round(performance.now() - ldT0), 'ms');
+  if (LATER) setTimeout(loadRest, 300);
 });
+/** Handy: Umgebung und große Uhrbilder nach dem Start im Hintergrund nachladen und einsetzen. */
+async function loadRest() {
+  if (await loadEnvLater()) {
+    applyEnv();
+    farFor(state.pano ? 'himmel' : state.view);
+    updateSun(true); // Verschattung durch die Nachbarschaft jetzt mit einrechnen
+    requestRender();
+  }
+  await loadClockLater();
+  console.log('[St. Marien] nachgeladen nach', Math.round(performance.now() - ldT0), 'ms');
+}
