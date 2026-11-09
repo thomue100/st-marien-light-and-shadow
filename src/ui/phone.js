@@ -12,7 +12,7 @@ import { useMoon } from '../light/sun.js';
 import { controls, goView, tween, VIEWS } from '../scene/camera.js';
 import { setDate, setMinutes, setPlaying } from './controls.js';
 import { openCard, setFree } from './panels.js';
-import { tour, tourEnd, tourGo } from './tour.js';
+import { setTourEndHook, tour, tourEnd, tourGo } from './tour.js';
 import { quiz, quizEnd } from './quiz.js';
 import { updateShare } from './share.js';
 
@@ -66,6 +66,7 @@ function sdRead(ok) {
   syncViews();
 }
 setSdHook(sdRead);
+setTourEndHook(() => isPhone() && syncViews()); // Rundgang beendet: Station als vierter Knopf
 
 /* ---------------- Blickwinkel: Zifferblatt · Kirche · Himmel ---------------- */
 
@@ -369,13 +370,15 @@ export function showStart(on) {
   if (on) {
     if (ms.i !== null) stepsEnd();
     if (tour.i !== null) tourEnd();
+    // erst die Ansicht wechseln: setDate aktualisiert die Anzeige (syncViews), die eine noch eingestellte andere
+    // Ansicht sonst gleich wieder als vierten Knopf anlegen würde
+    if (state.view !== 'sonnenuhr' || state.pano) goView('sonnenuhr');
     // zurück auf der Startseite: der zusätzliche Blickwinkel (Dachreiter, Uhr) verschwindet wieder
     setExtra('');
     // Startseite immer mit besonntem Zifferblatt: 21. Juni, 12:00 (sonst ist das Bild abends und im Winter dunkel)
     setPlaying(false);
     setDate(state.y, 5, 21);
     setMinutes(12 * 60);
-    if (state.view !== 'sonnenuhr' || state.pano) goView('sonnenuhr');
     syncViews();
   }
   requestRender();
