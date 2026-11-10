@@ -781,6 +781,10 @@ body:not(.mobile) #play {
   gap: 2px;
   min-width: 190px;
 }
+/* offenes Menü (Besondere Tage) über der Rundgangs- und Quizkarte, die sonst darüberliegt */
+.timebar:has(.pmenu:not([hidden])) {
+  z-index: 5;
+}
 .pmenu[hidden] {
   display: none;
 }
