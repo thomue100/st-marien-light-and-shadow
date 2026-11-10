@@ -199,20 +199,24 @@ export function updateReadouts() {
         cur.el > -0.3
           ? tr('Sonne ', 'Sun ') + fmtDeg(cur.el) + ' ' + dirName(cur.az)
           : tr('Sonne unter dem Horizont', 'Sun below the horizon');
-    // Sonne und Mond als antippbare Werte (führen zum Blick dorthin), die Fensterzahl in der zweiten Zeile
-    const mt = state.moon && m ? fmtDeg(m.el) + (m.el > 0 ? ' ' + dirName(m.az) : '') : '',
+    // Sonne und Mond als antippbare Werte (führen zum Blick dorthin), die Fensterzahl in der zweiten Zeile.
+    // Feste Stellen (Festbreitenschrift, Leerzeichen bleiben stehen): Grad rechtsbündig 6, Richtung 3, Prozent 3 –
+    // so springt beim Abspielen nichts hin und her
+    const deg = el => fmtDeg(el).padStart(6),
+      dir = (el, az) => (el > 0 ? dirName(az) : '').padEnd(3),
+      mt = state.moon && m ? fmtDeg(m.el) + (m.el > 0 ? ' ' + dirName(m.az) : '') : '',
       mp = state.moon && m ? ' · ' + Math.round(m.k * 100) + ' %' : '';
     $('#sunChipTxt').textContent =
-      cur.el > -0.3 ? fmtDeg(cur.el) + ' ' + dirName(cur.az) : tr('unter dem Horizont', 'below horizon');
+      cur.el > -0.3 ? deg(cur.el) + ' ' + dirName(cur.az).padEnd(3) : tr('unter dem Horizont', 'below horizon');
     $('#sunChip').title = sp + (cur.el > -1 ? tr(' – zur Sonne blicken', ' – look at the sun') : '');
     $('#moonChip').hidden = !mt;
-    $('#moonChipTxt').textContent = mt;
-    $('#moonChipPct').textContent = mp;
+    $('#moonChipTxt').textContent = mt ? deg(m.el) + ' ' + dir(m.el, m.az) : '';
+    $('#moonChipPct').textContent = mt ? ' · ' + String(Math.round(m.k * 100)).padStart(3) + ' %' : '';
     $('#moonChip').title =
       tr('Mond ', 'Moon ') + mt + mp + (m && m.el > -1 ? tr(' – zum Mond blicken', ' – look at the moon') : '');
     $('#sumLine').textContent =
       (useMoon ? tr('im Mondlicht ', 'in moonlight ') : tr('besonnt ', 'sunlit ')) +
-      (cur.el > 0 || useMoon ? litCount : 0) +
+      String(cur.el > 0 || useMoon ? litCount : 0).padStart(2) + // feste Stellen
       ' / ' +
       windows.length +
       tr(' Fenster', ' windows');
