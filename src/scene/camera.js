@@ -14,7 +14,6 @@ import { occluders } from '../model/geometry.js';
 import { curMoonPass, hourOf, setMoonMag } from '../light/sky.js';
 import { updateLabelsVisibility } from './labels.js';
 import { setCut, setExp } from '../ui/controls.js';
-import { yr } from '../ui/year.js';
 
 /* ---------------- Kamera & Steuerung ---------------- */
 
@@ -84,7 +83,6 @@ export const VIEWS = {
     exp: 0.85,
     minD: 0.6,
   },
-  jahr: { pos: [40, 215, 215], tgt: [-48, 0, -125], mode: 'orbit', cut: 60, exp: 0.85 }, // Jahreslauf: Kirche und Schattenspur der Südturmspitze
 };
 export function hintFor() {
   if (state.pano)
@@ -127,8 +125,7 @@ export function applyMode(mode, minD, walk) {
     Object.assign(controls, {
       enableZoom: true,
       minDistance: minD || 5,
-      maxDistance:
-        state.view === 'mtTop' ? 20000 : yr.on || state.view === 'jahr' || state.view === 'insel' ? 2400 : 800,
+      maxDistance: state.view === 'mtTop' ? 20000 : state.view === 'insel' ? 2400 : 800,
       minPolarAngle: 0.03,
       maxPolarAngle: VIEWS[state.view] && VIEWS[state.view].tilt ? Math.PI * 0.75 : Math.PI * 0.62, // tilt: steiler nach oben
       rotateSpeed: 0.55,
@@ -624,13 +621,9 @@ export function goView(name, instant) {
   if (!v) return;
   if (v.mob && document.body.classList.contains('mobile')) v = { ...v, pos: v.mob }; // Handy: näher heran
   {
-    const far = name === 'jahr' || name === 'mtTop' || name === 'mtCam' || name === 'insel';
+    const far = name === 'mtTop' || name === 'mtCam' || name === 'insel';
     scene.fog.near = far ? 2500 : 350;
     scene.fog.far = far ? 9000 : 1700;
-    if (name === 'jahr') {
-      scene.fog.near = 1200;
-      scene.fog.far = 4000;
-    }
   }
   setMoonMag(name === 'mtCam' ? 1 : 2.2);
   {
@@ -640,7 +633,7 @@ export function goView(name, instant) {
       camera.far = nf[1];
       camera.updateProjectionMatrix();
     }
-  } // Jahreslauf: von hoch oben ohne Dunst
+  }
   {
     const fv = v.fov || 55;
     if (camera.fov !== fv) {
@@ -707,11 +700,9 @@ export function goView(name, instant) {
                   ? tr('Uhr: Zifferblatt', 'Clock: dial')
                   : name === 'finsternis'
                     ? tr('Finsternis', 'Eclipse')
-                    : name === 'jahr'
-                      ? tr('Jahreslauf', 'Year')
-                      : name === 'uhrkalender'
-                        ? tr('Uhr: Kalenderscheibe', 'Clock: calendar disk')
-                        : bodyViewName(name) || tr('eigene', 'custom');
+                    : name === 'uhrkalender'
+                      ? tr('Uhr: Kalenderscheibe', 'Clock: calendar disk')
+                      : bodyViewName(name) || tr('eigene', 'custom');
   }
   const tp = new V3(...v.pos);
   const tt = v.mode === 'inside' ? tp.clone().add(new V3(...v.dir).normalize().multiplyScalar(1.2)) : new V3(...v.tgt);

@@ -7,7 +7,7 @@ Interaktives 3D-Modell der Marienkirche zu Lübeck (three.js r128). Es zeigt Son
 3. **die Astronomische Uhr** mit Kalenderscheibe und Finsternissen,
 4. **das Licht im Kirchenraum** – Lichtbahnen durch die Fenster und die farbigen Glasmalereien.
 
-Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, die im Modell gelöst werden, den Jahreslauf im Zeitraffer, eine Himmelsansicht mit Sonnen- und Mondbahn, „Blick zur Sonne“ und „Blick zum Mond“ (mit Hinweisen am Bildrand, wenn Sonne oder Mond außerhalb des Bildes stehen), die „Freie Sicht“ ohne Bedienelemente (Taste F) sowie eine deutsche und eine englische Oberfläche.
+Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, die im Modell gelöst werden eine Himmelsansicht mit Sonnen- und Mondbahn, „Blick zur Sonne“ und „Blick zum Mond“ (mit Hinweisen am Bildrand, wenn Sonne oder Mond außerhalb des Bildes stehen), die „Freie Sicht“ ohne Bedienelemente (Taste F) sowie eine deutsche und eine englische Oberfläche.
 
 ## Aufbau
 
@@ -19,7 +19,7 @@ Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, d
 | `src/state.js` | gemeinsamer Zustand: Datum, Uhrzeit, Ansicht, Schalter; Sonnenstand und Lichtrichtung |
 | `src/scene/` | `renderer.js` (Renderer, Szene, „neu zeichnen“), `textures.js`, `shaders.js`, `materials.js`, `camera.js` (Ansichten, Steuerung, Blick zu Sonne und Mond), `labels.js` (Beschriftungen, Randhinweise für Sonne und Mond) |
 | `src/model/` | `measures.js` (Maße der Kirche), `geometry.js` (Bauteile, Fensterliste), `church.js`, `clock.js` (Astronomische Uhr), `environment.js` (Umgebung), `sundial.js` (Sonnenuhr) |
-| `src/ui/` | Bedienoberfläche: `readouts.js` (Tagesdiagramm, Kompass, Anzeigen), `controls.js` (Datum, Uhrzeit, besondere Tage, Regler), `year.js` (Jahr im Zeitraffer), `panels.js` (Schalter, Karten, Menüs, Glossar, Sprachwechsel), `clockcard.js` (Karte Astronomische Uhr), `tour.js` (Rundgang), `moontowers.js` (Mond zwischen den Türmen), `experiments.js`, `quiz.js`, `share.js` (Teilen, Bild speichern) |
+| `src/ui/` | Bedienoberfläche: `readouts.js` (Tagesdiagramm, Kompass, Anzeigen), `controls.js` (Datum, Uhrzeit, besondere Tage, Regler), `panels.js` (Schalter, Karten, Menüs, Glossar, Sprachwechsel), `clockcard.js` (Karte Astronomische Uhr), `tour.js` (Rundgang), `moontowers.js` (Mond zwischen den Türmen), `experiments.js`, `quiz.js`, `share.js` (Teilen, Bild speichern) |
 | `src/light/` | `sky.js` (Sonne, Mond, Himmel, Bahnen), `windows.js` (Licht durch die Fenster), `sun.js` (Licht anwenden, Finsternisse) |
 | `src/astro/` | Astronomie ohne 3D und ohne Seite: `time.js` (Ortszeit, Sommerzeit), `sun.js`, `moon.js`, `eclipses.js`, `common.js` (Ort Lübeck, Umrechnungen) |
 | `src/three-global.js` | three.js r128 aus npm, bereitgestellt als globales `THREE` |
@@ -37,7 +37,7 @@ Dazu gibt es einen geführten Rundgang (8 Stationen), ein Quiz mit 5 Aufgaben, d
 
 Die Module bauen das Modell beim Laden der Seite in einer festen Reihenfolge auf – derselben wie früher in der einen großen Datei:
 
-`core/loader → core/util → core/i18n → core/prefs → model/measures → state → scene/renderer → scene/textures → scene/shaders → scene/materials → model/geometry → model/church → model/clock → model/environment → model/sundial → light/sky → light/windows → light/sun → scene/camera → scene/labels → ui/readouts → ui/controls → ui/year → ui/panels → ui/clockcard → ui/tour → ui/moontowers → ui/experiments → ui/quiz → ui/share → ui/phone → app`
+`core/loader → core/util → core/i18n → core/prefs → model/measures → state → scene/renderer → scene/textures → scene/shaders → scene/materials → model/geometry → model/church → model/clock → model/environment → model/sundial → light/sky → light/windows → light/sun → scene/camera → scene/labels → ui/readouts → ui/controls → ui/panels → ui/clockcard → ui/tour → ui/moontowers → ui/experiments → ui/quiz → ui/share → ui/phone → app`
 
 Dafür importiert jedes Modul **als Erstes seinen Vorgänger** (Kommentar „Aufbau-Reihenfolge“), `app.js` als Erstes `ui/phone.js`. Ein neues Modul fügt man an der passenden Stelle in diese Kette ein (Vorgänger als ersten Import, Nachfolger importiert das neue Modul als Erstes). Darüber hinaus dürfen sich Module gegenseitig importieren, auch „vorwärts“ (z. B. ruft `light/sun.js` die Kamera auf). Zwei Regeln:
 
