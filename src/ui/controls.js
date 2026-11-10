@@ -21,7 +21,6 @@ import { sdOrient } from '../model/sundial.js';
 import { buildSunPath } from '../light/sky.js';
 import { updateSun } from '../light/sun.js';
 import { goView, panoMarks, VIEWS } from '../scene/camera.js';
-import { yearStart, yearStop, yr, yrBuild, yrMark, yrMez } from './year.js';
 
 export function gotoInstant(ms, minutes) {
   const off = berlinOffsetMin(ms),
@@ -135,10 +134,6 @@ export function setMinutes(m) {
   state.minutes = m;
   updateSun();
   if (state.pano) panoMarks();
-  if (yr.on) {
-    yr.mez = yrMez();
-    yrBuild();
-  }
 }
 // Wählbarer Zeitraum = Jahre der Kalenderscheibe der Astronomischen Uhr
 export const DATE_MIN = Date.UTC(1911, 0, 1),
@@ -207,12 +202,7 @@ function dateApply(final) {
   const t = Date.UTC(p[0], p[1] - 1, p[2]);
   if (!final && (p[0] < 1000 || t < DATE_MIN || t > DATE_MAX)) return; // Date.UTC macht aus 0019 das Jahr 1919
   if (final && p[0] === state.y && p[1] - 1 === state.m && p[2] === state.d) return;
-  const yOld = state.y;
   setDate(p[0], p[1] - 1, p[2]);
-  if (yr.on) {
-    if (state.y !== yOld) yrBuild();
-    else yrMark();
-  }
 }
 $('#date').addEventListener('change', () => dateApply(false));
 $('#date').addEventListener('blur', () => dateApply(true));
@@ -223,7 +213,6 @@ $('#time').addEventListener('input', e => setMinutes(+e.target.value));
 function stepDay(k) {
   const t = new Date(Date.UTC(state.y, state.m, state.d) + k * 864e5);
   setDate(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate());
-  if (yr.on) yrMark();
 }
 $('#dayPrev').addEventListener('click', () => stepDay(-1));
 $('#dayNext').addEventListener('click', () => stepDay(1));
@@ -276,11 +265,7 @@ $('#presetBtn').addEventListener('click', () => {
 buildPresets();
 export function setPlaying(p) {
   state.playing = p;
-  $('#playTxt').textContent = p
-    ? tr('Anhalten', 'Pause')
-    : yr.on
-      ? tr('Jahreslauf', 'Play year')
-      : tr('Tagesverlauf', 'Play day');
+  $('#playTxt').textContent = p ? tr('Anhalten', 'Pause') : tr('Tagesverlauf', 'Play day');
   $('#playIcon').innerHTML = p ? '<path d="M2 1h3v10H2zM7 1h3v10H7z"/>' : '<path d="M2 1l9 5-9 5z"/>';
   $('#freePlay svg').innerHTML = $('#playIcon').innerHTML;
   $('#freePlay').setAttribute('aria-label', p ? tr('Anhalten', 'Pause') : tr('Tagesverlauf abspielen', 'Play the day'));
@@ -288,12 +273,5 @@ export function setPlaying(p) {
 }
 $('#play').addEventListener('click', () => setPlaying(!state.playing));
 $('#speed').addEventListener('change', e => {
-  const v = e.target.value;
-  if (v[0] === 'y') {
-    state.speed = 0;
-    yearStart(+v.slice(1));
-  } else {
-    state.speed = +v;
-    yearStop();
-  }
+  state.speed = +e.target.value;
 });

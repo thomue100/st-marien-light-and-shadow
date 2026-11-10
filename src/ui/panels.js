@@ -1,5 +1,5 @@
 // Schalter, Karten der Symbolleiste, Aufklappmenüs, Bedienhinweis, Glossar, Ansichtstiefe, Sprachwechsel.
-import './year.js'; // Aufbau-Reihenfolge: nach ui/year
+import './controls.js'; // Aufbau-Reihenfolge: nach ui/controls
 import { $, lsSet } from '../core/util.js';
 import { applyStaticLang, fmtDeg, LANG, setLang, tr } from '../core/i18n.js';
 import { EXPERT, setExpert } from '../core/prefs.js';

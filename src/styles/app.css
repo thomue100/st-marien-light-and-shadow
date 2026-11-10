@@ -644,9 +644,18 @@ body:not(.tbopen) .tb-more {
   overflow: hidden;
   white-space: nowrap;
 }
+#sunChipTxt,
+#moonChipTxt,
+#moonChipPct {
+  white-space: pre; /* Füllzeichen der festen Stellen nicht zusammenziehen */
+}
 #tzName {
   display: inline-block;
-  min-width: 4ch; /* MEZ / MESZ */
+  min-width: 2.6em; /* MEZ / MESZ: die Skala springt nicht bei der Zeitumstellung */
+}
+body:not(.mobile) #play {
+  min-width: 8.4em; /* „Tagesverlauf“ / „Anhalten“: die Skala springt nicht beim Starten und Anhalten */
+  justify-content: center;
 }
 .skychip svg {
   width: 15px;
@@ -670,10 +679,10 @@ body:not(.tbopen) .tb-more {
 }
 .tb-sum {
   margin: 0 0 0 auto;
+  white-space: pre; /* einzeilig, feste Stellen bleiben stehen */
   font-family: var(--f-mono);
   font-size: 12.5px;
   color: var(--muted);
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
@@ -1633,7 +1642,6 @@ body.free .card,
 body.free #labels,
 body.free .hint,
 body.free .tourcard,
-body.free .yearnote,
 body.free .panonote,
 body.free .glpop {
   display: none !important;
@@ -1670,47 +1678,6 @@ body.free .glpop {
   pointer-events: none;
 }
 body.touring .joy {
-  display: none;
-}
-/* Hinweis im Jahreslauf */
-.yearnote {
-  position: absolute;
-  z-index: 3;
-  left: max(14px, env(safe-area-inset-left, 0px));
-  top: calc(72px + env(safe-area-inset-top, 0px));
-  width: min(320px, calc(100% - 28px));
-  background: var(--panel);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 8px;
-  box-shadow: var(--shadow);
-  padding: 10px 12px;
-  font-size: 13px;
-  line-height: 1.4;
-}
-.yearnote[hidden] {
-  display: none;
-}
-.yearnote p {
-  margin: 0;
-}
-.ylegend {
-  display: flex;
-  gap: 10px;
-  margin-top: 6px !important;
-  font-size: 12px;
-}
-.ylegend span::before {
-  content: '';
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--c);
-  margin-right: 4px;
-  vertical-align: -1px;
-}
-body.touring .yearnote {
   display: none;
 }
 .night {
@@ -2155,15 +2122,6 @@ body.mearly .mstart button:disabled {
   .card.min .cbody {
     display: none;
   }
-  .yearnote {
-    top: auto;
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px) + var(--tbh) + 8px);
-    left: 10px;
-    right: 10px;
-    width: auto;
-    font-size: 12.5px;
-    padding: 8px 10px;
-  }
   .joy {
     width: 84px;
     height: 84px;
@@ -2331,7 +2289,6 @@ body.mobile .tmore,
 body.mobile.touring .mviews,
 body.mobile.touring .mpmain,
 body.mobile.touring .msteps,
-body.mobile .yearnote,
 body.mobile .skymk,
 body.mobile .lbl {
   display: none !important;

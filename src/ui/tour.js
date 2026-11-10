@@ -7,7 +7,6 @@ import { state } from '../state.js';
 import { clockUpdate } from '../model/clock.js';
 import { goView } from '../scene/camera.js';
 import { setDate, setMinutes, setPlaying } from './controls.js';
-import { yearStop, yr } from './year.js';
 import { introExplore, menuOpen, openCard } from './panels.js';
 import { quiz, quizEnd, quizStart } from './quiz.js';
 
@@ -138,11 +137,6 @@ const TOUR = [
 export const tour = { i: null };
 function tourApply(s) {
   if (state.playing) setPlaying(false);
-  if (yr.on) {
-    yearStop();
-    $('#speed').value = '30';
-    state.speed = 30;
-  }
   openCard(null);
   if (s.moon) {
     const nf = moonPhaseTime(Date.now() - 12 * 3600000, 180, 1);
@@ -350,7 +344,6 @@ $('#homeBtn').addEventListener('click', () => {
   if (tour.i !== null) tourEnd();
   if (quiz.i !== null) quizEnd();
   if (state.playing) setPlaying(false);
-  yearStop();
   state.speed = 30;
   $('#speed').value = '30';
   openCard(null);
