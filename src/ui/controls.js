@@ -40,7 +40,8 @@ function nextEclipses() {
     key = state.y + '-' + state.m + '-' + state.d;
   if (eclCache.key === key) return eclCache;
   eclCache.key = key;
-  eclCache.s = eclipseScan(t, 6, 's').find(e => e.cover >= 0.005) || null; // streifende Finsternisse unter 0,5 % Bedeckung nicht nennen eclCache.l=eclipseScan(t,60,'l').find(e=>e.visible&&e.type!=='penumbral'&&e.max>=t)||null;
+  eclCache.s = eclipseScan(t, 6, 's').find(e => e.cover >= 0.005) || null; // streifende Finsternisse unter 0,5 % Bedeckung nicht nennen
+  eclCache.l = eclipseScan(t, 60, 'l').find(e => e.visible && e.type !== 'penumbral' && e.max >= t) || null;
   for (const k of ['s', 'l']) if (eclCache[k] && eclCache[k].max > DATE_MAX + 864e5) eclCache[k] = null; // nur innerhalb des wählbaren Zeitraums
   return eclCache;
 }
