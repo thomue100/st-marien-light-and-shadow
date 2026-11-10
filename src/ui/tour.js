@@ -134,7 +134,7 @@ const TOUR = [
     enT: 'The model is back at today. Try the sundial yourself: read it at the bottom and set the date and time. Under “Discover more” you find the ridge turret and the astronomical clock – and what else there is on a computer: quiz, experiments and the whole church.',
   },
 ];
-export const tour = { i: null };
+export const tour = { i: null, home: null };
 function tourApply(s) {
   if (state.playing) setPlaying(false);
   openCard(null);
@@ -171,7 +171,31 @@ function tourApply(s) {
       if (tour.i !== null && TOUR[tour.i] === s) setPlaying(true);
     }, 1300);
   }
+  // Was die Station eingestellt hat: weicht man davon ab (andere Ansicht, Datum, Uhrzeit), erscheint „Zurück zur Station“
+  tour.home = { v: s.v, y: state.y, m: state.m, d: state.d, min: state.minutes, play: !!s.play };
+  tourBackSync();
 }
+/** „Zurück zur Station“ zeigen, wenn Ansicht, Datum oder Uhrzeit nicht mehr die der Station sind (Drehen und Zoomen
+ * zählen nicht; bei Stationen, die selbst abspielen, nur die Ansicht). */
+function tourBackSync() {
+  const b = $('#tourBack'),
+    h = tour.home;
+  if (!b) return;
+  const off =
+    tour.i !== null &&
+    tour.i >= 0 &&
+    !!h &&
+    (state.view !== h.v ||
+      (!h.play && (state.y !== h.y || state.m !== h.m || state.d !== h.d || Math.round(state.minutes) !== h.min)));
+  if (b.hidden === !off) return;
+  b.hidden = !off;
+  tourFit();
+}
+$('#tourBack').addEventListener('click', () => {
+  if (tour.i !== null && tour.i >= 0) tourApply(TOUR[tour.i]);
+});
+// Ansichtswechsel (Menü „Ansicht“, Bereiche rechts) ändern die Bezeichnung der Ansicht
+new MutationObserver(tourBackSync).observe($('#viewTxt'), { childList: true, characterData: true, subtree: true });
 export function showTour() {
   const el = $('#tour'),
     i = tour.i;
@@ -271,6 +295,7 @@ $('#tourChoice').addEventListener('click', e => {
 export function tourWhen() {
   const w = $('#tourWhen');
   if (!w) return;
+  tourBackSync(); // läuft bei jeder Änderung von Datum oder Uhrzeit
   w.textContent =
     tour.i !== null && tour.i >= 0
       ? ' · ' +
@@ -319,6 +344,8 @@ export function tourEnd() {
     $('#speed').value = '30';
   }
   tour.i = null;
+  tour.home = null;
+  $('#tourBack').hidden = true;
   $('#tour').hidden = true;
   document.body.classList.remove('touring');
   if (endHook) setTimeout(endHook); // erst nach einer Ansicht, die die Wahl am Ende noch einstellt
