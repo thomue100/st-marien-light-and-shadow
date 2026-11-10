@@ -2555,8 +2555,8 @@ body.mobile .dstep {
   font-size: 18px;
 }
 body.mobile #time {
-  height: 30px;
-  bottom: -4px;
+  height: 44px; /* Tippfläche; die Schiene bleibt, wo sie war */
+  bottom: -11px;
 }
 body.mobile #time::-webkit-slider-runnable-track {
   height: 6px;
@@ -3127,4 +3127,38 @@ body.mobile.mpfold .mpanel {
   border-radius: 9px;
   font-size: 14px;
   line-height: 1.2;
+}
+
+/* Handy: Tippflächen mindestens 44 px hoch, ohne das Aussehen zu ändern – die Trefferfläche reicht über den Knopf hinaus */
+body.mobile #langSeg button,
+body.mobile .mviews button,
+body.mobile .mpquick .chip,
+body.mobile #mpWhy,
+body.mobile #mpFold,
+body.mobile #mpMore,
+body.mobile .mvbtn {
+  position: relative;
+}
+body.mobile #langSeg button::before,
+body.mobile .mviews button::before,
+body.mobile .mpquick .chip::before,
+body.mobile #mpWhy::before,
+body.mobile #mpFold::before,
+body.mobile #mpMore::before,
+body.mobile .mvbtn::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 44px;
+  transform: translateY(-50%);
+}
+body.mobile #mpWhy::before,
+body.mobile #mpFold::before {
+  left: 50%;
+  right: auto;
+  width: 100%;
+  min-width: 44px;
+  transform: translate(-50%, -50%);
 }
