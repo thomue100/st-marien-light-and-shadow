@@ -159,6 +159,8 @@ export function setDate(y, m, d) {
   }
   computeDay();
   updateSun(true);
+  // computeDay zeichnet die Himmelsansicht noch mit der alten Mondposition; Ring um den Mond erst jetzt nachziehen
+  if (state.pano) panoMarks();
 }
 export function setCut(v) {
   state.cut = v;
