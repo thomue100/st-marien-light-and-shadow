@@ -20,9 +20,19 @@ describe('Sommerzeit-Regeln', () => {
   it('1980: Sonderregel 6. April bis 28. September', () => {
     expect(dstRange(1980)).toEqual([Date.UTC(1980, 3, 6, 1), Date.UTC(1980, 8, 28, 1)]);
   });
-  it('vor 1980 keine Sommerzeit', () => {
+  it('1950–1979 keine Sommerzeit', () => {
     expect(dstRange(1979)).toBeNull();
     expect(berlinOffsetMin(Date.UTC(1975, 6, 1))).toBe(60);
+  });
+  it('1916–1918 und 1940–1949 Sommerzeit, im Sommer 1947 Hochsommerzeit (UTC+3)', () => {
+    expect(berlinOffsetMin(Date.UTC(1917, 6, 1))).toBe(120);
+    expect(berlinOffsetMin(Date.UTC(1919, 6, 1))).toBe(60);
+    expect(berlinOffsetMin(Date.UTC(1941, 0, 15))).toBe(120); // 1940–1942 durchgehend
+    expect(berlinOffsetMin(Date.UTC(1947, 5, 1))).toBe(180);
+    expect(berlinOffsetMin(Date.UTC(1947, 7, 1))).toBe(120);
+    expect(berlinOffsetMin(Date.UTC(1949, 11, 1))).toBe(60);
+    expect(localToUtc(1947, 5, 1, 12 * 60)).toBe(Date.UTC(1947, 5, 1, 9));
+    expect(localToUtc(1917, 6, 1, 12 * 60)).toBe(Date.UTC(1917, 6, 1, 10));
   });
   it('letzter Sonntag eines Monats', () => {
     expect(lastSundayUtc(2027, 2)).toBe(Date.UTC(2027, 2, 28, 1));

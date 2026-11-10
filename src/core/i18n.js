@@ -10,7 +10,7 @@ export let LANG =
     : 'de';
 export const tr = (de, en) => (LANG === 'en' ? en : de);
 export const dc = s => (LANG === 'en' ? String(s) : String(s).replace('.', ',')); // Dezimalzeichen
-export const tzN = off => (off === 120 ? tr('MESZ', 'CEST') : tr('MEZ', 'CET'));
+export const tzN = off => (off === 180 ? tr('MEHSZ', 'CEMT') : off === 120 ? tr('MESZ', 'CEST') : tr('MEZ', 'CET')); // MEHSZ: Hochsommerzeit 1947
 export function applyStaticLang() {
   document.documentElement.lang = LANG;
   document.querySelectorAll('[data-en]').forEach(el => {
