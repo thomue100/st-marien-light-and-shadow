@@ -4,7 +4,7 @@
 // Reihenfolge auf – derselben wie früher in einer einzigen großen Datei: Jedes Modul importiert als Erstes seinen Vorgänger,
 // app.js als Erstes das letzte Modul (ui/phone.js). Module dürfen sich gegenseitig importieren; eine Variable eines anderen
 // Moduls neu zuweisen geht aber nicht – dafür gibt es Setter wie setLang() oder requestRender(). Siehe README, „Aufbau-Reihenfolge“.
-// Reihenfolge: core/loader → core/util → core/i18n → core/prefs → model/measures → state → scene/renderer → scene/textures → scene/shaders → scene/materials → model/geometry → model/church → model/clock → model/environment → model/sundial → light/sky → light/windows → light/sun → scene/camera → scene/labels → ui/readouts → ui/controls → ui/year → ui/panels → ui/clockcard → ui/tour → ui/moontowers → ui/experiments → ui/quiz → ui/share → ui/phone → app.
+// Reihenfolge: core/loader → core/util → core/i18n → core/prefs → model/measures → state → scene/renderer → scene/textures → scene/shaders → scene/materials → model/geometry → model/church → model/clock → model/environment → model/sundial → light/sky → light/windows → light/sun → scene/camera → scene/labels → ui/readouts → ui/controls → ui/panels → ui/clockcard → ui/tour → ui/moontowers → ui/experiments → ui/quiz → ui/share → ui/phone → app.
 import { isPhone, showStart, syncViews } from './ui/phone.js'; // Aufbau-Reihenfolge: nach ui/phone
 import { applyCode } from './ui/share.js';
 import { berlinNow, localToUtc, sunPos } from './astro/index.js';
@@ -42,7 +42,6 @@ import {
 import { placeLabels, placeSkyMarks } from './scene/labels.js';
 import { chart, CHW, computeDay, drawChart, updateReadouts } from './ui/readouts.js';
 import { setAmb, setCut, setExp } from './ui/controls.js';
-import { yearTick, yr } from './ui/year.js';
 import { showTour, tour } from './ui/tour.js';
 import { MZT } from './ui/moontowers.js';
 import { LK, setExpReady } from './ui/experiments.js';
@@ -89,8 +88,7 @@ function loop(now) {
   } // während der Terminsuche nicht zeichnen
   const dt = Math.min(0.06, (now - last) / 1000);
   last = now;
-  if (state.playing && yr.on) yearTick(dt);
-  else if (state.playing) {
+  if (state.playing) {
     const fast = cur.el < -4 && !(useMoon && moonStr > 0.05) ? 6 : 1;
     let m = state.minutes + state.speed * dt * fast;
     if (m >= 1440) m -= 1440;

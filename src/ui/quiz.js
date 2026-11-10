@@ -10,7 +10,6 @@ import { dayOfYear, sd } from '../model/sundial.js';
 import { rc } from '../light/windows.js';
 import { goView } from '../scene/camera.js';
 import { eclWhen, setDate, setMinutes, setPlaying, updateEclText } from './controls.js';
-import { yearStop, yr } from './year.js';
 import { menuOpen, openCard } from './panels.js';
 import { CK_MON, CK_MON_EN } from './clockcard.js';
 import { tour, tourEnd, tourGo } from './tour.js';
@@ -225,11 +224,6 @@ export const quiz = { i: null, score: 0, done: [], t0: 0, state: 'ask', fb: null
 export function quizStart() {
   if (tour.i !== null) tourEnd();
   if (state.playing) setPlaying(false);
-  if (yr.on) {
-    yearStop();
-    state.speed = 30;
-    $('#speed').value = '30';
-  }
   openCard(null);
   const n = berlinNow(),
     t = Date.UTC(n.y, n.m, n.d),

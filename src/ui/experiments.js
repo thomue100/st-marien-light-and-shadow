@@ -14,7 +14,6 @@ import { moonCur, updateSun } from '../light/sun.js';
 import { busyHide, busyShow, busyText, goView, VIEWS } from '../scene/camera.js';
 import { day, dirName } from './readouts.js';
 import { setDate, setMinutes, setPlaying } from './controls.js';
-import { yearStop, yr } from './year.js';
 import { ckClockSign, ckFmtDay, ckHM, ckSign, ckSkySign, ckWrap } from './clockcard.js';
 
 /* ---------------- Experimente 1–4: Kirche als Sonnenuhr, Sonnenuhr und Armbanduhr, Lichtkalender, Uhr und Himmel ---------------- */
@@ -25,11 +24,6 @@ export function setExpReady(v) {
 const expPanel = k => !$('#card-exp').hidden && !$('#exp-' + k).hidden;
 export function expOpen(k) {
   if (state.playing) setPlaying(false);
-  if (yr.on) {
-    yearStop();
-    state.speed = 30;
-    $('#speed').value = '30';
-  }
   if (k === 'mt') {
     mtGeo();
     mtSync();
