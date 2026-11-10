@@ -764,9 +764,18 @@ body:not(.tbopen) .tb-more {
   overflow: hidden;
   white-space: nowrap;
 }
+#sunChipTxt,
+#moonChipTxt,
+#moonChipPct {
+  white-space: pre; /* Füllzeichen der festen Stellen nicht zusammenziehen */
+}
 #tzName {
   display: inline-block;
-  min-width: 4ch; /* MEZ / MESZ */
+  min-width: 2.6em; /* MEZ / MESZ: die Skala springt nicht bei der Zeitumstellung */
+}
+body:not(.mobile) #play {
+  min-width: 8.4em; /* „Tagesverlauf“ / „Anhalten“: die Skala springt nicht beim Starten und Anhalten */
+  justify-content: center;
 }
 .skychip svg {
   width: 15px;
@@ -790,10 +799,10 @@ body:not(.tbopen) .tb-more {
 }
 .tb-sum {
   margin: 0 0 0 auto;
+  white-space: pre; /* einzeilig, feste Stellen bleiben stehen */
   font-family: var(--f-mono);
   font-size: 12.5px;
   color: var(--muted);
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
