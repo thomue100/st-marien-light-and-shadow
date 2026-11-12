@@ -27,17 +27,18 @@ export function canvasTex(w, h, draw, rep, srgb) {
 }
 // Backsteinfarben nach Fotos (2026): gedecktes Rotbraun, G/R ≈ 0,6, dazu sintergebrannte dunkle und einzelne hellere Steine
 export function brickCol(r, dark) {
+  // ruhiger als zuvor: aus der Nähe eine geschlossene rotbraune Fläche mit feinen Unterschieden, kein buntes Flickwerk
   const t = r();
-  if (t < (dark === undefined ? 0.1 : dark)) return [60 + r() * 18, 43 + r() * 10, 39 + r() * 8];
-  if (t > 0.86) return [158 + r() * 20, 98 + r() * 14, 76 + r() * 12];
-  return [124 + r() * 36, 70 + r() * 20, 52 + r() * 14]; // kräftiger gestreut und etwas wärmer (Fotos)
+  if (t < (dark === undefined ? 0.1 : dark)) return [92 + r() * 16, 58 + r() * 9, 48 + r() * 7];
+  if (t > 0.86) return [150 + r() * 14, 90 + r() * 10, 68 + r() * 8];
+  return [132 + r() * 20, 76 + r() * 12, 57 + r() * 9];
 }
 export const brickTex = canvasTex(
   512,
   256,
   (g, w, h) => {
     const r = rng(11);
-    g.fillStyle = '#968a80';
+    g.fillStyle = '#8f8076'; // Fugen etwas dunkler und wärmer
     g.fillRect(0, 0, w, h);
     const bw = 64,
       bh = h / 12;

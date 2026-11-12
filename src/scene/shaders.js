@@ -125,7 +125,7 @@ export function enhance(mat, o) {
     if (LFB) f = f.replace('#include <lights_fragment_begin>', LFB);
     f = f.replace(
       '#include <aomap_fragment>',
-      `{ float am=mix(1.0,uAmbIn,insideMask(vWP)); reflectedLight.indirectDiffuse*=am; reflectedLight.indirectSpecular*=am; }
+      `{ float im=insideMask(vWP), am=mix(1.0,uAmbIn,im); reflectedLight.indirectDiffuse*=am*mix(vec3(1.0),vec3(1.06,1.0,0.9),im); reflectedLight.indirectSpecular*=am; } // innen warmes Streulicht: gekalkte Wände wirken warmweiß statt grau (Fotos)
 #include <aomap_fragment>`,
     );
     sh.fragmentShader = f;
