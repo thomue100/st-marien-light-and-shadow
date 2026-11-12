@@ -1070,11 +1070,14 @@ CHAPELS.forEach(chapel);
     cap.translate(x, HC + 0.1, zc);
     addMesh(cap, capM);
   }
+  const HS = HW - 1.3, // Wanddienste an den Fensterpfeilern und in den Ecken
+    RS = 2.4, // Halbmesser der Gewölbeanfänger über den Wanddiensten
+    shafts = [];
   {
     const sh = [],
-      cp = [],
-      HS = HW - 1.3; // Wanddienste an den Fensterpfeilern und in den Ecken
+      cp = [];
     const add = (x, z) => {
+      shafts.push([x, z]);
       const g = new THREE.CylinderGeometry(0.13, 0.13, HS, 10);
       g.translate(x, HS / 2, z);
       sh.push(g);
@@ -1099,8 +1102,15 @@ CHAPELS.forEach(chapel);
   };
   const hy = (x, z) => {
     const dc = Math.min(...cols.map(cx => Math.hypot(x - cx, z - zc))),
-      dw = Math.min(x - xa, xb - x, z - za, zb - z);
-    return Math.min(HC + 0.35 + (HK - HC - 0.35) * fr(dc / RC), HW + (HK - HW) * fr(dw / RW));
+      dw = Math.min(x - xa, xb - x, z - za, zb - z),
+      ds = Math.min(...shafts.map(s => Math.hypot(x - s[0], z - s[1])));
+    // über jedem Wanddienst senkt sich das Gewölbe als Anfänger bis auf das Kapitell (Foto) – vorher endeten die Dienste
+    // knapp einen Meter unter der Decke
+    return Math.min(
+      HC + 0.35 + (HK - HC - 0.35) * fr(dc / RC),
+      HW + (HK - HW) * fr(dw / RW),
+      HS + 0.35 + (HK - HS - 0.35) * Math.pow(Math.min(1, ds / RS), 0.6),
+    );
   };
   const NX = 56,
     NZ = 36,
@@ -1147,6 +1157,25 @@ CHAPELS.forEach(chapel);
           new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), pts.length * 2, 0.07, 5, false),
         );
     }
+  // Rippen über den Wanddiensten: je drei, in den Raum hinein bis zum Scheitel
+  for (const [sx, sz] of shafts) {
+    const nx = sx < xa + 0.3 ? 1 : sx > xb - 0.3 ? -1 : 0,
+      nz = sz < za + 0.3 ? 1 : sz > zb - 0.3 ? -1 : 0,
+      a0 = Math.atan2(nz, nx);
+    for (const da of [-0.7, 0, 0.7]) {
+      const dx = Math.cos(a0 + da),
+        dz = Math.sin(a0 + da),
+        pts = [];
+      for (let s = 0.15; s <= RS; s += 0.25) {
+        const x = sx + dx * s,
+          z = sz + dz * s;
+        if (x < xa + 0.05 || x > xb - 0.05 || z < za + 0.05 || z > zb - 0.05) break;
+        pts.push(P(x, hy(x, z) - 0.06, z));
+      }
+      if (pts.length > 2)
+        (da ? rgB : rg).push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), pts.length * 2, 0.055, 5, false));
+    }
+  }
   addMesh(mergeGeos(rg), ribMat, false);
   addMesh(mergeGeos(rgB), enhance(new THREE.MeshStandardMaterial({ color: lin(0x4a6a96), roughness: 0.8 }), {}), false);
 } // Rippen abwechselnd rot und blau (Foto)
