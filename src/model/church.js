@@ -59,7 +59,6 @@ import { cutPlane, scene } from '../scene/renderer.js';
 import { brickCol, brickTex, canvasTex, rng, vaultTex } from '../scene/textures.js';
 import { enhance } from '../scene/shaders.js';
 import {
-  altarMat,
   arcadeMat,
   darkMat,
   darkRoofMat,
@@ -1109,19 +1108,22 @@ CHAPELS.forEach(chapel);
     return Math.min(
       HC + 0.35 + (HK - HC - 0.35) * fr(dc / RC),
       HW + (HK - HW) * fr(dw / RW),
-      HS + 0.35 + (HK - HS - 0.35) * Math.pow(Math.min(1, ds / RS), 0.6),
+      HS + 0.35 + (HK - HS - 0.35) * Math.pow(Math.min(1, Math.max(0, ds - 0.28) / RS), 0.6), // sitzt auf dem Kapitell (Halbmesser 0,28)
     );
   };
-  const NX = 56,
-    NZ = 36,
+  const NX = 62,
+    NZ = 42,
+    VM = 0.6,
     pos = [],
     uv = [],
     idx = [];
   for (let j = 0; j <= NZ; j++)
     for (let i = 0; i <= NX; i++) {
-      const x = xa + ((xb - xa) * i) / NX,
-        z = za + ((zb - za) * j) / NZ;
-      pos.push(x, hy(x, z), z);
+      // die Fläche reicht ringsum 0,6 m über das Gewölbefeld hinaus bis in die Wände (Höhe wie am Rand): vorher blieb
+      // zwischen Gewölbe und Wand ein Spalt, durch den man über die Dienste hinweg ins Mauerwerk sah
+      const x = xa - VM + ((xb - xa + 2 * VM) * i) / NX,
+        z = za - VM + ((zb - za + 2 * VM) * j) / NZ;
+      pos.push(x, hy(Math.min(xb, Math.max(xa, x)), Math.min(zb, Math.max(za, z))), z);
       uv.push(x / 3, z / 3);
     }
   for (let j = 0; j < NZ; j++)
@@ -2358,25 +2360,7 @@ for (let i = 1; i < NB; i++) {
 stairTurret(28.5, -18.8, 1.35, 27.0, 5.0, darkRoofMat);
 stairTurret(26.4, 17.6, 1.35, 21.2, 1.2, darkRoofMat);
 
-// Ausstattung: Gestühl, Altar
-{
-  const gs = [];
-  for (let x = X0 + 3; x <= XT - 3; x += 1.15)
-    for (const zz of [
-      [-5.6, -0.9],
-      [0.9, 5.6],
-    ]) {
-      const seat = boxGeo(0.45, 0.45, zz[1] - zz[0]);
-      seat.translate(x, 0.45, (zz[0] + zz[1]) / 2);
-      gs.push(seat);
-      const back = boxGeo(0.08, 0.95, zz[1] - zz[0]);
-      back.translate(x - 0.25, 0.5, (zz[0] + zz[1]) / 2);
-      gs.push(back);
-    }
-  addMesh(mergeGeos(gs), woodMat);
-}
-box(30.0, 31.6, 0, 1.1, -1.6, 1.6, altarMat);
-box(30.6, 31.0, 1.1, 2.4, -1.0, 1.0, altarMat); // Retabel, niedrig
+// Ausstattung: Gestühl und Altar sind im Zuge der Sanierung aus der Kirche entfernt und deshalb nicht dargestellt.
 box(31.4, 31.6, 6.0, 12.4, -0.14, 0.14, woodMat);
 box(31.4, 31.6, 10.2, 10.5, -1.6, 1.6, woodMat); // Triumphkreuz, frei hängend (nach Innenfoto)
 {
