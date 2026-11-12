@@ -700,11 +700,44 @@ addMesh(mergeGeos(keyGeos), keyMat, false);
 {
   const dg = [],
     ig = [];
+  // Bündelpfeiler (Fotos aus dem Mittelschiff): an jeder Pfeilerfläche ein kräftiger Rundstab in der Achse, zwei
+  // schlankere daneben, an den Kanten zum Arkadenbogen je ein Eckrundstab mit Kapitellring auf Kämpferhöhe.
+  const shaft = (x, z, r, y0, y1, into) => {
+    const g = new THREE.CylinderGeometry(r, r, y1 - y0, 12, 1, false, Math.PI, Math.PI);
+    g.rotateY(into > 0 ? 0 : Math.PI); // offene Seite zur Wand
+    g.translate(x, (y0 + y1) / 2, z);
+    dg.push(g);
+  };
+  const ring = (x, z, r, y) => {
+    const g = new THREE.CylinderGeometry(r, r, 0.3, 12, 1, false, Math.PI, Math.PI);
+    g.rotateY(Math.PI);
+    g.translate(x, y, z);
+    dg.push(g);
+  };
   for (let i = 1; i < NB; i++)
     for (const s of [-1, 1]) {
-      const g = boxGeo(0.36, VSP_N, 0.32);
-      g.translate(PX[i], VSP_N / 2, s * (ZN - 0.7 - 0.16));
-      dg.push(g);
+      const zf = s * (ZN - 0.7), // Pfeilerfläche zum Mittelschiff
+        za = s * (ZN + 0.7), // zum Seitenschiff
+        top = VSP_N - 0.6;
+      for (const [dx, r] of [
+        [0, 0.26],
+        [-0.46, 0.15],
+        [0.46, 0.15],
+      ]) {
+        shaft(PX[i] + dx, zf, r, 0, top, -s);
+        ring(PX[i] + dx, zf, r + 0.09, top + 0.15);
+      }
+      for (const dx of [-0.82, 0.82]) {
+        shaft(PX[i] + dx, zf, 0.19, 0, ARC_SP - 0.4, -s);
+        ring(PX[i] + dx, zf, 0.28, ARC_SP - 0.25);
+      }
+      // Seitenschiffseite: Rundstab bis unter das Seitenschiffgewölbe, Eckrundstäbe bis zum Kämpfer
+      shaft(PX[i], za, 0.22, 0, VSP_A - 0.5, s);
+      ring(PX[i], za, 0.31, VSP_A - 0.35);
+      for (const dx of [-0.82, 0.82]) {
+        shaft(PX[i] + dx, za, 0.17, 0, ARC_SP - 0.4, s);
+        ring(PX[i] + dx, za, 0.26, ARC_SP - 0.25);
+      }
       const lamp = new THREE.CylinderGeometry(0.12, 0.15, 0.45, 12);
       lamp.translate(PX[i] + 0.9, 9.6, s * 5.4);
       ig.push(lamp);
@@ -1061,13 +1094,30 @@ CHAPELS.forEach(chapel);
     RW = 1.2;
   const ochre = enhance(new THREE.MeshStandardMaterial({ color: lin(0xc69a3e), roughness: 0.6, metalness: 0.1 }), {}),
     capM = enhance(new THREE.MeshStandardMaterial({ color: lin(0xa8782a), roughness: 0.5, metalness: 0.3 }), {});
+  // Kapitell nach Foto: Ring (Astragal), Kelch, darüber die Deckplatte, auf der die Rippen aufsetzen
+  const capital = (x, z, r, y, out) => {
+    const gs = [];
+    const a = new THREE.TorusGeometry(r * 1.12, r * 0.22, 6, 14);
+    a.rotateX(Math.PI / 2);
+    a.translate(x, y, z);
+    gs.push(a);
+    const bell = new THREE.CylinderGeometry(r * (1.1 + out), r * 1.05, 0.46, 14);
+    bell.translate(x, y + 0.26, z);
+    gs.push(bell);
+    const ab = new THREE.CylinderGeometry(r * (1.3 + out), r * (1.2 + out), 0.16, 14);
+    ab.translate(x, y + 0.57, z);
+    gs.push(ab);
+    return mergeGeos(gs);
+  };
   for (const x of cols) {
     const g = new THREE.CylinderGeometry(0.19, 0.22, HC, 14);
     g.translate(x, HC / 2, zc);
     addMesh(g, ochre);
-    const cap = new THREE.CylinderGeometry(0.42, 0.2, 0.5, 8);
-    cap.translate(x, HC + 0.1, zc);
-    addMesh(cap, capM);
+    const sr = new THREE.TorusGeometry(0.235, 0.055, 6, 14); // Schaftring (Foto: dunkles Band)
+    sr.rotateX(Math.PI / 2);
+    sr.translate(x, HC * 0.56, zc);
+    addMesh(sr, capM, false);
+    addMesh(capital(x, zc, 0.21, HC - 0.12, 0.55), capM, false);
   }
   const HS = HW - 1.3, // Wanddienste an den Fensterpfeilern und in den Ecken
     RS = 2.4, // Halbmesser der Gewölbeanfänger über den Wanddiensten
@@ -1080,9 +1130,7 @@ CHAPELS.forEach(chapel);
       const g = new THREE.CylinderGeometry(0.13, 0.13, HS, 10);
       g.translate(x, HS / 2, z);
       sh.push(g);
-      const k = new THREE.CylinderGeometry(0.28, 0.13, 0.4, 8);
-      k.translate(x, HS + 0.15, z);
-      cp.push(k);
+      cp.push(capital(x, z, 0.14, HS - 0.08, 0.7));
     };
     for (const x of [xa + 0.15, -33.88, -30.15, -27.57, -25.42, xb - 0.15]) {
       add(x, za + 0.12);
@@ -1094,6 +1142,36 @@ CHAPELS.forEach(chapel);
     }
     addMesh(mergeGeos(sh), ochre);
     addMesh(mergeGeos(cp), capM, false);
+    // Blendmaßwerk auf der fensterlosen Nordwand (Foto): je Wandfeld eine Spitzbogenblende mit zwei Bögchen und Kreis
+    {
+      const bl = [],
+        xs = shafts.filter(s => s[1] < zc).map(s => s[0]),
+        bar = ps => bl.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(ps), ps.length, 0.06, 4, false)),
+        pt = (x, y) => P(x, y, za + 0.07);
+      for (let k = 0; k + 1 < xs.length; k++) {
+        const cx = (xs[k] + xs[k + 1]) / 2,
+          hw = (xs[k + 1] - xs[k]) / 2 - 0.34,
+          bot = 1.3,
+          spr = 6.0;
+        if (hw < 0.45) continue;
+        bar(lancet(cx, hw, bot, spr, 8).map(p => pt(p[0], p[1])));
+        const hl = hw * 0.46,
+          ys = spr - 1.9;
+        for (const d of [-1, 1])
+          bar(
+            lancet(cx + d * hl * 1.06, hl, ys, ys, 6)
+              .slice(1, -1)
+              .map(p => pt(p[0], p[1])),
+          );
+        const rc = Math.min(hw * 0.4, 0.42),
+          cy = ys + Math.sqrt(3) * hl + rc + 0.14,
+          ps = [];
+        for (let a = 0; a <= 14; a++)
+          ps.push(pt(cx + rc * Math.cos((a * Math.PI) / 7), cy + rc * Math.sin((a * Math.PI) / 7)));
+        bar(ps);
+      }
+      if (bl.length) addMesh(mergeGeos(bl), mullionMat, false);
+    }
   }
   const fr = t => {
     t = Math.min(1, Math.max(0, t));
@@ -1195,18 +1273,113 @@ for (let k = 0; k < MT.length - 1; k++) {
   });
 }
 {
-  const cxm = MT.reduce((s, p) => s + p[0], 0) / MT.length,
-    czm = MT.reduce((s, p) => s + p[1], 0) / MT.length;
   const out = offPoly(MT, 0.7, null, null, true),
-    fc = [],
     fr = [],
     ap = P(46.3, MT_APEX, -0.1),
-    e0 = P(choirOff(0.7)[1][0] - 0.3, HJ - 0.3, -0.1),
-    cc = P(cxm, 18.2, czm);
-  for (let k = 0; k < MT.length; k++) {
-    const a = MT[k],
-      b = MT[(k + 1) % MT.length];
-    fc.push([P(a[0], 18.2, a[1]), P(b[0], 18.2, b[1]), cc]);
+    e0 = P(choirOff(0.7)[1][0] - 0.3, HJ - 0.3, -0.1);
+  // Rippengewölbe über zwei Jochen (Foto der Marientidenkapelle): die Kappen steigen von den Wänden und vom Gurtbogen
+  // zu zwei Scheiteln; vorher war hier eine ebene Decke.
+  {
+    const SPm = 13.8,
+      CRm = 18.2,
+      Rm = 3.5,
+      XD = 44.0, // Gurtbogen zwischen Vorjoch und Ostjoch
+      JA = [MT[0], MT[1], MT[6], MT[7]],
+      mid = pts => [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length],
+      cA = mid(JA),
+      cB = mid([MT[1], MT[2], MT[3], MT[4], MT[5], MT[6]]),
+      segs = MT.map((p, k) => [p, MT[(k + 1) % MT.length]]).concat([
+        [
+          [XD, -5.33],
+          [XD, 5.03],
+        ],
+      ]);
+    const dSeg = (x, z, [a, b]) => {
+      const dx = b[0] - a[0],
+        dz = b[1] - a[1],
+        L = dx * dx + dz * dz || 1;
+      const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / L));
+      return Math.hypot(x - a[0] - t * dx, z - a[1] - t * dz);
+    };
+    const inMT = (x, z) => {
+      let w = false;
+      for (let k = 0, j = MT.length - 1; k < MT.length; j = k++)
+        if (
+          MT[k][1] > z !== MT[j][1] > z &&
+          x < ((MT[j][0] - MT[k][0]) * (z - MT[k][1])) / (MT[j][1] - MT[k][1]) + MT[k][0]
+        )
+          w = !w;
+      return w;
+    };
+    const hm = (x, z) => {
+      if (!inMT(x, z)) return SPm;
+      const d = Math.min(...segs.map(s => dSeg(x, z, s)));
+      return SPm + (CRm - SPm) * vf(1 - Math.min(1, d / Rm));
+    };
+    const x0 = 37.9,
+      x1 = 51.0,
+      z0 = -5.9,
+      z1 = 5.7,
+      st = 0.28,
+      NXm = Math.ceil((x1 - x0) / st),
+      NZm = Math.ceil((z1 - z0) / st),
+      vp = [],
+      vu = [],
+      vi = [];
+    for (let j = 0; j <= NZm; j++)
+      for (let i = 0; i <= NXm; i++) {
+        const x = x0 + ((x1 - x0) * i) / NXm,
+          z = z0 + ((z1 - z0) * j) / NZm;
+        vp.push(x, hm(x, z), z);
+        vu.push(x / 3, z / 3);
+      }
+    const outM = offPoly(MT, 0.45, null, null, true),
+      inOut = (x, z) => {
+        let w = false;
+        for (let k = 0, j = outM.length - 1; k < outM.length; j = k++)
+          if (
+            outM[k][1] > z !== outM[j][1] > z &&
+            x < ((outM[j][0] - outM[k][0]) * (z - outM[k][1])) / (outM[j][1] - outM[k][1]) + outM[k][0]
+          )
+            w = !w;
+        return w;
+      };
+    for (let j = 0; j < NZm; j++)
+      for (let i = 0; i < NXm; i++) {
+        const x = x0 + ((x1 - x0) * (i + 0.5)) / NXm,
+          z = z0 + ((z1 - z0) * (j + 0.5)) / NZm;
+        if (!inOut(x, z)) continue;
+        const a = j * (NXm + 1) + i;
+        vi.push(a, a + NXm + 1, a + 1, a + 1, a + NXm + 1, a + NXm + 2);
+      }
+    const gm = new THREE.BufferGeometry();
+    gm.setAttribute('position', new THREE.Float32BufferAttribute(vp, 3));
+    gm.setAttribute('uv', new THREE.Float32BufferAttribute(vu, 2));
+    gm.setIndex(vi);
+    gm.computeVertexNormals();
+    const mv = addMesh(gm, vaultMat);
+    occluders.splice(occluders.indexOf(mv), 1);
+    // Rippen: Gurtbogen, Schildbögen an den Wänden, Diagonalen zu den beiden Schlusssteinen
+    const rm = [],
+      arc = (a, b) => {
+        const pts = [];
+        for (let k = 0; k <= 12; k++) {
+          const t = k / 12,
+            x = a[0] + (b[0] - a[0]) * t,
+            z = a[1] + (b[1] - a[1]) * t;
+          pts.push(P(x, hm(x, z) - 0.09, z));
+        }
+        rm.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, 0.085, 5, false));
+      };
+    for (const [a, b] of segs) arc(a, b);
+    for (const p of JA) arc(p, cA);
+    for (const k of [1, 2, 3, 4, 5, 6]) arc(MT[k], cB);
+    addMesh(mergeGeos(rm), ribMat, false);
+    for (const cq of [cA, cB]) {
+      const kg = new THREE.SphereGeometry(0.26, 10, 8);
+      kg.translate(cq[0], hm(cq[0], cq[1]) - 0.16, cq[1]);
+      addMesh(kg, ribMat, false);
+    }
   }
   const q = (p, y) => P(p[0], y, p[1]);
   for (let k = 2; k < 5; k++) fr.push([q(out[k], 21.9), q(out[k + 1], 21.9), ap]); // Polygonschluss: Walm
@@ -1218,7 +1391,6 @@ for (let k = 0; k < MT.length - 1; k++) {
     fr.push([q(w, 21.9), q(out[i2], 21.9), ap]);
     fr.push([q(w, 21.9), ap, e0]);
   } // Langseiten, First bis zur Chorwand
-  addMesh(polyGeo(fc), wallMat);
   addMesh(polyGeo(fr), roofMat);
 }
 
