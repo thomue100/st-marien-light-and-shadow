@@ -350,6 +350,30 @@ function registerWindow(p0, X, Z, y0, o, t) {
       g.applyMatrix4(m);
       mullionGeos.push(g);
     }
+    // Maßwerk im Bogenfeld (Fotos der Fenster): über jedem Licht ein Spitzbögchen, darüber ein Kreis
+    if (nL >= 2 && o.hw >= 0.7) {
+      const hl = (o.hw / nL) * 0.94,
+        ys = o.spring - 0.1,
+        pt = (u, y) => O.clone().addScaledVector(X, u).addScaledVector(Y, y),
+        bar = ps =>
+          mullionGeos.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(ps), ps.length, 0.085, 4, false));
+      for (let k = 0; k < nL; k++) {
+        const cu = -o.hw + (2 * o.hw * (k + 0.5)) / nL,
+          ps = lancet(cu, hl, ys, ys, 7)
+            .slice(1, -1)
+            .map(p => pt(p[0], p[1]));
+        if (ps.length > 2) bar(ps);
+      }
+      const subTop = ys + SQ3 * hl,
+        rc = Math.min(o.hw * 0.4, (apex - subTop) * 0.38);
+      if (rc > 0.22) {
+        const cy = subTop + rc + 0.1,
+          ps = [];
+        for (let a = 0; a <= 16; a++)
+          ps.push(pt(rc * Math.cos((a * Math.PI) / 8), cy + rc * Math.sin((a * Math.PI) / 8)));
+        bar(ps);
+      }
+    }
   }
   if (type >= 0) {
     const k = TINT.uWinCount.value;
