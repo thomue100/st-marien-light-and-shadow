@@ -1177,16 +1177,19 @@ CHAPELS.forEach(chapel);
     t = Math.min(1, Math.max(0, t));
     return Math.sqrt(1 - (1 - t) * (1 - t));
   };
+  // Oberkante der Deckplatten: dort setzen Kappen und Rippen auf (Foto); vorher lag die Gewölbefläche darunter,
+  // sodass die Kapitelle hindurchstießen und die Rippen frei darüber begannen
+  const CAPC = HC + 0.53,
+    CAPS = HS + 0.59,
+    RCAP = 0.3;
   const hy = (x, z) => {
     const dc = Math.min(...cols.map(cx => Math.hypot(x - cx, z - zc))),
       dw = Math.min(x - xa, xb - x, z - za, zb - z),
-      ds = Math.min(...shafts.map(s => Math.hypot(x - s[0], z - s[1])));
-    // über jedem Wanddienst senkt sich das Gewölbe als Anfänger bis auf das Kapitell (Foto) – vorher endeten die Dienste
-    // knapp einen Meter unter der Decke
+      ds = Math.min(...shafts.map(s => Math.hypot(x - s[0], s[1] === undefined ? z : z - s[1])));
     return Math.min(
-      HC + 0.35 + (HK - HC - 0.35) * fr(dc / RC),
+      CAPC + (HK - CAPC) * fr(Math.max(0, dc - RCAP) / RC),
       HW + (HK - HW) * fr(dw / RW),
-      HS + 0.35 + (HK - HS - 0.35) * Math.pow(Math.min(1, Math.max(0, ds - 0.28) / RS), 0.6), // sitzt auf dem Kapitell (Halbmesser 0,28)
+      CAPS + (HK - CAPS) * fr(Math.max(0, ds - 0.22) / RS),
     );
   };
   const NX = 62,
@@ -1219,13 +1222,17 @@ CHAPELS.forEach(chapel);
   const rg = [],
     rgB = [],
     xm = (cols[0] + cols[1]) / 2;
+  // Die Rippen setzen auf der Deckplatte auf und laufen von dort über die Kappen: erster Punkt auf dem Kapitell,
+  // danach eng gestufte Punkte, damit der steile Anlauf rund bleibt
+  const SS = [0.36, 0.5, 0.68, 0.9, 1.2];
+  for (let s = 1.55; s < 12; s += 0.35) SS.push(s);
   for (const cx of cols)
     for (let k = 0; k < 16; k++) {
       const a = (k * Math.PI) / 8,
         dx = Math.cos(a),
         dz = Math.sin(a),
-        pts = [];
-      for (let s = 0.3; s < 12; s += 0.3) {
+        pts = [P(cx + dx * 0.22, CAPC - 0.02, zc + dz * 0.22)];
+      for (const s of SS) {
         const x = cx + dx * s,
           z = zc + dz * s;
         if (x < xa + 0.05 || x > xb - 0.05 || z < za + 0.05 || z > zb - 0.05) break;
@@ -1245,8 +1252,9 @@ CHAPELS.forEach(chapel);
     for (const da of [-0.7, 0, 0.7]) {
       const dx = Math.cos(a0 + da),
         dz = Math.sin(a0 + da),
-        pts = [];
-      for (let s = 0.15; s <= RS; s += 0.25) {
+        pts = [P(sx + dx * 0.15, CAPS - 0.02, sz + dz * 0.15)];
+      for (const s of [0.3, 0.42, 0.58, 0.78, 1.05, 1.35, 1.7, 2.05, 2.4]) {
+        if (s > RS) break;
         const x = sx + dx * s,
           z = sz + dz * s;
         if (x < xa + 0.05 || x > xb - 0.05 || z < za + 0.05 || z > zb - 0.05) break;
