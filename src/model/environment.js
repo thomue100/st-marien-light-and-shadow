@@ -19,6 +19,42 @@ if (!LATER)
 // Verschattung: Strahlverfolgung über ein 1-m-Höhenraster (Dächer aus bDOM20, Bäume abschaltbar).
 // Altstadtinsel (ENV.far): übrige LoD2-Gebäude der Insel als Kulisse, Gelände im 8-m-Raster, Bodenkarte aus
 // OpenStreetMap (Wasser, Grün, Plätze, Straßen) und ein 2-m-Fernraster der hohen Bauten (Kirchtürme) für die Verschattung.
+// Farbtöne der Nachbarhäuser (linear) und weiches Rauschen über die Lage (Wellenlänge w in Metern, Wert 0…1)
+const ROOF = [
+    [0.13, 0.03, 0.017],
+    [0.18, 0.036, 0.016],
+    [0.22, 0.055, 0.024],
+  ],
+  FLAT = [
+    [0.05, 0.05, 0.054],
+    [0.11, 0.11, 0.118],
+  ],
+  WALL = [
+    [0.13, 0.05, 0.032],
+    [0.15, 0.14, 0.125],
+    [0.3, 0.28, 0.24],
+  ],
+  mix3 = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t, p[2] + (q[2] - p[2]) * t],
+  hash2 = (i, j) => {
+    const h = Math.sin(i * 127.1 + j * 311.7) * 43758.5453;
+    return h - Math.floor(h);
+  },
+  tone = (x, z, w) => {
+    const u = x / w,
+      v = z / w,
+      i = Math.floor(u),
+      j = Math.floor(v),
+      fu = u - i,
+      fv = v - j,
+      su = fu * fu * (3 - 2 * fu),
+      sv = fv * fv * (3 - 2 * fv),
+      n =
+        hash2(i, j) * (1 - su) * (1 - sv) +
+        hash2(i + 1, j) * su * (1 - sv) +
+        hash2(i, j + 1) * (1 - su) * sv +
+        hash2(i + 1, j + 1) * su * sv;
+    return Math.min(1, Math.max(0, (n - 0.5) * 1.7 + 0.5)); // etwas gespreizt, damit auch die Randtöne vorkommen
+  };
 // Auf dem Handy wird die Umgebung erst nach dem Start nachgeladen (buildEnv); bis dahin ist ENV null – alle Nutzer
 // prüfen das (wie bei fehlenden Daten).
 export let ENV = null;
@@ -138,7 +174,7 @@ async function buildEnv() {
           pos[3 * k + 1] = envG[k];
           pos[3 * k + 2] = o + j * gs;
           const t = 0.92 + r() * 0.1,
-            c = groundTex ? [0.96, 0.96, 0.96] : [0.235, 0.228, 0.215]; // mit Bodenkarte nur leichte Streuung
+            c = groundTex ? [0.15, 0.15, 0.15] : [0.235, 0.228, 0.215]; // mit Bodenkarte: abgedunkelt (Luftbild: Pflaster und Asphalt mittelgrau)
           col[3 * k] = c[0] * t;
           col[3 * k + 1] = c[1] * t;
           col[3 * k + 2] = c[2] * t;
@@ -196,11 +232,22 @@ async function buildEnv() {
         col = new Float32Array(nv * 3);
       for (let i = 0; i < nv; i++) {
         const ny = nor[3 * i + 1],
-          jit = 0.94 + ((((i * 2654435761) >>> 0) % 1000) / 1000) * 0.1;
+          jit = 0.94 + ((((i * 2654435761) >>> 0) % 1000) / 1000) * 0.1,
+          px = pos[3 * i],
+          pz = pos[3 * i + 2],
+          a = tone(px, pz, 38),
+          b = tone(px + 500, pz - 300, 24);
         let c;
+        // Farben nach dem Luftbild (linear): Ziegeldächer kräftig rot bis rotbraun, Flachdächer grau, Fassaden von hell
+        // verputzt über grau bis Backstein – von Straßenzug zu Straßenzug verschieden (weiches Rauschen über die Lage)
         if (K[i] === 1)
-          c = ny > 0.985 ? [0.2, 0.2, 0.21] : [0.35, 0.125, 0.08]; // Luftbild: Flachdach grau, Steildach Ziegel terrakotta (linear)
-        else c = [0.29, 0.26, 0.225]; // Wand gedeckt warmgrau, damit die Kirche im Vordergrund bleibt
+          c =
+            ny > 0.985
+              ? mix3(FLAT[0], FLAT[1], a)
+              : a < 0.5
+                ? mix3(ROOF[0], ROOF[1], a * 2)
+                : mix3(ROOF[1], ROOF[2], a * 2 - 1);
+        else c = b < 0.5 ? mix3(WALL[0], WALL[1], b * 2) : mix3(WALL[1], WALL[2], b * 2 - 1);
         col[3 * i] = c[0] * jit;
         col[3 * i + 1] = c[1] * jit;
         col[3 * i + 2] = c[2] * jit;
@@ -236,7 +283,7 @@ async function buildEnv() {
       g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
       g.setIndex(idx);
       g.computeVertexNormals();
-      const m = new THREE.MeshStandardMaterial({ color: lin(0x56683f), roughness: 0.95, side: THREE.DoubleSide }); // Laubgrün wie im Luftbild
+      const m = new THREE.MeshStandardMaterial({ color: lin(0x33472a), roughness: 0.95, side: THREE.DoubleSide }); // dunkles Laubgrün wie im Luftbild
       const mesh = new THREE.Mesh(g, m);
       mesh.castShadow = true;
       mesh.receiveShadow = true;
@@ -276,6 +323,7 @@ async function buildEnv() {
         g,
         new THREE.MeshStandardMaterial({
           map: groundTex,
+          color: new THREE.Color(0.2, 0.2, 0.2), // wie der Nahbereich abgedunkelt, das Umland etwas heller
           roughness: 0.95,
           polygonOffset: true,
           polygonOffsetFactor: 2,
@@ -286,7 +334,7 @@ async function buildEnv() {
       mesh.userData.far = true;
       envGroup.add(mesh);
       // Gebäude: Wände, Steildächer, Flachdächer; die hohen werfen Schatten (bis zur Kirche), die übrigen nur Kulisse
-      const COL = { wall: [0.29, 0.26, 0.225], roof: [0.35, 0.125, 0.08], flat: [0.2, 0.2, 0.21] };
+      const COL = { wall: [0.17, 0.155, 0.135], roof: ROOF[1], flat: [0.08, 0.08, 0.086] }; // Mitteltöne des Nahbereichs
       for (const grp of ['low', 'tall'])
         for (const c of ['wall', 'roof', 'flat']) {
           const D = F[grp + '_' + c];

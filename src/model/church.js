@@ -2076,7 +2076,7 @@ stairTurret(-43.6, TW.s[1] + 0.6, 1.6, 27.4, 3.2);
   sp.rotateY(Math.PI / 8);
   sp.translate(xc, ys + SPL / 2, 0);
   const helmMat = new THREE.MeshStandardMaterial({
-    color: lin(0x7a6a5e),
+    color: lin(0x40362f), // dunkel, fast schwarzbraun (Fotos von Süden und Osten)
     roughness: 0.6,
     metalness: 0.25,
     side: THREE.DoubleSide,
