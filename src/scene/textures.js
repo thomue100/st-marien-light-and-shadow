@@ -29,16 +29,17 @@ export function canvasTex(w, h, draw, rep, srgb) {
 export function brickCol(r, dark) {
   // ruhiger als zuvor: aus der Nähe eine geschlossene rotbraune Fläche mit feinen Unterschieden, kein buntes Flickwerk
   const t = r();
-  if (t < (dark === undefined ? 0.1 : dark)) return [92 + r() * 16, 58 + r() * 9, 48 + r() * 7];
-  if (t > 0.86) return [150 + r() * 14, 90 + r() * 10, 68 + r() * 8];
-  return [132 + r() * 20, 76 + r() * 12, 57 + r() * 9];
+  // Helligkeit nach den Fotos der Westfront: das Mauerwerk war in der Sonne deutlich zu hell (gemessen 230 statt 148)
+  if (t < (dark === undefined ? 0.1 : dark)) return [76 + r() * 14, 47 + r() * 8, 39 + r() * 6];
+  if (t > 0.86) return [124 + r() * 12, 74 + r() * 9, 56 + r() * 7];
+  return [109 + r() * 17, 62 + r() * 10, 47 + r() * 8];
 }
 export const brickTex = canvasTex(
   512,
   256,
   (g, w, h) => {
     const r = rng(11);
-    g.fillStyle = '#8f8076'; // Fugen etwas dunkler und wärmer
+    g.fillStyle = '#7c6f66'; // Fugen etwas dunkler und wärmer
     g.fillRect(0, 0, w, h);
     const bw = 64,
       bh = h / 12;
