@@ -439,7 +439,10 @@ for (let k = 0; k < AMB.length - 1; k++) {
 }
 // Dächer des Kapellenkranzes (Drohnenfoto von Osten): Pultdach an der schrägen Wand, Kapelle mit radialem First und Walm,
 // dazwischen Kehlen; First an der Chorwand unter den Obergadenfenstern
-const MT_APEX = 31.0,
+// Spitze des Zeltdachs der Marientidenkapelle: aus dem Foto von Osten über die Neigung der
+// Gratlinien (rund 60° und damit mindestens ebenso steile Dachflächen) auf die halbe Dachbreite
+// von 5,9 m zurückgerechnet; vorher 31,0 m, was ein deutlich zu flaches Dach ergab.
+const MT_APEX = 33.8,
   HRC = APSE_WB - 0.4; // Dächer des Kapellenkranzes enden unter den tiefer sitzenden Chorfenstern
 const nrm2 = (x, z) => {
   const l = Math.hypot(x, z);
@@ -1283,9 +1286,12 @@ for (let k = 0; k < MT.length - 1; k++) {
 {
   const out = offPoly(MT, 0.7, null, null, true),
     fr = [],
-    ap = P(46.3, MT_APEX, -0.1),
-    xCh = choirOff(0.7)[1][0] - 0.3, // Chorwand: hier stirbt der First
-    fW = P(xCh, MT_APEX, -0.1), // Firstende an der Chorwand – waagerechter First
+    // Luftbild von Osten: die Kapelle trägt kein Firstdach, sondern ein sehr steiles vielseitiges
+    // Zeltdach, das über der Mitte des Grundrisses in einer Spitze mit Knauf zusammenläuft.
+    apX = MT.reduce((s, p) => s + p[0], 0) / MT.length,
+    apZ = MT.reduce((s, p) => s + p[1], 0) / MT.length,
+    ap = P(apX, MT_APEX, apZ),
+    xCh = choirOff(0.7)[1][0] - 0.3,
     eA = P(xCh, HRC, -0.1); // Anschlusspunkt des Kapellenkranzdachs (gleicher Punkt wie in AMB_ROOF)
   // Rippengewölbe über zwei Jochen (Foto der Marientidenkapelle): die Kappen steigen von den Wänden und vom Gurtbogen
   // zu zwei Scheiteln; vorher war hier eine ebene Decke.
@@ -1392,17 +1398,18 @@ for (let k = 0; k < MT.length - 1; k++) {
     }
   }
   const q = (p, y) => P(p[0], y, p[1]);
-  for (let k = 2; k < 5; k++) fr.push([q(out[k], 21.9), q(out[k + 1], 21.9), ap]); // Polygonschluss: Walm
-  for (const [i0, i2] of [
-    [0, 2],
-    [7, 5],
-  ]) {
-    const w = [MT[i0][0], out[i0][1]];
-    fr.push([q(w, 21.9), q(out[i2], 21.9), ap]);
-    fr.push([q(w, 21.9), ap, fW]);
-    fr.push([q(w, 21.9), fW, eA]); // Kehle: schließt bündig an das Dach des Kapellenkranzes an
-  } // Langseiten, waagerechter First bis an die Chorwand
+  for (let k = 0; k < 7; k++) fr.push([q(out[k], 21.9), q(out[k + 1], 21.9), ap]); // je Wand eine Dachfläche
+  fr.push([q(out[7], 21.9), q(out[0], 21.9), ap]); // Westwalm über der Öffnung zum Umgang
+  // und darunter die kurze Anschlussfläche zum Dach des Kapellenkranzes: sie endet genau auf
+  // der Kante, an der AMB_ROOF aufhört (Traufpunkte der Kapelle bis zum Punkt an der Chorwand).
+  fr.push([q(out[0], 21.9), q(out[7], 21.9), eA]);
   addMesh(polyGeo(fr), roofMat);
+  // Knauf mit Stange über der Spitze (im Luftbild deutlich zu sehen)
+  const fin = mergeGeos([
+    new THREE.SphereGeometry(0.34, 10, 8).translate(apX, MT_APEX + 0.5, apZ),
+    new THREE.CylinderGeometry(0.07, 0.07, 2.4, 6).translate(apX, MT_APEX + 1.7, apZ),
+  ]);
+  addMesh(fin, roofMat, false);
 }
 
 // Doppelturmfassade nach Fotos der Westseite (vermessen) und Luftbildern:
