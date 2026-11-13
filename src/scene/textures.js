@@ -27,17 +27,19 @@ export function canvasTex(w, h, draw, rep, srgb) {
 }
 // Backsteinfarben nach Fotos (2026): gedecktes Rotbraun, G/R ≈ 0,6, dazu sintergebrannte dunkle und einzelne hellere Steine
 export function brickCol(r, dark) {
+  // ruhiger als zuvor: aus der Nähe eine geschlossene rotbraune Fläche mit feinen Unterschieden, kein buntes Flickwerk
   const t = r();
-  if (t < (dark === undefined ? 0.1 : dark)) return [60 + r() * 18, 43 + r() * 10, 39 + r() * 8];
-  if (t > 0.86) return [158 + r() * 20, 98 + r() * 14, 76 + r() * 12];
-  return [130 + r() * 26, 77 + r() * 16, 61 + r() * 12];
+  // Helligkeit nach den Fotos der Westfront: das Mauerwerk war in der Sonne deutlich zu hell (gemessen 230 statt 148)
+  if (t < (dark === undefined ? 0.1 : dark)) return [76 + r() * 14, 47 + r() * 8, 39 + r() * 6];
+  if (t > 0.86) return [124 + r() * 12, 74 + r() * 9, 56 + r() * 7];
+  return [109 + r() * 17, 62 + r() * 10, 47 + r() * 8];
 }
 export const brickTex = canvasTex(
   512,
   256,
   (g, w, h) => {
     const r = rng(11);
-    g.fillStyle = '#968a80';
+    g.fillStyle = '#7c6f66'; // Fugen etwas dunkler und wärmer
     g.fillRect(0, 0, w, h);
     const bw = 64,
       bh = h / 12;
@@ -104,18 +106,36 @@ export const copperTex = canvasTex(
   256,
   256,
   (g, w, h) => {
-    // Kupfer mit hellem Grünspan (Luftbilder)
+    // Kupfer mit Grünspan (Luftbild, Foto vom Petriturm): kräftiges Türkisgrün, fleckig, mit dunklen Laufspuren
     const r = rng(21);
-    g.fillStyle = '#7dbdb0';
-    g.fillRect(0, 0, w, h); // Grünspan türkisgrau (Luftbilder, Foto vom Petriturm)
+    g.fillStyle = '#4f9482';
+    g.fillRect(0, 0, w, h);
     for (let i = 0; i < 900; i++) {
       const t = r();
-      g.fillStyle = t < 0.5 ? 'rgba(92,146,138,.32)' : 'rgba(170,216,206,.30)';
+      g.fillStyle = t < 0.5 ? 'rgba(70,122,110,.34)' : 'rgba(140,200,184,.30)';
       g.fillRect(r() * w, r() * h, 6 + r() * 20, 4 + r() * 14);
     }
-    for (let i = 0; i < 30; i++) {
-      g.fillStyle = 'rgba(50,80,70,.16)';
-      g.fillRect(r() * w, 0, 2 + r() * 3, h);
+    // große, weiche Flecken (heller und dunkler Grünspan)
+    for (let i = 0; i < 26; i++) {
+      const x = r() * w,
+        y = r() * h,
+        rad = 22 + r() * 46,
+        gr = g.createRadialGradient(x, y, 0, x, y, rad),
+        c = r() < 0.5 ? '52,96,86' : '150,208,190';
+      gr.addColorStop(0, 'rgba(' + c + ',.26)');
+      gr.addColorStop(1, 'rgba(' + c + ',0)');
+      g.fillStyle = gr;
+      for (const dx of [-w, 0, w])
+        for (const dy of [-h, 0, h]) {
+          g.setTransform(1, 0, 0, 1, dx, dy);
+          g.fillRect(x - rad, y - rad, 2 * rad, 2 * rad);
+        }
+      g.setTransform(1, 0, 0, 1, 0, 0);
+    }
+    // Laufspuren in Fallrichtung
+    for (let i = 0; i < 46; i++) {
+      g.fillStyle = 'rgba(40,70,60,' + (0.1 + r() * 0.16) + ')';
+      g.fillRect(r() * w, 0, 1 + r() * 4, h);
     }
     g.fillStyle = 'rgba(50,90,78,.45)';
     for (let x = 0; x < w; x += 32) g.fillRect(x, 0, 2, h);
