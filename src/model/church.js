@@ -1716,27 +1716,33 @@ const arcadeFriezeTex = canvasTex(
   256,
   64,
   (g, w, h) => {
-    // weißer Bogenfries des Mittelbaus (Foto)
-    g.fillStyle = '#8e4630';
+    // weißer Kleeblattbogenfries des Mittelbaus (Foto der Westfront): volle helle Dreipässe mit
+    // Backstein dazwischen. Das Band ist 0,9 m hoch und wiederholt sich alle 3,6 m, die Bildpunkte
+    // sind also quadratisch: ein Kleeblatt je 64 Pixel entspricht 0,9 m Breite wie auf dem Foto.
+    g.fillStyle = '#6d3e2f'; // Backsteingrund wie die umgebende Wand, damit das Band nicht als Streifen wirkt
     g.fillRect(0, 0, w, h);
-    g.fillStyle = '#efe9df';
-    for (let x = 0; x < w; x += 64) {
-      g.beginPath();
-      g.moveTo(x + 6, 58);
-      g.lineTo(x + 6, 30);
-      g.arc(x + 32, 30, 26, Math.PI, 0);
-      g.lineTo(x + 58, 58);
-      g.fill();
+    g.fillStyle = '#7c6f66'; // Lager- und Stoßfugen, damit der Grund nicht glatt wirkt
+    for (let r = 0, y = 0; y < h; r++, y += 6.4) {
+      g.fillRect(0, y, w, 1.1);
+      for (let x = (r % 2) * 7.5; x < w; x += 15) g.fillRect(x, y, 1.1, 6.4);
     }
-    g.fillStyle = '#8e4630';
-    for (let x = 0; x < w; x += 64) {
+    const lobe = (x, y, r) => {
       g.beginPath();
-      g.moveTo(x + 14, 58);
-      g.lineTo(x + 14, 34);
-      g.arc(x + 32, 34, 18, Math.PI, 0);
-      g.lineTo(x + 50, 58);
+      g.arc(x, y, r, 0, Math.PI * 2);
       g.fill();
+    };
+    for (let x = 0; x < w; x += 64) {
+      g.fillStyle = '#f2ece2';
+      lobe(x + 18, 36, 11); // linker Lappen
+      lobe(x + 32, 24, 12); // Scheitellappen
+      lobe(x + 46, 36, 11); // rechter Lappen
+      g.fillRect(x + 19, 34, 26, 20); // Kern und kurze Kämpfer bis zur Sohlbank
+      g.fillStyle = 'rgba(120,70,50,.28)'; // weiche Schattierung in den Bogenzwickeln
+      g.fillRect(x + 19, 48, 26, 6);
+      g.fillStyle = '#f2ece2';
     }
+    g.fillStyle = 'rgba(90,52,38,.5)'; // Schattenfuge unter dem Fries
+    g.fillRect(0, 54, w, 10);
   },
   [1, 1],
 );
@@ -1984,7 +1990,7 @@ for (const zz of [TW.n, TW.s]) {
   {
     const g = new THREE.PlaneGeometry(zR - zL, 0.9);
     const uv = g.attributes.uv;
-    for (let i = 0; i < uv.count; i++) uv.setX(i, (uv.getX(i) * (zR - zL)) / 1.5);
+    for (let i = 0; i < uv.count; i++) uv.setX(i, (uv.getX(i) * (zR - zL)) / 3.6);
     g.rotateY(-Math.PI / 2);
     g.translate(cx - 0.07, 32.4, 0);
     const m = new THREE.Mesh(g, arcFriezeMat);
