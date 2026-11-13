@@ -1284,7 +1284,9 @@ for (let k = 0; k < MT.length - 1; k++) {
   const out = offPoly(MT, 0.7, null, null, true),
     fr = [],
     ap = P(46.3, MT_APEX, -0.1),
-    e0 = P(choirOff(0.7)[1][0] - 0.3, HJ - 0.3, -0.1);
+    xCh = choirOff(0.7)[1][0] - 0.3, // Chorwand: hier stirbt der First
+    fW = P(xCh, MT_APEX, -0.1), // Firstende an der Chorwand – waagerechter First
+    eA = P(xCh, HRC, -0.1); // Anschlusspunkt des Kapellenkranzdachs (gleicher Punkt wie in AMB_ROOF)
   // Rippengewölbe über zwei Jochen (Foto der Marientidenkapelle): die Kappen steigen von den Wänden und vom Gurtbogen
   // zu zwei Scheiteln; vorher war hier eine ebene Decke.
   {
@@ -1397,8 +1399,9 @@ for (let k = 0; k < MT.length - 1; k++) {
   ]) {
     const w = [MT[i0][0], out[i0][1]];
     fr.push([q(w, 21.9), q(out[i2], 21.9), ap]);
-    fr.push([q(w, 21.9), ap, e0]);
-  } // Langseiten, First bis zur Chorwand
+    fr.push([q(w, 21.9), ap, fW]);
+    fr.push([q(w, 21.9), fW, eA]); // Kehle: schließt bündig an das Dach des Kapellenkranzes an
+  } // Langseiten, waagerechter First bis an die Chorwand
   addMesh(polyGeo(fr), roofMat);
 }
 
