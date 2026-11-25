@@ -26,6 +26,66 @@ export let tween = null;
 controls.addEventListener('change', () => {
   requestRender();
 });
+
+/* ---------------- Bildmitte neben der offenen Karte ---------------- */
+
+// Am Computer liegt eine Karte rechts über dem Bild. Damit das, was sie erklärt („Ansehen“), nicht hinter ihr liegt, wandert
+// die Bildmitte in die freie Fläche links daneben – wie Kartenprogramme die Karte neben einem Seitenfenster zentrieren.
+// Technisch: die Kamera rechnet ein um s Bildpunkte breiteres Bild und zeigt davon den rechten Teil (setViewOffset). Der
+// Bildmaßstab bleibt gleich, Drehpunkt und Ansicht bleiben, nur die Mitte rückt um s/2 nach links.
+const VO = { w: 1, h: 1, s: 0, goal: 0, raf: 0 };
+function applyViewOffset() {
+  const { w, h } = VO,
+    s = Math.round(VO.s);
+  camera.aspect = (w + s) / h;
+  if (s > 0) camera.setViewOffset(w + s, h, s, 0, w, h);
+  else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+  requestRender();
+}
+/** Größe der Bühne (Bildpunkte) – ersetzt camera.aspect = w / h */
+export function setViewSize(w, h) {
+  VO.w = Math.max(1, w);
+  VO.h = Math.max(1, h);
+  applyViewOffset();
+  shiftForCard();
+}
+/** Seitenverhältnis des sichtbaren Bildes (camera.aspect gilt bei verschobener Mitte für das breitere Rechenbild) */
+export const viewAspect = () => VO.w / VO.h;
+/** um wie viele Bildpunkte die Bildmitte gerade nach links gerückt ist (mal 2) */
+export const viewShift = () => Math.round(VO.s);
+/** Bildmitte an die offene Karte anpassen (nach Öffnen, Schließen, Ansichtswechsel, Freier Sicht, Größenänderung) */
+export function shiftForCard() {
+  const card = document.querySelector('.card:not([hidden])'),
+    stage = document.getElementById('stage');
+  let goal = 0;
+  if (
+    card &&
+    stage &&
+    !state.pano &&
+    !document.body.classList.contains('mobile') &&
+    !document.body.classList.contains('free')
+  ) {
+    const c = card.getBoundingClientRect(),
+      st = stage.getBoundingClientRect();
+    // nur eine Karte am rechten Rand (auf schmalen Bildschirmen liegt sie als Blatt unten über dem Bild)
+    if (c.width && c.left > st.left + st.width * 0.4) goal = Math.max(0, Math.round(st.right - c.left));
+  }
+  if (goal === VO.goal) return;
+  VO.goal = goal;
+  cancelAnimationFrame(VO.raf);
+  const from = VO.s,
+    t0 = performance.now(),
+    dur = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 320;
+  const step = now => {
+    const k = dur ? Math.min(1, (now - t0) / dur) : 1;
+    VO.s = from + (goal - from) * (1 - Math.pow(1 - k, 3));
+    applyViewOffset();
+    if (k < 1) VO.raf = requestAnimationFrame(step);
+  };
+  if (dur) VO.raf = requestAnimationFrame(step);
+  else step(t0);
+}
 const DR_EYE = HR + 2.4 + 1.65; // Augenhöhe in der Laterne des Dachreiters (Galerieboden 52,0 m, 2,4 m über dem First, nach Fotos)
 export const VIEWS = {
   aussen: { pos: [128, 74, 152], tgt: [2, 24, 0], mode: 'orbit', cut: 60, exp: 0.85 },
@@ -272,9 +332,17 @@ new ResizeObserver(() => {
   requestRender();
 }).observe(document.querySelector('.timebar'));
 // Himmelsrichtungen und Höhenlinien als Overlay
+let noteTimer = 0;
 export function drawPanoGrid() {
-  const svg = $('#panoGrid');
-  $('#panoNote').hidden = !state.pano;
+  const svg = $('#panoGrid'),
+    note = $('#panoNote');
+  // Hinweis zur Projektion beim Wechsel in die Himmelsansicht zeigen und nach 8 s ausblenden
+  if (state.pano && note.hidden) {
+    note.classList.remove('gone');
+    clearTimeout(noteTimer);
+    noteTimer = setTimeout(() => note.classList.add('gone'), 8000);
+  }
+  note.hidden = !state.pano;
   if (!state.pano) {
     svg.setAttribute('hidden', '');
     return;
@@ -679,6 +747,7 @@ export function goView(name, instant) {
     updateLabelsVisibility();
     panoUniforms();
     joyShow();
+    shiftForCard(); // die Himmelsansicht hat ihre eigene Projektion
     requestRender();
     return;
   }
@@ -691,6 +760,7 @@ export function goView(name, instant) {
     .querySelectorAll('#views button')
     .forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === name)));
   state.view = name;
+  shiftForCard();
   {
     const vb = document.querySelector('#views button[data-view="' + name + '"]');
     $('#viewTxt').textContent = vb

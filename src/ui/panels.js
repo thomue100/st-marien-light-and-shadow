@@ -11,7 +11,7 @@ import { applyEnv } from '../model/environment.js';
 import { drawYearChart, sdOrient } from '../model/sundial.js';
 import { buildSunPath } from '../light/sky.js';
 import { updateSun } from '../light/sun.js';
-import { BODY_VIEWS, bodyViewName, drawPanoGrid, goView, hintFor, lookToBody } from '../scene/camera.js';
+import { BODY_VIEWS, bodyViewName, drawPanoGrid, goView, hintFor, lookToBody, shiftForCard } from '../scene/camera.js';
 import { relabel, updateLabelsVisibility } from '../scene/labels.js';
 import { drawChart, drawCompassStatic } from './readouts.js';
 import { buildPresets, goFullMoon, goNewMoon, setAmb, setAxis, setCut, setExp, setPlaying } from './controls.js';
@@ -113,8 +113,15 @@ export function openCard(k) {
     .forEach(b => b.setAttribute('aria-expanded', String(b.dataset.card === k)));
   if (typeof mtSync === 'function') mtSync();
   requestRender(); // Randhinweise für Sonne und Mond weichen der Karte aus
+  shiftForCard(); // Bildmitte in die freie Fläche neben der Karte
   cardShown();
 }
+// Die Ansichtswahl hat eine feste Breite (die Titelleiste springt nicht); lange Namen werden gekürzt und stehen ganz im Tooltip
+new MutationObserver(() => ($('#viewBtn').title = $('#viewTxt').textContent)).observe($('#viewTxt'), {
+  childList: true,
+  characterData: true,
+  subtree: true,
+});
 /** Meldet die gerade sichtbaren Karten (Ereignis „stm-card“), damit sie ihren Inhalt auffrischen. */
 function cardShown() {
   setTimeout(() => {
@@ -129,15 +136,43 @@ document
     b.addEventListener('click', () => openCard(b.getAttribute('aria-expanded') === 'true' ? null : b.dataset.card)),
   );
 document.querySelectorAll('.card .cx').forEach(b => b.addEventListener('click', () => openCard(null)));
-// Aufklappmenüs (Ansicht, besondere Tage): schließen bei Klick daneben und mit Esc
+// Aufklappmenüs (Ansicht, besondere Tage): schließen bei Klick daneben und mit Esc. Tastatur wie bei Menüs üblich
+// (role="menu"): Pfeiltasten wandern durch die Einträge, Pos1/Ende springen an den Anfang und das Ende, Tab schließt.
 function menu(btn, m) {
-  const set = o => {
+  const items = () => [...m.querySelectorAll('button')].filter(b => !b.hidden && b.offsetParent !== null);
+  const set = (o, focus) => {
     m.hidden = !o;
     btn.setAttribute('aria-expanded', String(o));
+    if (o && focus) {
+      const it = items(),
+        cur = it.find(b => b.getAttribute('aria-pressed') === 'true');
+      (focus === 'last' ? it[it.length - 1] : cur || it[0])?.focus();
+    }
   };
   btn.addEventListener('click', e => {
     e.stopPropagation();
-    set(m.hidden);
+    // mit der Tastatur geöffnet (Enter, Leertaste: detail 0): gleich den ersten bzw. gewählten Eintrag fokussieren
+    set(m.hidden, e.detail === 0);
+  });
+  btn.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      set(true, e.key === 'ArrowUp' ? 'last' : 'first');
+    }
+  });
+  m.addEventListener('keydown', e => {
+    const it = items(),
+      k = it.indexOf(document.activeElement);
+    let n = null;
+    if (e.key === 'ArrowDown') n = (k + 1) % it.length;
+    else if (e.key === 'ArrowUp') n = (k - 1 + it.length) % it.length;
+    else if (e.key === 'Home') n = 0;
+    else if (e.key === 'End') n = it.length - 1;
+    else if (e.key === 'Tab') set(false);
+    if (n !== null && it.length) {
+      e.preventDefault();
+      it[n].focus();
+    }
   });
   m.addEventListener('click', e => {
     if (e.target.closest('button')) set(false);
@@ -223,6 +258,7 @@ export function setFree(on) {
     for (const id of ['views', 'presets', 'discMenu', 'moreMenu']) $('#' + id).hidden = true;
     $('#glPop').hidden = true;
   }
+  shiftForCard(); // in der Freien Sicht sind die Karten ausgeblendet
   requestRender();
 }
 $('#freeBtn').addEventListener('click', () => setFree(!document.body.classList.contains('free')));

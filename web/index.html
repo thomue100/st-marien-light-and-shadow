@@ -8,8 +8,8 @@
       content="Interaktives 3D-Modell von St. Marien zu Lübeck: Sonne, Mond, Sonnenuhr und Astronomische Uhr zu jeder Stunde des Jahres."
     />
     <title>St. Marien – Licht und Schatten</title>
-    <script type="module" crossorigin src="./assets/index-BUoIwLLd.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-CeA5ENu2.css">
+    <script type="module" crossorigin src="./assets/index-C-kbmt5V.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-LkkWxFsV.css">
     <link rel="manifest" href="manifest.webmanifest" crossorigin="use-credentials">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#9b3a26">
@@ -38,6 +38,19 @@
           <span class="h1a" data-en="St. Mary's">St. Marien</span>
           <span class="h1b" data-en="Light and Shadow">Licht und Schatten</span>
         </h1>
+        <button
+          class="homebtn"
+          id="homeBtn"
+          aria-label="Neu beginnen: heute, jetzt, Außenansicht"
+          data-en-aria="Start again: today, now, outside view"
+          title="Neu beginnen: heute, jetzt, Außenansicht"
+          data-en-title="Start again: today, now, outside view"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 11l8-7 8 7" />
+            <path d="M6 10v9h12v-9" />
+          </svg>
+        </button>
         <div class="mwrap">
           <button
             class="mbtn"
@@ -57,52 +70,49 @@
           </button>
           <div class="dmenu" id="discMenu" role="menu" hidden>
             <button id="tourBtn" role="menuitem">
-              <span class="dnum" aria-hidden="true">8</span
+              <svg class="dico" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="6" cy="18" r="2.2" />
+                <circle cx="18" cy="6" r="2.2" />
+                <path d="M8 17.2c4-1 2.5-5.6 6-6.4 2-.4 2.6-2 2.8-3" /></svg
               ><span class="dtxt"
                 ><b data-en="Guided tour">Rundgang</b
                 ><span data-en="8 stations through church and year">8 Stationen durch Kirche und Jahr</span></span
               >
             </button>
             <button id="quizBtn" role="menuitem">
-              <span class="dnum" aria-hidden="true">5</span
+              <svg class="dico" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.5v.6" />
+                <path d="M12 16.8v.4" /></svg
               ><span class="dtxt"
                 ><b data-en="Quiz">Quiz</b
                 ><span data-en="5 tasks, solved in the model">5 Aufgaben, im Modell zu lösen</span></span
               >
             </button>
             <button data-card="exp" role="menuitem" aria-expanded="false">
-              <span class="dnum" aria-hidden="true">4</span
+              <svg class="dico" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9.5 3h5M10.5 3v6L5 19a1.5 1.5 0 0 0 1.3 2h11.4a1.5 1.5 0 0 0 1.3-2l-5.5-10V3" />
+                <path d="M7.5 15h9" /></svg
               ><span class="dtxt"
                 ><b data-en="Experiments">Experimente</b
-                ><span data-en="Shadows, equation of time, light calendar, clock"
-                  >Schatten, Zeitgleichung, Lichtkalender, Uhr</span
+                ><span data-en="5 experiments: shadows, sundial, light calendar, clock, moon between the towers"
+                  >5 Experimente: Schatten, Sonnenuhr, Lichtkalender, Uhr, Mond zwischen den Türmen</span
                 ></span
               >
             </button>
           </div>
         </div>
         <div class="viewpick">
-          <button
-            class="homebtn"
-            id="homeBtn"
-            aria-label="Zurück zum Start"
-            data-en-aria="Back to start"
-            title="Zurück zum Start"
-            data-en-title="Back to start"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 11l8-7 8 7" />
-              <path d="M6 10v9h12v-9" />
-            </svg>
-          </button>
           <button class="vbtn" id="viewBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="views">
-            <span class="vlab" data-en="View">Ansicht</span> <span id="viewTxt">Aufgeschnitten</span>
+            <span class="vlab" data-en="View">Ansicht</span> <span id="viewTxt">Außen</span>
             <svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" /></svg>
           </button>
           <div class="vmenu" id="views" role="menu" hidden>
             <div class="vcol">
               <p class="vgroup" data-en="Outside">Außen</p>
               <button data-view="aussen" role="menuitem" data-en="Outside">Außen</button>
+              <button data-view="puppe" role="menuitem" data-en="Cut-away">Aufgeschnitten</button>
+              <button data-view="sonnenuhr" role="menuitem" data-en="Sundial">Sonnenuhr</button>
               <button data-view="westseite" role="menuitem" data-en="West front">Westseite</button>
               <button data-view="sued" role="menuitem" data-en="South side">Südseite</button>
               <button data-view="nord" role="menuitem" data-en="North side">Nordseite</button>
@@ -124,13 +134,12 @@
               <button data-view="dachreiter" role="menuitem" data-en="On the ridge turret">Auf dem Dachreiter</button>
             </div>
             <div class="vcol">
-              <p class="vgroup" data-en="Sky and special">Himmel und Besonderes</p>
+              <p class="vgroup" data-en="Sky">Himmel</p>
               <button data-view="himmel" role="menuitem" data-en="Sky: paths of sun and moon">
                 Himmel: Sonnen- und Mondbahn
               </button>
               <button data-view="zurSonne" role="menuitem" data-en="Looking at the sun">Blick zur Sonne</button>
               <button data-view="zumMond" role="menuitem" data-en="Looking at the moon">Blick zum Mond</button>
-              <button data-view="puppe" role="menuitem" data-en="Cut-away">Aufgeschnitten</button>
             </div>
           </div>
         </div>
@@ -419,18 +428,18 @@
         <button class="mdgo" data-go="views">
           <span
             ><b data-en="All views">Alle Ansichten</b
-            ><span data-en="21 views outside, inside and into the sky – light and shadow at any time"
-              >21 Blicke außen, innen und in den Himmel – Licht und Schatten zu jeder Zeit</span
+            ><span data-en="22 views outside, inside and into the sky – light and shadow at any time"
+              >22 Blicke außen, innen und in den Himmel – Licht und Schatten zu jeder Zeit</span
             ></span
           ><svg class="chv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
         </button>
         <p class="mdgrp" data-en="On a computer">Am Computer</p>
         <p
           class="mdpc"
-          data-en="Quiz, four experiments, the light calendar of the windows, the moon between the towers (for photographers) and the astronomical clock in detail."
+          data-en="The quiz, five experiments – among them the light calendar of the windows and the moon between the towers (for photographers) – and the astronomical clock in detail."
         >
-          Quiz, vier Experimente, der Lichtkalender der Fenster, der Mond zwischen den Türmen (für Fotografen) und die
-          Astronomische Uhr im Detail.
+          Das Quiz, fünf Experimente – darunter der Lichtkalender der Fenster und der Mond zwischen den Türmen (für
+          Fotografen) – und die Astronomische Uhr im Detail.
         </p>
         <button class="btn msend" id="sendLink" data-en="Send me the link">Link an mich senden</button>
         <p class="small" data-en="The link opens the same day and time on the computer.">
@@ -1552,11 +1561,11 @@
           >
           <div class="pp">
             <button class="chip" id="presetBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="presets">
-              <span class="pl" data-en="Special ">Besondere </span><span data-en="days ▾">Tage ▾</span>
+              <span class="pl" data-en="Special ">Besondere </span><span data-en="days">Tage</span
+              ><svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 7.5L6 4l3.5 3.5" /></svg>
             </button>
             <div class="pmenu" id="presets" role="menu" hidden></div>
           </div>
-          <button class="chip" id="nowBtn" data-en="Now">Jetzt</button>
           <p class="tb-sum" id="sumLine">–</p>
         </div>
         <div class="tb-main">
@@ -1571,6 +1580,7 @@
               data-en-aria="Date (1911–2080)"
             />
             <button class="chip dstep" id="dayNext" aria-label="Einen Tag vor" data-en-aria="One day forward">›</button>
+            <button class="chip" id="nowBtn" data-en="Now">Jetzt</button>
           </div>
           <button class="btn" id="play" aria-label="Tagesverlauf abspielen" data-en-aria="Play the day">
             <svg viewBox="0 0 12 12" id="playIcon"><path d="M2 1l9 5-9 5z" /></svg
@@ -1585,6 +1595,9 @@
             ></svg>
             <input type="range" id="time" min="0" max="1439" step="1" aria-label="Uhrzeit" data-en-aria="Time" />
           </div>
+          <div class="tb-clock">
+            <output id="timeOut">12:00</output><span class="small" id="tzName" data-gl="tz">MEZ</span>
+          </div>
           <button class="chip skychip" id="sunChip">
             <svg viewBox="0 0 24 24" aria-hidden="true" class="sc-sun">
               <circle cx="12" cy="12" r="4" />
@@ -1593,21 +1606,18 @@
             <span id="sunChipTxt">–</span>
           </button>
           <button class="chip skychip" id="moonChip">
-            <svg viewBox="0 0 24 24" aria-hidden="true" class="sc-moon">
-              <path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z" />
+            <svg viewBox="-50 -50 100 100" aria-hidden="true" class="sc-moon" id="moonChipIco">
+              <circle class="mdisk" r="40" />
             </svg>
-            <span id="moonChipTxt">–</span><span class="mpct" id="moonChipPct"></span>
+            <span id="moonChipTxt">–</span>
           </button>
-          <div class="tb-clock">
-            <output id="timeOut">12:00</output><span class="small" id="tzName" data-gl="tz">MEZ</span>
-          </div>
           <button
             class="chip tbfold"
             id="tbFold"
             aria-expanded="false"
             aria-controls="tbMore"
-            aria-label="Weitere Zeiteinstellungen: Tempo, besondere Tage, Jetzt"
-            data-en-aria="More time settings: speed, special days, now"
+            aria-label="Weitere Zeiteinstellungen: Tempo, besondere Tage"
+            data-en-aria="More time settings: speed, special days"
           >
             <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 7.5L6 4l3.5 3.5" /></svg>
           </button>
