@@ -2,7 +2,7 @@
 // Blickwinkel, eine Startseite, „In 3 Schritten erklärt“ und eine Seite „Mehr am Computer“. Alles andere bleibt dem
 // Desktop vorbehalten („Link an mich senden“ öffnet denselben Moment am Computer).
 import './share.js'; // Aufbau-Reihenfolge: nach ui/share
-import { dstInfo, localToUtc, LON, sunPos } from '../astro/index.js';
+import { berlinNow, dstInfo, localToUtc, LON, sunPos } from '../astro/index.js';
 import { $, lsGet, lsSet } from '../core/util.js';
 import { PHONE } from '../data.js';
 import { fmtT, LANG, tr, tzN } from '../core/i18n.js';
@@ -36,6 +36,11 @@ function fmtDur(min) {
   if (LANG === 'en') return (h ? h + ' h ' : '') + (m || !h ? m + ' min' : '');
   return (h ? h + ' Std. ' : '') + (m || !h ? m + ' Min.' : '');
 }
+/** Ist gerade der jetzige Augenblick eingestellt? Nur dann ist die Uhrzeit wirklich „Ihre Uhr“. */
+function isNowSet() {
+  const n = berlinNow();
+  return n.y === state.y && n.m === state.m && n.d === state.d && Math.abs(n.minutes - state.minutes) <= 2;
+}
 function sdRead(ok) {
   if (!isPhone()) return;
   const di = dstInfo(state.y, state.m, state.d, state.minutes),
@@ -49,13 +54,16 @@ function sdRead(ok) {
   let t;
   if (ok && useMoon) t = tr('Im Mondlicht zeigt die Uhr die Mondzeit.', 'In moonlight the dial shows lunar time.');
   else if (ok) {
-    const d = di.loc - sd.show * 60;
+    const d = di.loc - sd.show * 60,
+      now = isNowSet(),
+      who = now ? 'Ihre Uhr' : 'Die Uhr',
+      whoEn = now ? 'Your clock' : 'The clock';
     t =
       Math.abs(d) < 0.5
         ? tr('Beide zeigen dieselbe Zeit.', 'Both show the same time.')
         : d > 0
-          ? tr('Ihre Uhr geht ' + fmtDur(d) + ' vor.', 'Your clock is ' + fmtDur(d) + ' ahead.')
-          : tr('Ihre Uhr geht ' + fmtDur(d) + ' nach.', 'Your clock is ' + fmtDur(d) + ' behind.');
+          ? tr(who + ' geht ' + fmtDur(d) + ' vor.', whoEn + ' is ' + fmtDur(d) + ' ahead.')
+          : tr(who + ' geht ' + fmtDur(d) + ' nach.', whoEn + ' is ' + fmtDur(d) + ' behind.');
   } else
     t =
       cur.el <= 0 && !useMoon
@@ -94,7 +102,12 @@ export function syncViews() {
   // Sonnenuhr-Werte nur, wo man die Sonnenuhr sieht (Zifferblatt, Kirche); sonst nur Datum und Uhrzeit
   const sdCtx = !state.pano && (state.view === 'sonnenuhr' || state.view === 'sued');
   body.classList.toggle('mp-sd', sdCtx);
-  $('#mpClockLbl').textContent = sdCtx ? tr('Ihre Uhr', 'Your clock') : tr('Uhrzeit', 'Time');
+  // „Ihre Uhr“ nur, wenn jetzt eingestellt ist; sonst die Uhrzeit des gewählten Tages (Startseite: 21. Juni)
+  $('#mpClockLbl').textContent =
+    sdCtx && isNowSet()
+      ? tr('Ihre Uhr', 'Your clock')
+      : tr('Uhrzeit am ', 'Time on ') +
+        (LANG === 'en' ? state.d + '/' + (state.m + 1) : state.d + '.' + (state.m + 1) + '.');
   for (const b of document.querySelectorAll('#mviews button'))
     b.setAttribute(
       'aria-pressed',

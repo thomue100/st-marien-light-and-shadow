@@ -33,6 +33,7 @@ import {
   keyMove,
   keys,
   panoCam,
+  setViewSize,
   panoMarks,
   panoScene,
   panoUniforms,
@@ -52,9 +53,7 @@ function resize() {
   const w = stage.clientWidth || innerWidth,
     h = stage.clientHeight || innerHeight;
   renderer.setSize(w, h, false);
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
-  requestRender();
+  setViewSize(w, h); // Seitenverhältnis, Bildmitte neben einer offenen Karte
 }
 new ResizeObserver(resize).observe(stage);
 new ResizeObserver(() => {
@@ -166,7 +165,8 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => sdDr
 resize();
 computeDay();
 updateSun(true);
-goView('sonnenuhr', true); // Start an der Sonnenuhr
+// Start: am Computer die ganze Kirche mit ihrem Schatten über der Stadt, auf dem Handy die Sonnenuhr
+goView(isPhone() ? 'sonnenuhr' : 'aussen', true);
 const fromLink = applyCode(location.hash);
 await step(tr('Darstellung wird vorbereitet', 'Preparing the display'), 94);
 setExpReady(true);

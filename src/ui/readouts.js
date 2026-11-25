@@ -200,20 +200,26 @@ export function updateReadouts() {
           ? tr('Sonne ', 'Sun ') + fmtDeg(cur.el) + ' ' + dirName(cur.az)
           : tr('Sonne unter dem Horizont', 'Sun below the horizon');
     // Sonne und Mond als antippbare Werte (führen zum Blick dorthin), die Fensterzahl in der zweiten Zeile.
-    // Feste Stellen (Festbreitenschrift, Leerzeichen bleiben stehen): Grad rechtsbündig 6, Richtung 3, Prozent 3 –
-    // so springt beim Abspielen nichts hin und her
-    const deg = el => fmtDeg(el).padStart(6),
-      dir = (el, az) => (el > 0 ? dirName(az) : '').padEnd(3),
-      mt = state.moon && m ? fmtDeg(m.el) + (m.el > 0 ? ' ' + dirName(m.az) : '') : '',
-      mp = state.moon && m ? ' · ' + Math.round(m.k * 100) + ' %' : '';
+    // In Worten statt nur Zahlen: „55,8° hoch · SW“; der Mond zeigt seine Phase als Symbol. Feste Stellen
+    // (Festbreitenschrift, Leerzeichen bleiben stehen): Grad rechtsbündig 5 – so springt beim Abspielen nichts hin und her
+    const deg = el => fmtDeg(el).padStart(5),
+      high = el => deg(el) + tr(' hoch', ' high'),
+      up = state.moon && m && m.el > -0.3,
+      pct = m ? Math.round(m.k * 100) + tr(' % beleuchtet', ' % lit') : '';
     $('#sunChipTxt').textContent =
-      cur.el > -0.3 ? deg(cur.el) + ' ' + dirName(cur.az).padEnd(3) : tr('unter dem Horizont', 'below horizon');
+      cur.el > -0.3 ? high(cur.el) + ' · ' + dirName(cur.az) : tr('unter dem Horizont', 'below the horizon');
     $('#sunChip').title = sp + (cur.el > -1 ? tr(' – zur Sonne blicken', ' – look at the sun') : '');
-    $('#moonChip').hidden = !mt;
-    $('#moonChipTxt').textContent = mt ? deg(m.el) + ' ' + dir(m.el, m.az) : '';
-    $('#moonChipPct').textContent = mt ? ' · ' + String(Math.round(m.k * 100)).padStart(3) + ' %' : '';
-    $('#moonChip').title =
-      tr('Mond ', 'Moon ') + mt + mp + (m && m.el > -1 ? tr(' – zum Mond blicken', ' – look at the moon') : '');
+    $('#moonChip').hidden = !(state.moon && m);
+    if (state.moon && m) {
+      $('#moonChipTxt').textContent = up
+        ? high(m.el) + ' · ' + dirName(m.az)
+        : tr('unter dem Horizont', 'below the horizon');
+      $('#moonChipIco').innerHTML = moonIconSvg(m.k, m.waxing);
+      const mt = up
+        ? tr('Mond ', 'Moon ') + fmtDeg(m.el) + tr(' hoch im ', ' high in the ') + dirName(m.az)
+        : tr('Mond unter dem Horizont', 'Moon below the horizon');
+      $('#moonChip').title = mt + ', ' + pct + (m.el > -1 ? tr(' – zum Mond blicken', ' – look at the moon') : '');
+    }
     $('#sumLine').textContent =
       (useMoon ? tr('im Mondlicht ', 'in moonlight ') : tr('besonnt ', 'sunlit ')) +
       String(cur.el > 0 || useMoon ? litCount : 0).padStart(2) + // feste Stellen

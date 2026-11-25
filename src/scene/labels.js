@@ -12,7 +12,7 @@ import { CLK } from '../model/clock.js';
 import { SD, sdX, sdZ } from '../model/sundial.js';
 import { moonCur } from '../light/sun.js';
 import { LM } from '../light/sky.js';
-import { lookToBody, tween } from './camera.js';
+import { lookToBody, tween, viewAspect, viewShift } from './camera.js';
 
 /* ---------------- Beschriftungen ---------------- */
 
@@ -81,7 +81,9 @@ export function placeLabels() {
       l.w = l.el.offsetWidth || 80;
       l.h = l.el.offsetHeight || 18;
     }
-    const b = [x - l.w / 2 - 3, y - l.h - 2, x + l.w / 2 + 3, y + 2];
+    // mit Luft ringsum: dicht beieinander stehende Namen werden ausgedünnt statt zu einem Knäuel (die Liste ist nach
+    // Wichtigkeit geordnet, die vorderen bleiben)
+    const b = [x - l.w / 2 - 8, y - l.h - 6, x + l.w / 2 + 8, y + 6];
     if (boxes.some(o => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1])) {
       l.el.style.display = 'none';
       continue;
@@ -171,13 +173,14 @@ export function placeSkyMarks() {
     }
     md.copy(moon ? LM : L).transformDirection(camera.matrixWorldInverse); // Richtung im Kamerabild: x rechts, y oben, -z vorn
     const fy = Math.tan((camera.fov * rad) / 2),
-      fx = fy * camera.aspect;
+      fx = fy * viewAspect(),
+      off = viewShift() / W; // Bildmitte neben einer offenen Karte: um off (Bildbreiten) nach links
     let sx = md.x / fx,
       sy = md.y / fy;
     if (md.z < 0) {
       sx /= -md.z;
       sy /= -md.z;
-      if (Math.abs(sx) < 0.97 && Math.abs(sy) < 0.97) {
+      if (Math.abs(sx - off) < 0.97 && Math.abs(sy) < 0.97) {
         m.el.hidden = true; // im Bild
         continue;
       }
@@ -187,7 +190,7 @@ export function placeSkyMarks() {
     if (Math.hypot(dx, dy) < 1e-6) dx = 1; // genau hinter der Kamera: nach rechts zeigen
     area = area || freeArea(W, H);
     const [l, t, r, b] = area.box,
-      cx = W / 2,
+      cx = (W * (1 - off)) / 2, // Pfeile gehen von der Bildmitte aus
       cy = H / 2;
     let k = Infinity;
     if (dx > 0) k = Math.min(k, (r - cx) / dx);
