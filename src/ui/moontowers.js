@@ -11,7 +11,7 @@ import { occluders } from '../model/geometry.js';
 import { T_GTIP, T_HELM } from '../model/church.js';
 import { ENV, envG, envH, envHeightAt, envSample } from '../model/environment.js';
 import { rc } from '../light/windows.js';
-import { busyHide, busyShow, busyText, goView, tween, VIEWS } from '../scene/camera.js';
+import { busyHide, busyShow, busyText, goView, tween, viewAspect, VIEWS } from '../scene/camera.js';
 import { MON_EN, WD, WD_EN } from './readouts.js';
 import { DATE_MAX, DATE_MIN, gotoInstant, setPlaying } from './controls.js';
 import { openCard } from './panels.js';
@@ -76,7 +76,7 @@ export function mtSync() {
   if (!on) return;
   const W = renderer.domElement.clientWidth || 800,
     v = VIEWS.mtTop,
-    mpp = v && state.view === 'mtTop' ? (2 * v.pos[1] * Math.tan(27.5 * rad) * camera.aspect) / W : MZT.dist * 0.002; // Meter je Bildpunkt in der Draufsicht
+    mpp = v && state.view === 'mtTop' ? (2 * v.pos[1] * Math.tan(27.5 * rad) * viewAspect()) / W : MZT.dist * 0.002; // Meter je Bildpunkt in der Draufsicht
   const O = mtObs(),
     sc = Math.max(4, mpp * 11);
   MZT.pin.position.set(O.x, O.y + 0.5, 0);

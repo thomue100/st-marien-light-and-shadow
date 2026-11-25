@@ -40,7 +40,9 @@ test('Ablesen: Sonnenuhr und Uhr, drei Blickwinkel, Schnellwahl', async ({ page 
   await expect(page.locator('#mpClock')).toHaveText('10:49');
   await expect(page.locator('#mpTz')).toHaveText('MESZ');
   await expect(page.locator('#mpShow')).toHaveText(/^09:3\d$/);
-  await expect(page.locator('#mpDiff')).toHaveText(/^Ihre Uhr geht 1 Std\. 1\d Min\. vor\.$/);
+  // nicht der jetzige Augenblick: „Die Uhr“ und das Datum statt „Ihre Uhr“
+  await expect(page.locator('#mpDiff')).toHaveText(/^Die Uhr geht 1 Std\. 1\d Min\. vor\.$/);
+  await expect(page.locator('#mpClockLbl')).toHaveText('Uhrzeit am 10.5.');
 
   // Kirche: keine Beschriftungen, keine Randhinweise
   await page.locator('#mviews [data-mv="sued"]').tap();

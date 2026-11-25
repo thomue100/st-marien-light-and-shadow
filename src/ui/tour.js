@@ -363,6 +363,10 @@ $('#tourPrev').addEventListener('click', () => {
   if (tour.i > 0) tourGo(tour.i - 1);
 });
 $('#tourEnd').addEventListener('click', tourEnd);
+// „Entdecken“ bietet dasselbe wie die Begrüßung: die Begrüßung schließen, damit das Menü nicht über ihr liegt
+$('#discBtn').addEventListener('click', () => {
+  if (tour.i === -1) tourEnd();
+});
 $('#tourBtn').addEventListener('click', () => {
   if (quiz.i !== null) quizEnd();
   tourGo(0);
@@ -378,7 +382,7 @@ $('#homeBtn').addEventListener('click', () => {
     sp = sunPos(localToUtc(n.y, n.m, n.d, n.minutes));
   state.minutes = sp.el > 3 ? n.minutes : 12 * 60 + 30;
   setDate(n.y, n.m, n.d);
-  goView('sued');
+  goView('aussen'); // dieselbe Ansicht wie beim Start
   if (document.body.classList.contains('mobile')) tourGo(-1); // Handy: zurück zur Startseite
 });
 {
@@ -409,7 +413,7 @@ function setTbOpen(o) {
     'aria-label',
     o
       ? tr('Weitere Zeiteinstellungen ausblenden', 'Hide more time settings')
-      : tr('Weitere Zeiteinstellungen: Tempo, besondere Tage, Jetzt', 'More time settings: speed, special days, now'),
+      : tr('Weitere Zeiteinstellungen: Tempo, besondere Tage', 'More time settings: speed, special days'),
   );
   lsSet('stm-tbopen', o ? '1' : '0');
 }

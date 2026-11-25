@@ -192,8 +192,9 @@ test('Zeitleiste: zweite Zeile aufklappen, Sonne und Mond antippen', async ({ pa
   await expect(page.locator('#sumLine')).toHaveText(/besonnt \d+ \/ 73 Fenster/);
   await page.locator('#tbFold').click();
   await expect(page.locator('#tbMore')).toBeHidden();
-  await expect(page.locator('#sunChip')).toHaveText('55,8° SW');
-  await expect(page.locator('#moonChip')).toHaveText('13,9° OSO · 46 %');
+  await expect(page.locator('#sunChip')).toHaveText('55,8° hoch · SW');
+  await expect(page.locator('#moonChip')).toHaveText('13,9° hoch · OSO');
+  await expect(page.locator('#moonChip')).toHaveAttribute('title', /46 % beleuchtet/);
   await page.locator('#sunChip').click();
   await waitCameraStill(page);
   await expect(page.locator('#viewTxt')).toHaveText('Blick zur Sonne');
